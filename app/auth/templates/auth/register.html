@@ -1,0 +1,117 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Create Account - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">Staff Onboarding</h2>
+            <p class="text-muted mb-0">Provision a new medical or administrative account.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('auth.list_users') }}" class="btn btn-white border shadow-sm btn-sm px-3">
+                <i class="fa fa-arrow-left me-2"></i> Back to Team Registry
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm p-4">
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="row g-4">
+                            <div class="col-md-12">
+                                <label class="form-label small fw-bold text-muted">Full Legal Name</label>
+                                {{ form.name(class="form-control bg-light border-0", placeholder="e.g. Dr. John Doe") }}
+                                {% for error in form.name.errors %}
+                                <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i> {{
+                                    error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label small fw-bold text-muted">Institutional Email</label>
+                                {{ form.email(class="form-control bg-light border-0", placeholder="name@hospital.com")
+                                }}
+                                {% for error in form.email.errors %}
+                                <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i> {{
+                                    error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Initial Password</label>
+                                {{ form.password(class="form-control bg-light border-0", placeholder="••••••••") }}
+                                {% for error in form.password.errors %}
+                                <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i> {{
+                                    error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Confirm Identity</label>
+                                {{ form.confirm_password(class="form-control bg-light border-0", placeholder="••••••••")
+                                }}
+                                {% for error in form.confirm_password.errors %}
+                                <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i> {{
+                                    error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label small fw-bold text-muted">System Assignment (Role)</label>
+                                {{ form.role_id(
+                                    class="form-select bg-light border-0 searchable-select",
+                                    data_placeholder=_('Select role'),
+                                    data_allow_clear="true"
+                                ) }}
+                                {% for error in form.role_id.errors %}
+                                <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i> {{
+                                    error }}</div>
+                                {% endfor %}
+                                <div class="form-text small opacity-50 mt-2">
+                                    <i class="fa fa-shield-halved me-1"></i> Proper role selection ensures patients data
+                                    security.
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mt-5">
+                                <button type="submit" class="btn btn-primary w-100 py-3 shadow fw-bold">
+                                    Initialize Staff Account <i class="fa fa-check-circle ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-5 offset-xl-1 d-none d-xl-block">
+            <div class="p-4 border-start border-4 border-primary">
+                <h5 class="fw-bold mb-3">Onboarding Security</h5>
+                <p class="text-muted small lh-lg">
+                    When creating a new staff account, please ensure the following:
+                </p>
+                <ul class="text-muted small ps-3">
+                    <li class="mb-2">Verify the staff member's legal identification.</li>
+                    <li class="mb-2">Assign the **minimum required access** for their specific job function.</li>
+                    <li class="mb-2">Institutional emails are preferred for audit and compliance reasons.</li>
+                    <li class="mb-2">The user will be prompted to change their password upon first login (optional
+                        policy).</li>
+                </ul>
+
+                <div class="alert alert-info border-0 bg-info-soft mt-5">
+                    <h6 class="fw-bold mb-1"><i class="fa fa-info-circle me-2"></i> System Audit</h6>
+                    <p class="small mb-0">Every account creation is logged with the administrator's ID and timestamp for
+                        regulatory compliance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

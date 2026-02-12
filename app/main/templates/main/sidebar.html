@@ -1,0 +1,91 @@
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="bg-primary text-white rounded-3 d-flex align-items-center justify-content-center"
+      style="width: 35px; height: 35px;">
+      <i class="fa fa-notes-medical"></i>
+    </div>
+    <span>Rays HMS</span>
+  </div>
+
+  <div class="sidebar-menu">
+    <a href="{{ url_for('main.dashboard') }}" class="{{ 'active' if request.endpoint == 'main.dashboard' }}">
+      <i class="fa fa-chart-pie"></i> <span>{{ _('Insights') }}</span>
+    </a>
+
+    <div class="px-4 py-2 mt-4 mb-1 small text-uppercase text-white-50 opacity-25"
+      style="letter-spacing: 1px; font-size: 0.65rem;">{{ _('Medical Center') }}</div>
+
+    {% if current_user.has_permission('view_patients') %}
+    <a href="{{ url_for('patients.index') }}" class="{{ 'active' if 'patients.' in (request.endpoint or '') }}">
+      <i class="fa fa-hospital-user"></i> <span>{{ _('Patients') }}</span>
+    </a>
+    {% endif %}
+
+    {% if current_user.has_permission('view_doctors') %}
+    <a href="{{ url_for('doctors.index') }}" class="{{ 'active' if 'doctors.' in (request.endpoint or '') }}">
+      <i class="fa fa-user-md"></i> <span>{{ _('Medical Staff') }}</span>
+    </a>
+    {% endif %}
+
+    {% if current_user.has_permission('view_appointments') %}
+    <a href="{{ url_for('appointments.index') }}" class="{{ 'active' if 'appointments.' in (request.endpoint or '') }}">
+      <i class="fa fa-calendar-alt"></i> <span>{{ _('Schedules') }}</span>
+    </a>
+    {% endif %}
+
+    {% if current_user.has_permission('view_appointments') %}
+    <a href="{{ url_for('lab.index') }}" class="{{ 'active' if 'lab.' in (request.endpoint or '') }}">
+      <i class="fa fa-vials"></i> <span>{{ _('Laboratory') }}</span>
+    </a>
+    {% endif %}
+
+    <div class="px-4 py-2 mt-4 mb-1 small text-uppercase text-white-50 opacity-25"
+      style="letter-spacing: 1px; font-size: 0.65rem;">{{ _('Management') }}</div>
+
+    {% if current_user.has_permission('view_inventory') %}
+    <a href="{{ url_for('inventory.index') }}" class="{{ 'active' if 'inventory.' in (request.endpoint or '') }}">
+      <i class="fa fa-pills"></i> <span>{{ _('Catalog') }}</span>
+    </a>
+    {% endif %}
+
+    {% if current_user.has_permission('view_sales') %}
+    <a href="{{ url_for('sales.pos') }}" class="{{ 'active' if request.endpoint == 'sales.pos' }}">
+      <i class="fa fa-cash-register"></i> <span>{{ _('Sales') }}</span>
+    </a>
+    <a href="{{ url_for('sales.list_sales') }}" class="{{ 'active' if request.endpoint == 'sales.list_sales' }}">
+      <i class="fa fa-history"></i> <span>{{ _('Sales History') }}</span>
+    </a>
+    {% endif %}
+
+    {% if current_user.has_permission('view_billing') %}
+    <a href="{{ url_for('billing.index') }}" class="{{ 'active' if 'billing.' in (request.endpoint or '') }}">
+      <i class="fa fa-file-invoice-dollar"></i> <span>{{ _('Patient Invoices') }}</span>
+    </a>
+    {% endif %}
+
+    {% if current_user.has_permission('view_reports') %}
+    <a href="{{ url_for('accounting.dashboard') }}" class="{{ 'active' if 'accounting.' in (request.endpoint or '') }}">
+      <i class="fa fa-calculator"></i> <span>{{ _('Accounting') }}</span>
+    </a>
+    {% endif %}
+
+    <div class="px-4 py-2 mt-4 mb-1 small text-uppercase text-white-50 opacity-25"
+      style="letter-spacing: 1px; font-size: 0.65rem;">{{ _('System') }}</div>
+
+    {% if current_user.has_permission('manage_users') %}
+    <a href="{{ url_for('auth.list_users') }}" class="{{ 'active' if 'auth.list_users' in (request.endpoint or '') }}">
+      <i class="fa fa-shield-alt"></i> <span>{{ _('Security') }}</span>
+    </a>
+    <a href="{{ url_for('auth.list_roles') }}" class="{{ 'active' if 'auth.list_roles' in (request.endpoint or '') }}">
+      <i class="fa fa-user-tag"></i> <span>{{ _('Roles & Permissions') }}</span>
+    </a>
+    <a href="{{ url_for('settings.index') }}" class="{{ 'active' if 'settings.' in (request.endpoint or '') }}">
+      <i class="fa fa-sliders-h"></i> <span>{{ _('Settings') }}</span>
+    </a>
+    {% endif %}
+
+    <a href="{{ url_for('auth.logout') }}" class="mt-5 text-danger opacity-75">
+      <i class="fa fa-power-off"></i> <span>{{ _('End Session') }}</span>
+    </a>
+  </div>
+</aside>

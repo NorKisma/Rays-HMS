@@ -1,0 +1,152 @@
+{% extends "main/base.html" %}
+
+{% block title %}Modify Access - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">Modify Access Rights</h2>
+            <p class="text-muted mb-0">Adjust permissions and credentials for <span class="text-primary fw-bold">{{
+                    user.name }}</span>.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('auth.list_users') }}" class="btn btn-white border shadow-sm btn-sm px-3">
+                <i class="fa fa-arrow-left me-2"></i> Return to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-7">
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h6 class="mb-0 fw-bold">Credential Configuration</h6>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('auth.edit_user', user_id=user.id) }}">
+                        {{ form.hidden_tag() }}
+
+                        <div class="row g-4">
+                            <!-- Basic Identity -->
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted text-uppercase"
+                                    style="font-size: 0.65rem;">Full Name</label>
+                                {{ form.name(class="form-control bg-light border-0", placeholder="Full Name") }}
+                                {% for error in form.name.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted text-uppercase"
+                                    style="font-size: 0.65rem;">System Email</label>
+                                {{ form.email(class="form-control bg-light border-0", placeholder="Email") }}
+                                {% for error in form.email.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Role & Assignment -->
+                            <div class="col-md-12 mt-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase"
+                                    style="font-size: 0.65rem;">Assigned Role</label>
+                                {{ form.role_id(
+                                    class="form-select bg-light border-0 searchable-select",
+                                    data_placeholder=_('Select role'),
+                                    data_allow_clear="true"
+                                ) }}
+                                {% for error in form.role_id.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text small opacity-50 mt-2">Changing a user's role immediately updates
+                                    their dashboard and permissions.</div>
+                            </div>
+
+                            <!-- Status Toggle -->
+                            <div class="col-md-12 mt-4">
+                                <div class="p-3 bg-light rounded-3 d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <h6 class="mb-0 fw-bold small">Account Active Status</h6>
+                                        <p class="text-muted small mb-0">Deactivated users cannot log into the system.
+                                        </p>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        {{ form.is_active(class="form-check-input", style="width: 2.5rem; height:
+                                        1.25rem;") }}
+                                    </div>
+                                </div>
+                                {% for error in form.is_active.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Emergency Override -->
+                            <div class="col-md-12 mt-4 pt-3 border-top">
+                                <label class="form-label small fw-bold text-danger text-uppercase"
+                                    style="font-size: 0.65rem;">Security Override (Password)</label>
+                                {{ form.password_hash(class="form-control bg-light border-0", placeholder="Leave blank
+                                to keep current password", autocomplete="new-password") }}
+                                <div class="form-text small text-danger mt-1">
+                                    <i class="fa fa-warning me-1"></i> Only enter text here if you want to force a
+                                    manual password reset.
+                                </div>
+                                {% for error in form.password_hash.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-12 mt-5">
+                                <button type="submit" class="btn btn-primary px-5 py-2 shadow-sm rounded-pill fw-bold">
+                                    Apply Configuration Changes
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Info -->
+        <div class="col-xl-4 offset-xl-1">
+            <div class="card border-0 bg-navy text-white shadow-sm p-4 overflow-hidden position-relative">
+                <div class="position-absolute end-0 bottom-0 opacity-10"
+                    style="transform: translate(20%, 20%); font-size: 10rem;">
+                    <i class="fa fa-shield-alt"></i>
+                </div>
+                <div class="card-body position-relative z-1">
+                    <h5 class="fw-bold mb-4">Security Record</h5>
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="avatar-sm bg-white-10 text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                            style="width: 48px; height: 48px; background: rgba(255,255,255,0.1);">
+                            <i class="fa fa-user-clock"></i>
+                        </div>
+                        <div>
+                            <small class="text-white-50 d-block">Account Created</small>
+                            <span class="fw-bold">{{ user.created_at.strftime('%B %d, %Y') if user.created_at else
+                                'Legacy Record' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="avatar-sm bg-white-10 text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                            style="width: 48px; height: 48px; background: rgba(255,255,255,0.1);">
+                            <i class="fa fa-history"></i>
+                        </div>
+                        <div>
+                            <small class="text-white-50 d-block">System Identifier</small>
+                            <span class="fw-bold opacity-75">UID-{{ "%05d" | format(user.id) }}</span>
+                        </div>
+                    </div>
+
+                    <p class="small text-white-50 mt-5 lh-lg">
+                        Administrators are responsible for ensuring that all user data is accurate and up-to-date. Role
+                        modifications are logged for audit purposes.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

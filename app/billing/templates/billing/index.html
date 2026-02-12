@@ -1,0 +1,190 @@
+{% extends "main/base.html" %}
+
+{% block title %}Finances & Billing - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">{{ _('Financial Oversight') }}</h2>
+            <p class="text-muted mb-0">{{ _('Manage clinical revenue, patient accounts, and enterprise billing.') }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-white border shadow-sm btn-sm px-3"><i class="fa fa-file-excel me-2 text-muted"></i>
+                {{ _('Fiscal Report') }}</button>
+            <a href="{{ url_for('billing.create') }}" class="btn btn-primary btn-sm px-4 shadow">
+                <i class="fa fa-plus-circle me-2"></i> {{ _('Generate Invoice') }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Financial Performance Matrix -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6">
+            <div
+                class="card border-0 border-top border-4 border-primary shadow-sm h-100 position-relative overflow-hidden">
+                <div class="card-body p-4 text-center">
+                    <div class="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                        style="width: 50px; height: 50px;">
+                        <i class="fa fa-chart-line"></i>
+                    </div>
+                    <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.65rem;">{{
+                        _('Total Receivables') }}</small>
+                    <h3 class="fw-bold mb-0 text-primary">${{ billings|sum(attribute='net_amount')|round(2) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div
+                class="card border-0 border-top border-4 border-success shadow-sm h-100 position-relative overflow-hidden">
+                <div class="card-body p-4 text-center">
+                    <div class="avatar-sm bg-success-soft text-success rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                        style="width: 50px; height: 50px;">
+                        <i class="fa fa-hand-holding-usd"></i>
+                    </div>
+                    <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.65rem;">{{
+                        _('Collected Liquidity') }}</small>
+                    <h3 class="fw-bold mb-0 text-success">${{ billings|sum(attribute='paid_amount')|round(2) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div
+                class="card border-0 border-top border-4 border-danger shadow-sm h-100 position-relative overflow-hidden">
+                <div class="card-body p-4 text-center">
+                    <div class="avatar-sm bg-danger-soft text-danger rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                        style="width: 50px; height: 50px;">
+                        <i class="fa fa-user-clock"></i>
+                    </div>
+                    <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.65rem;">{{
+                        _('Outstanding Arrears') }}</small>
+                    <h3 class="fw-bold mb-0 text-danger">${{ billings|sum(attribute='balance_amount')|round(2) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 bg-navy text-white shadow-sm h-100 overflow-hidden position-relative">
+                <div class="position-absolute end-0 bottom-0 opacity-10"
+                    style="transform: translate(20%, 20%); font-size: 8rem;">
+                    <i class="fa fa-shield-alt"></i>
+                </div>
+                <div class="card-body p-4 position-relative z-1">
+                    <small class="text-white-50 text-uppercase fw-bold d-block mb-3" style="font-size: 0.6rem;">{{
+                        _('Recovery Rate') }}</small>
+                    {% set total = billings|sum(attribute='net_amount') %}
+                    {% set recovery = (billings|sum(attribute='paid_amount') / total * 100) if total > 0 else 0 %}
+                    <h2 class="fw-bold mb-2">{{ recovery|round(1) }}%</h2>
+                    <div class="progress bg-white-10" style="height: 4px;">
+                        <div class="progress-bar bg-info"
+                            style="--recovery-rate: {{ recovery }}%; width: var(--recovery-rate);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoices Table -->
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header bg-white border-0 border-bottom pt-4 px-4 pb-3">
+            <h5 class="mb-0 fw-bold text-navy">
+                <i class="fas fa-file-invoice-dollar me-2 text-primary"></i>
+                {{ _('Live Billing Journal') }}
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 datatable">
+                    <thead class="table-header-navy">
+                        <tr>
+                            <th class="ps-4">{{ _('Invoice Master') }}</th>
+                            <th>{{ _('Patient Beneficiary') }}</th>
+                            <th>{{ _('Session Date') }}</th>
+                            <th>{{ _('Total Financial Liability') }}</th>
+                            <th>{{ _('Outstanding Balance') }}</th>
+                            <th>{{ _('Settlement Status') }}</th>
+                            <th class="text-end pe-4">{{ _('Fiscal Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for billing in billings %}
+                        <tr>
+                            <td class="ps-4">
+                                <code class="small fw-bold text-primary">{{ billing.invoice_number }}</code>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark small">{{ billing.patient.first_name }} {{
+                                    billing.patient.last_name }}</div>
+                                <small class="text-muted opacity-50">{{ billing.patient.patient_id }}</small>
+                            </td>
+                            <td>
+                                <span class="small text-muted fw-medium">{{ billing.created_at.strftime('%d %b, %Y')
+                                    }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-dark">${{ billing.net_amount }}</span>
+                            </td>
+                            <td>
+                                <span
+                                    class="fw-bold {% if billing.balance_amount > 0 %}text-danger{% else %}text-success{% endif %}">
+                                    ${{ billing.balance_amount }}
+                                </span>
+                            </td>
+                            <td>
+                                {% set sc = {'paid':('success','Fully
+                                Settled'),'partially_paid':('warning','Partial'),'unpaid':('danger','Pending')}.get(billing.payment_status,
+                                ('secondary', billing.payment_status)) %}
+                                <span class="badge bg-{{ sc[0] }}-soft text-{{ sc[0] }} text-uppercase"
+                                    style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                                    {{ sc[1] }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group gap-2">
+                                    <a href="{{ url_for('billing.view', id=billing.id) }}"
+                                        class="btn btn-sm btn-white border shadow-sm rounded-3"
+                                        title="Review Statement">
+                                        <i class="fa fa-file-invoice text-muted"></i>
+                                    </a>
+
+                                    {% if current_user.role.name.lower() in ['admin', 'accountant', 'xisabiye'] %}
+                                    <a href="#" class="btn btn-sm btn-white border shadow-sm rounded-3 text-warning"
+                                        title="Edit Record (Restricted)">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <a href="{{ url_for('billing.delete', id=billing.id) }}"
+                                        class="btn btn-sm btn-white border shadow-sm rounded-3 text-danger"
+                                        title="Delete Record"
+                                        onclick="return confirm('{% if session.get('lang') == 'so' %}Ma hubtaa inaad tirtirto?{% else %}Are you sure you want to delete this invoice?{% endif %}')">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                    {% endif %}
+
+                                    <button class="btn btn-sm btn-white border shadow-sm rounded-3 text-success"
+                                        title="Execute Payment Entry">
+                                        <i class="fa fa-money-bill-wave"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if not billings %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="py-5">
+                                    <i class="fa fa-file-invoice-dollar fa-4x text-light mb-3"></i>
+                                    <h6 class="text-muted fw-bold">{{ _('Financial Journal Empty') }}</h6>
+                                    <p class="small text-muted mb-0">{{ _('No active invoices detected in the clinical
+                                        vault.') }}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

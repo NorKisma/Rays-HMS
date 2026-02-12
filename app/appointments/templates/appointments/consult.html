@@ -1,0 +1,180 @@
+{% extends "main/base.html" %}
+
+{% block title %}Clinical Consultation - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="mb-4">
+        <a href="{{ url_for('appointments.view', id=appointment.id) }}" class="text-decoration-none small">
+            <i class="fa fa-arrow-left"></i> Back to Appointment
+        </a>
+        <h1 class="mt-2 text-warning"><i class="fa fa-stethoscope me-2"></i> Clinical Consultation</h1>
+        <p class="text-muted">Recording data for <strong>{{ appointment.patient.first_name }} {{
+                appointment.patient.last_name }}</strong> | {{ appointment.appointment_number }}</p>
+    </div>
+
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <!-- Vitals -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 mb-4 sticky-top" style="top: 100px;">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Patient Vitals</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{{ form.vitals_temperature.label }}</label>
+                            <div class="input-group">
+                                {{ form.vitals_temperature(class="form-control", placeholder="36.5") }}
+                                <span class="input-group-text">°C</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{{ form.vitals_blood_pressure.label }}</label>
+                            <div class="input-group">
+                                {{ form.vitals_blood_pressure(class="form-control", placeholder="120/80") }}
+                                <span class="input-group-text">mmHg</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{{ form.vitals_weight.label }}</label>
+                            <div class="input-group">
+                                {{ form.vitals_weight(class="form-control", placeholder="70") }}
+                                <span class="input-group-text">kg</span>
+                            </div>
+                        </div>
+                        <div class="alert alert-info small">
+                            <i class="fas fa-info-circle"></i> Update vitals if measured again.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clinical Data -->
+            <div class="col-lg-8">
+
+                <!-- NEW: Lab Results Display -->
+                {% if appointment.lab_requests %}
+                <div class="card shadow-sm border-0 mb-4 border-start border-info border-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0 text-info"><i class="fas fa-flask me-2"></i> Lab Reports</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Test Name</th>
+                                        <th>Status</th>
+                                        <th>Result</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for req in appointment.lab_requests %}
+                                    <tr>
+                                        <td>{{ req.test_name }}</td>
+                                        <td>
+                                            <span
+                                                class="badge {% if req.status=='completed' %}bg-success{% elif req.status=='pending' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                                {{ req.status|replace('_', ' ')|title }}
+                                            </span>
+                                        </td>
+                                        <td>{{ req.result or '-' }}</td>
+                                        <td>{{ req.created_at.strftime('%Y-%m-%d') }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Diagnosis & Clinical Findings</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ form.diagnosis(class="form-control", rows="5", placeholder="Enter detailed diagnosis,
+                        symptoms, and clinical findings...") }}
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 mb-4 border-start border-success border-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0 text-success">Prescription & Advice</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ form.prescription(class="form-control", rows="4", placeholder="Enter medications, dosage, and
+                        patient instructions...") }}
+                    </div>
+                </div>
+
+                <!-- NEW: Plan & Orders -->
+                <div class="card shadow-sm border-0 mb-4 bg-light">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Action Plan (Next Step)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Make a decision:</label>
+                            {{ form.lab_test_required(
+                                class="form-select border-primary searchable-select",
+                                id="actionSelect",
+                                data_placeholder=_('Select action'),
+                                data_allow_clear="true"
+                            ) }}
+                        </div>
+
+                        <div class="mb-3" id="labTestsDiv">
+                            <label class="form-label fw-bold">{{ form.lab_test_description.label }}</label>
+                            {{ form.lab_test_description(class="form-control", rows="2", placeholder="e.g. CBC, Malaria
+                            Test, X-Ray Chest PA") }}
+                            <div class="form-text">Specify the tests required for the lab technician.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card bg-dark text-white border-0 shadow-lg">
+                    <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">Update Record</h5>
+                            <p class="small text-white-50 mb-0">Ensure all clinical data is accurate before saving.</p>
+                        </div>
+                        {{ form.submit(class="btn btn-warning btn-lg fw-bold px-5") }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const actionSelect = document.getElementById('actionSelect');
+        const labTestsDiv = document.getElementById('labTestsDiv');
+
+        function toggleLabFields() {
+            if (actionSelect.value === 'lab') {
+                labTestsDiv.style.display = 'block';
+            } else {
+                labTestsDiv.style.display = 'none';
+            }
+        }
+
+        // Initial State
+        toggleLabFields();
+
+        // Change Listener
+        actionSelect.addEventListener('change', toggleLabFields);
+    });
+</script>
+
+<style>
+    .sticky-top {
+        z-index: 1020;
+    }
+</style>
+{% endblock %}

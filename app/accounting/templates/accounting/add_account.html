@@ -1,0 +1,41 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow mb-4" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Add New Account</h6>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <div class="form-group">
+                    {{ form.code.label(class="form-label") }}
+                    {{ form.code(class="form-control", placeholder="e.g. 1050") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.name.label(class="form-label") }}
+                    {{ form.name(class="form-control", placeholder="e.g. Bank Account 2") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.type.label(class="form-label") }}
+                    {{ form.type(class="form-control") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-control", rows=3) }}
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Save Account</button>
+                    <a href="{{ url_for('accounting.chart_of_accounts') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

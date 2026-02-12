@@ -1,0 +1,58 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Journal Entries</h1>
+        <a href="{{ url_for('accounting.create_journal_entry') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> New Entry
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th width="10%">Date</th>
+                            <th width="15%">Ref</th>
+                            <th width="30%">Description</th>
+                            <th width="10%">Amount</th>
+                            <th width="35%">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in entries %}
+                        <tr>
+                            <td>{{ entry.date }}</td>
+                            <td>{{ entry.reference }}</td>
+                            <td>{{ entry.description }}</td>
+                            <td class="text-right">{{ "%.2f"|format(entry.total_debit) }}</td>
+                            <td>
+                                <ul class="list-unstyled mb-0 small">
+                                    {% for item in entry.items %}
+                                    <li>
+                                        {% if item.debit > 0 %}
+                                        <strong>{{ item.account.name }}</strong>: Dr {{ "%.2f"|format(item.debit) }}
+                                        {% else %}
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<strong>{{ item.account.name }}</strong>: Cr {{
+                                        "%.2f"|format(item.credit) }}
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center">No entries found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

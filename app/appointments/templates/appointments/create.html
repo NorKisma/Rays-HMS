@@ -1,0 +1,127 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ title }} - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">{{ title }}</h2>
+            <p class="text-muted mb-0">Book clinical time with specialized medical faculty.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('appointments.index') }}" class="btn btn-white border shadow-sm btn-sm px-3">
+                <i class="fa fa-arrow-left me-2"></i> Back to Schedule
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm p-4">
+                <div class="card-body">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase"
+                                style="font-size: 0.65rem;">Target Patient</label>
+                            {{ form.patient_id(
+                                class="form-select bg-light border-0 py-2 searchable-select" + (" is-invalid" if
+                                form.patient_id.errors else ""),
+                                data_placeholder=_('Select patient'),
+                                data_allow_clear="true"
+                            ) }}
+                            {% for error in form.patient_id.errors %}<div class="invalid-feedback">{{ error }}</div>{%
+                            endfor %}
+                            <div class="form-text small opacity-50">Authorized medical records found in registry.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase"
+                                style="font-size: 0.65rem;">Assigned Specialist</label>
+                            {{ form.doctor_id(
+                                class="form-select bg-light border-0 py-2 searchable-select" + (" is-invalid" if
+                                form.doctor_id.errors else ""),
+                                data_placeholder=_('Select doctor'),
+                                data_allow_clear="true"
+                            ) }}
+                            {% for error in form.doctor_id.errors %}<div class="invalid-feedback">{{ error }}</div>{%
+                            endfor %}
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-7">
+                                <label class="form-label small fw-bold text-muted text-uppercase"
+                                    style="font-size: 0.65rem;">Session Date & Time</label>
+                                {{ form.appointment_date(class="form-control bg-light border-0 py-2" + (" is-invalid" if
+                                form.appointment_date.errors else ""), type="datetime-local") }}
+                                {% for error in form.appointment_date.errors %}<div class="invalid-feedback">{{ error }}
+                                </div>{% endfor %}
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label small fw-bold text-muted text-uppercase"
+                                    style="font-size: 0.65rem;">Initial Status</label>
+                                {{ form.status(
+                                    class="form-select bg-light border-0 py-2 searchable-select",
+                                    data_placeholder=_('Select status'),
+                                    data_allow_clear="true"
+                                ) }}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase"
+                                style="font-size: 0.65rem;">Primary Reason for Visit</label>
+                            {{ form.reason(class="form-control bg-light border-0 py-2", placeholder="e.g. Clinical
+                            assessment, Chronic pain, Follow-up") }}
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="form-label small fw-bold text-muted text-uppercase"
+                                style="font-size: 0.65rem;">Internal Triage Notes</label>
+                            {{ form.notes(class="form-control bg-light border-0 py-2", rows="3",
+                            placeholder="Pre-consultation observations...") }}
+                        </div>
+
+                        <div class="pt-2">
+                            {{ form.submit(class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-5 offset-xl-1">
+            <div class="card border-0 bg-navy text-white shadow-sm p-4 overflow-hidden position-relative mb-4">
+                <div class="position-absolute end-0 bottom-0 opacity-10"
+                    style="transform: translate(20%, 20%); font-size: 10rem;">
+                    <i class="fa fa-calendar-check"></i>
+                </div>
+                <div class="position-relative z-1">
+                    <h5 class="fw-bold mb-4">Clinical Logic Optimizer</h5>
+                    <p class="small text-white-50 lh-lg mb-5">
+                        Our system intelligently checks specialist availability. Appointments scheduled within the next
+                        24 hours will automatically trigger high-priority alerts for the clinical staff.
+                    </p>
+                    <div class="p-3 bg-white-10 rounded-4 border-start border-4 border-info">
+                        <h6 class="small fw-bold mb-1">Telehealth Integration</h6>
+                        <p class="small text-white-50 mb-0" style="font-size: 0.7rem;">
+                            Digital sessions will include a secure HIPAA-compliant link sent to the patient's verified
+                            email address exactly 15 minutes before the session.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-light rounded-4 border border-dashed text-center">
+                <i class="fa fa-shuttle-space fa-3x text-light mb-3"></i>
+                <h6 class="text-muted fw-bold">Enterprise Scheduling</h6>
+                <p class="small text-muted mb-0 opacity-75">Scale your hospital operations with zero booking conflicts.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

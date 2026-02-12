@@ -1,0 +1,88 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-navy">{{ _('Laboratory Workbench') }}</h2>
+            <p class="text-muted mb-0">{{ _('Manage analytic testing queues and diagnostic reporting.') }}</p>
+        </div>
+        <div>
+            <a href="{{ url_for('lab.index') }}" class="btn btn-white border shadow-sm btn-sm px-3">
+                <i class="fas fa-sync-alt me-2 text-muted"></i> {{ _('Refresh Queue') }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="card border-0 shadow-sm overflow-hidden mb-4">
+        <div class="card-header bg-white border-0 border-bottom pt-4 px-4 pb-3">
+            <h5 class="mb-0 fw-bold text-navy">
+                <i class="fas fa-flask me-2 text-primary"></i>
+                {{ _('Pending Analysis') }}
+                <span class="badge bg-primary-soft text-primary ms-2 rounded-pill"
+                    style="font-size: 0.65em; vertical-align: middle;">{{ requests|length }}</span>
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            {% if requests %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 datatable" id="datatablesSimple">
+                    <thead class="table-header-navy">
+                        <tr>
+                            <th class="ps-4">Req. ID</th>
+                            <th>Patient details</th>
+                            <th>Doctor</th>
+                            <th>Test Description</th>
+                            <th>Requested At</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in requests %}
+                        <tr>
+                            <td class="ps-4">
+                                <code class="fw-bold text-primary">#{{ req.id }}</code>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ req.appointment.patient.first_name }} {{
+                                    req.appointment.patient.last_name }}</div>
+                                <small class="text-muted opacity-50">{{ req.appointment.patient.patient_id }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border"><i
+                                        class="fas fa-user-md me-1 text-muted"></i> {{ req.appointment.doctor.last_name
+                                    }}</span>
+                            </td>
+                            <td style="max-width: 250px;">
+                                <span class="fw-medium text-dark">{{ req.test_name }}</span>
+                            </td>
+                            <td>
+                                <span class="small text-muted">{{ req.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a href="{{ url_for('lab.process', id=req.id) }}"
+                                    class="btn btn-sm btn-primary shadow-sm px-3 font-weight-bold">
+                                    <i class="fas fa-microscope me-1"></i> Start Test
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="avatar-sm bg-light text-muted rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                    style="width: 70px; height: 70px; font-size: 2rem;">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <h6 class="text-muted fw-bold">{{ _('All Caught Up') }}</h6>
+                <p class="small text-muted mb-0">{{ _('There are no pending lab requests waiting for analysis.') }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

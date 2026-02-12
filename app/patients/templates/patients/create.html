@@ -1,0 +1,259 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ title }} - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1400px;">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">{{ title }}</h2>
+            <p class="text-muted mb-0">{{ _('Complete patient information for accurate records') }}</p>
+        </div>
+        <a href="{{ url_for('patients.index') }}" class="btn btn-white border shadow-sm">
+            <i class="fa fa-arrow-left me-2"></i> {{ _('Back') }}
+        </a>
+    </div>
+
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+
+        <div class="row g-4">
+            <!-- Main Form Column -->
+            <div class="col-lg-8">
+                <!-- Basic Information -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 px-4 pt-4 pb-3">
+                        <h6 class="mb-0 fw-bold">
+                            <i class="fa fa-id-card text-primary me-2"></i>
+                            {{ _('Basic Information') }}
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small text-uppercase text-muted mb-2"
+                                    style="font-size: 0.7rem; letter-spacing: 0.5px;">Patient ID</label>
+                                {{ form.patient_id(class="form-control", readonly=True, style="background-color:
+                                #f8f9fa; font-weight: 600; color: #0047AB;") }}
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small mb-2">{{ _('First Name') }} *</label>
+                                {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else
+                                ""), placeholder="John") }}
+                                {% for error in form.first_name.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small mb-2">{{ _('Last Name') }} *</label>
+                                {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else
+                                ""), placeholder="Doe") }}
+                                {% for error in form.last_name.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small mb-2">{{ _('Age (Years)') }} *</label>
+                                {{ form.age(class="form-control" + (" is-invalid" if form.age.errors else ""),
+                                type="number", min="0", max="150", placeholder="25") }}
+                                {% for error in form.age.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small mb-2">{{ _('Gender') }} *</label>
+                                {{ form.gender(
+                                    class="form-select searchable-select" + (" is-invalid" if form.gender.errors else ""),
+                                    data_placeholder=_('Select gender'),
+                                    data_allow_clear="true"
+                                ) }}
+                                {% for error in form.gender.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small mb-2 text-muted">Blood Group <span
+                                        class="text-muted small">(Optional)</span></label>
+                                {{ form.blood_group(
+                                    class="form-select searchable-select",
+                                    data_placeholder=_('Select blood group'),
+                                    data_allow_clear="true"
+                                ) }}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small mb-2 text-muted">Phone Number <span
+                                        class="text-muted small">(Optional)</span></label>
+                                {{ form.phone(class="form-control", placeholder="+252...") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact & Address -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 px-4 pt-4 pb-3">
+                        <h6 class="mb-0 fw-bold">
+                            <i class="fa fa-map-marker-alt text-primary me-2"></i>
+                            {{ _('Contact & Address') }} <span class="text-muted fw-normal small">(Optional)</span>
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small mb-2">{{ _('Emergency Contact Name')
+                                    }}</label>
+                                {{ form.emergency_contact_name(class="form-control", placeholder="Contact person") }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small mb-2">{{ _('Emergency Contact Phone')
+                                    }}</label>
+                                {{ form.emergency_contact_phone(class="form-control", placeholder="+252...") }}
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small mb-2">{{ _('Residential Address') }}</label>
+                                {{ form.address(class="form-control", rows="2", placeholder="Street, District, City...")
+                                }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medical History -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 px-4 pt-4 pb-3">
+                        <h6 class="mb-0 fw-bold">
+                            <i class="fa fa-heartbeat text-primary me-2"></i>
+                            {{ _('Medical History') }} (Optional)
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small mb-2">{{ _('Medical Conditions') }}</label>
+                                {{ form.medical_history(class="form-control", rows="3", placeholder="Diabetes,
+                                Hypertension, Previous surgeries...") }}
+                                <small class="text-muted">List any chronic illnesses or previous medical history</small>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small mb-2">{{ _('Known Allergies') }}</label>
+                                {{ form.allergies(class="form-control", rows="2", placeholder="Penicillin, Peanuts,
+                                Latex...") }}
+                                <small class="text-muted">Drug, food, or environmental allergies</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Submit Card -->
+                <div class="card border-0 shadow-lg overflow-hidden position-sticky" style="top: 90px;">
+                    <div class="card-body p-0">
+                        <!-- Header -->
+                        <div class="bg-primary text-white text-center py-4 px-3">
+                            <div class="mb-3">
+                                <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-25"
+                                    style="width: 70px; height: 70px;">
+                                    <i class="fa fa-user-plus fa-2x"></i>
+                                </div>
+                            </div>
+                            <h5 class="fw-bold mb-1">{{ _('Review & Save') }}</h5>
+                            <p class="small mb-0 opacity-75">{{ _('Verify all information before submitting') }}</p>
+                        </div>
+
+                        <!-- Checklist -->
+                        <div class="p-4 bg-light">
+                            <h6 class="small fw-bold text-uppercase text-muted mb-3"
+                                style="font-size: 0.7rem; letter-spacing: 0.5px;">Required Fields</h6>
+                            <div class="d-flex flex-column gap-2">
+                                <div class="d-flex align-items-center small">
+                                    <i class="fa fa-check-circle text-success me-2"></i>
+                                    <span>Patient ID (Auto-generated)</span>
+                                </div>
+                                <div class="d-flex align-items-center small">
+                                    <i class="fa fa-circle text-muted me-2" style="font-size: 0.5rem;"></i>
+                                    <span>Full Name</span>
+                                </div>
+                                <div class="d-flex align-items-center small">
+                                    <i class="fa fa-circle text-muted me-2" style="font-size: 0.5rem;"></i>
+                                    <span>Age</span>
+                                </div>
+                                <div class="d-flex align-items-center small">
+                                    <i class="fa fa-circle text-muted me-2" style="font-size: 0.5rem;"></i>
+                                    <span>Gender</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="p-4">
+                            {{ form.submit(class="btn btn-primary w-100 py-3 mb-2 fw-semibold shadow", value="Save
+                            Patient Record") }}
+                            <a href="{{ url_for('patients.index') }}" class="btn btn-white border w-100 py-2">
+                                Cancel
+                            </a>
+                        </div>
+
+                        <!-- Info Note -->
+                        <div class="px-4 pb-4">
+                            <div class="alert alert-info mb-0 py-2 px-3 border-0" style="background-color: #e6effa;">
+                                <small class="d-flex align-items-start">
+                                    <i class="fa fa-info-circle mt-1 me-2 text-primary"></i>
+                                    <span class="text-muted">All patient data is securely stored and compliant with
+                                        medical record standards.</span>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-control,
+    .form-select {
+        border: 1px solid #dee2e6;
+        padding: 0.625rem 0.875rem;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #0047AB;
+        box-shadow: 0 0 0 3px rgba(0, 71, 171, 0.1);
+    }
+
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    label.form-label {
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    ::placeholder {
+        color: #adb5bd !important;
+        opacity: 1;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">New Journal Entry</h6>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            {{ form.date.label(class="form-label") }}
+                            {{ form.date(class="form-control", type="date") }}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            {{ form.reference.label(class="form-label") }}
+                            {{ form.reference(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <h6 class="mb-3">Journal Items</h6>
+
+                <table class="table table-bordered table-sm" id="journalTable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th width="40%">Account</th>
+                            <th width="25%">Debit</th>
+                            <th width="25%">Credit</th>
+                            <th width="10%">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="journalBody">
+                        <!-- Rows added by JS -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="text-right font-weight-bold">Total:</td>
+                            <td><input type="number" class="form-control form-control-sm" id="totalDebit" readonly
+                                    value="0.00"></td>
+                            <td><input type="number" class="form-control form-control-sm" id="totalCredit" readonly
+                                    value="0.00"></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <button type="button" class="btn btn-info btn-sm mb-3" onclick="addRow()">
+                    <i class="fas fa-plus"></i> Add Line
+                </button>
+
+                <div class="mt-4 border-top pt-3 text-right">
+                    <a href="{{ url_for('accounting.journal_entries') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-success">Post Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Accounts data for dropdown (Rendered by Jinja to JS array)
+    const accounts = [
+        {% for acc in accounts %}
+    { id: "{{ acc.id }}", name: "{{ acc.code }} - {{ acc.name }}" },
+    {% endfor %}
+    ];
+
+    function addRow() {
+        const tbody = document.getElementById('journalBody');
+        const count = tbody.getElementsByTagName('tr').length;
+
+        let selectHtml = `<select name="item_account[]" class="form-control form-control-sm searchable-select" required>`;
+        selectHtml += `<option value="">Select account...</option>`;
+        accounts.forEach(acc => {
+            selectHtml += `<option value="${acc.id}">${acc.name}</option>`;
+        });
+        selectHtml += `</select>`;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${selectHtml}</td>
+            <td><input type="number" step="0.01" name="item_debit[]" class="form-control form-control-sm debit-input" onchange="calcTotals()"></td>
+            <td><input type="number" step="0.01" name="item_credit[]" class="form-control form-control-sm credit-input" onchange="calcTotals()"></td>
+            <td class="text-center">
+                <button type="button" class="btn btn-danger btn-sm rounded-circle" onclick="removeRow(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+
+        // Apply Select2 to the newly added account dropdown
+        if (typeof $ !== 'undefined' && typeof $.fn.select2 !== 'undefined') {
+            const $select = $(tr).find('select.searchable-select');
+            if ($select.length && !$select.hasClass('select2-hidden-accessible')) {
+                $select.select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: 'Select account',
+                    allowClear: true
+                });
+            }
+        }
+    }
+
+    function removeRow(btn) {
+        btn.closest('tr').remove();
+        calcTotals();
+    }
+
+    function calcTotals() {
+        let dr = 0, cr = 0;
+        document.querySelectorAll('.debit-input').forEach(inp => dr += parseFloat(inp.value || 0));
+        document.querySelectorAll('.credit-input').forEach(inp => cr += parseFloat(inp.value || 0));
+
+        document.getElementById('totalDebit').value = dr.toFixed(2);
+        document.getElementById('totalCredit').value = cr.toFixed(2);
+
+        // Highlight logic
+        const drBox = document.getElementById('totalDebit');
+        const crBox = document.getElementById('totalCredit');
+        if (Math.abs(dr - cr) < 0.01 && dr > 0) {
+            drBox.classList.add('is-valid'); drBox.classList.remove('is-invalid');
+            crBox.classList.add('is-valid'); crBox.classList.remove('is-invalid');
+        } else {
+            drBox.classList.remove('is-valid'); drBox.classList.add('is-invalid');
+            crBox.classList.remove('is-valid'); crBox.classList.add('is-invalid');
+        }
+    }
+
+    // Add initial rows (2 for standard double entry)
+    window.onload = function () {
+        addRow();
+        addRow();
+    };
+</script>
+{% endblock %}

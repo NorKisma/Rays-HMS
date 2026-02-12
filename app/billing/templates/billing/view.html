@@ -1,0 +1,153 @@
+{% extends "main/base.html" %}
+
+{% block title %}Invoice Detail - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0 printable-content">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
+        <div>
+            <a href="{{ url_for('billing.index') }}" class="btn btn-white border shadow-sm btn-sm px-3">
+                <i class="fa fa-arrow-left me-2 text-muted"></i>
+                {% if session.get('lang') == 'so' %}Ku laabo Qaansheegyada{% else %}Back to Finances{% endif %}
+            </a>
+            <h2 class="fw-bold mt-3 mb-1">
+                {% if session.get('lang') == 'so' %}Faahfaahinta Qaansheegta{% else %}Invoice Details{% endif %}
+            </h2>
+            <p class="text-muted small mb-0">
+                {% if session.get('lang') == 'so' %}
+                Eeg, xaqiiji oo daabac qaansheegtan rasmi ah ee bukaanka.
+                {% else %}
+                Review, verify and print the official patient invoice.
+                {% endif %}
+            </p>
+        </div>
+        <button class="btn btn-primary btn-sm px-4 shadow" onclick="window.print()">
+            <i class="fa fa-print me-2"></i>
+            {% if session.get('lang') == 'so' %}Daabac Qaansheegta{% else %}Print Official Invoice{% endif %}
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-5">
+            <!-- Invoice Header -->
+            <div class="row mb-5">
+                <div class="col-8">
+                    <h2 class="fw-bold text-primary mb-0">RAYS HMS</h2>
+                    <p class="text-muted small">Quality Healthcare Management<br>
+                        123 Medical Avenue, Healthcare City<br>
+                        support@rayshms.com | +1 234 567 890</p>
+                </div>
+                <div class="col-4 text-end">
+                    <h4 class="fw-bold text-muted">INVOICE</h4>
+                    <div class="h5 mb-0 fw-bold">{{ billing.invoice_number }}</div>
+                    <div class="small text-muted">Generated: {{ billing.created_at.strftime('%d %b %Y %H:%M') }}</div>
+                </div>
+            </div>
+
+            <!-- Billing Info -->
+            <div class="row mb-5">
+                <div class="col-6">
+                    <small class="text-muted text-uppercase fw-bold d-block mb-2">Billed To</small>
+                    <h5 class="fw-bold mb-1">{{ billing.patient.first_name }} {{ billing.patient.last_name }}</h5>
+                    <p class="text-muted small">Patient ID: {{ billing.patient.patient_id }}<br>
+                        {{ billing.patient.address or 'No address provided' }}<br>
+                        {{ billing.patient.phone or 'No phone number' }}</p>
+                </div>
+                <div class="col-6 text-end">
+                    <small class="text-muted text-uppercase fw-bold d-block mb-2">Payment Details</small>
+                    <p class="small mb-1"><strong>Method:</strong> {{ billing.payment_method or 'N/A' }}</p>
+                    <p class="small mb-0">
+                        <strong>Status:</strong>
+                        <span
+                            class="text-{{ 'success' if billing.payment_status == 'paid' else 'warning' if billing.payment_status == 'partially_paid' else 'danger' }} fw-bold">
+                            {{ billing.payment_status.upper() }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Line Items -->
+            <div class="table-responsive mb-5">
+                <table class="table table-borderless">
+                    <thead class="border-bottom border-2">
+                        <tr>
+                            <th class="ps-0">Description</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-end">Unit Price</th>
+                            <th class="text-end pe-0">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in billing.items %}
+                        <tr class="border-bottom">
+                            <td class="ps-0 py-3">
+                                <span class="fw-bold d-block">{{ item.description }}</span>
+                            </td>
+                            <td class="text-center py-3">{{ item.quantity }}</td>
+                            <td class="text-end py-3">${{ item.unit_price }}</td>
+                            <td class="text-end py-3 pe-0 fw-bold">${{ item.subtotal }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totals -->
+            <div class="row justify-content-end">
+                <div class="col-md-5">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Total Amount</span>
+                        <span class="fw-bold">${{ billing.total_amount }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Discount Allowed</span>
+                        <span class="text-danger">-${{ billing.discount or '0.00' }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 pb-3 border-bottom border-2">
+                        <span class="text-muted">Net Payable</span>
+                        <span class="h5 fw-bold mb-0">${{ billing.net_amount }}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Amount Received</span>
+                        <span class="text-success fw-bold">${{ billing.paid_amount or '0.00' }}</span>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-uppercase small">Balance Due</span>
+                        <span class="h4 fw-bold text-danger mb-0">${{ billing.balance_amount }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-5 pt-5 border-top text-center text-muted small">
+                <p class="mb-0">This is a computer-generated invoice and does not require a physical signature.</p>
+                <p>Thank you for choosing Rays HMS for your healthcare needs.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .d-print-none {
+            display: none !important;
+        }
+
+        .printable-content {
+            padding: 0 !important;
+        }
+
+        .card {
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        body {
+            background: white !important;
+        }
+    }
+</style>
+{% endblock %}

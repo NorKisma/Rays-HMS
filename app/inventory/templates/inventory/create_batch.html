@@ -1,0 +1,133 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ title }} - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">{{ title }}</h2>
+            <p class="text-muted mb-0">{{ _('Record incoming medical consignments and verify pharmaceutical batches.')
+                }}</p>
+        </div>
+        <div>
+            <a href="{{ url_for('inventory.index') }}" class="btn btn-white border shadow-sm btn-sm px-3">
+                <i class="fa fa-arrow-left me-2 text-muted"></i> {{ _('Back to Portfolio') }}
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-7">
+            <div class="card border-0 shadow-sm p-4">
+                <div class="card-header bg-white border-bottom-0">
+                    <h6 class="mb-0 fw-bold"><i class="fa fa-shipping-fast text-primary me-2"></i> {{ _('Batch Details')
+                        }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase"
+                                style="font-size: 0.65rem;">{{ _('Select Product') }}</label>
+
+                            {{ form.product_id(
+                                class="form-select bg-light border-0 py-2 searchable-select" + (" is-invalid" if form.product_id.errors else ""),
+                                id="product_id",
+                                data_placeholder=_('Type or search product name'),
+                                data_allow_clear="true"
+                            ) }}
+
+                            {% for error in form.product_id.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted text-uppercase"
+                                    style="font-size: 0.65rem;">{{ _('Batch Number') }}</label>
+                                {{ form.batch_number(class="form-control bg-light border-0 py-2", placeholder="e.g.
+                                BTC-9920-X") }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted text-uppercase"
+                                    style="font-size: 0.65rem;">{{ _('Expiry Date') }}</label>
+                                {{ form.expiry_date(class="form-control bg-light border-0 py-2", type="date") }}
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase"
+                                    style="font-size: 0.65rem;">{{ _('Quantity') }}</label>
+                                {{ form.quantity(class="form-control bg-light border-0 py-2", type="number",
+                                step="0.01", placeholder="0.00") }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase"
+                                    style="font-size: 0.65rem;">{{ _('Buying Price ($)') }}</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0 text-muted">$</span>
+                                    {{ form.unit_cost(class="form-control bg-light border-0 py-2", type="number",
+                                    step="0.01", placeholder="0.00") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase"
+                                    style="font-size: 0.65rem;">{{ _('Selling Price ($)') }}</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0 text-muted">$</span>
+                                    {{ form.selling_price(class="form-control bg-light border-0 py-2", type="number",
+                                    step="0.01", placeholder="0.00") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-primary-soft rounded-4 border-start border-4 border-primary mb-5">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-info-circle text-primary me-3"></i>
+                                <span class="small text-muted">{{ _('Adding stock here will update your inventory levels
+                                    automatically.')
+                                    }}</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            {{ form.submit(class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow", value=_('Add
+                            Stock Batch')) }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 offset-xl-1">
+            <div class="card border-0 bg-navy text-white shadow-sm p-4 overflow-hidden position-relative mb-4">
+                <div class="position-absolute end-0 bottom-0 opacity-10"
+                    style="transform: translate(20%, 20%); font-size: 10rem;">
+                    <i class="fa fa-pallet"></i>
+                </div>
+                <div class="position-relative z-1">
+                    <h5 class="fw-bold mb-4">{{ _('Supply Chain Validation') }}</h5>
+                    <p class="small text-white-50 lh-lg mb-5">
+                        {{ _('Batch tracking is critical for preventing the distribution of expired pharmaceuticals.
+                        Ensure all expiry dates are verified against the physical consignment labels before system
+                        entry.') }}
+                    </p>
+                    <div class="p-3 bg-white-10 rounded-4 border-start border-4 border-success">
+                        <h6 class="small fw-bold mb-1">{{ _('Fiscal Impact') }}</h6>
+                        <p class="small text-white-50 mb-0" style="font-size: 0.7rem;">
+                            {{ _('The patient billing rate entered here will be used to generate automated invoices in
+                            the Billing & Finance module for this specific batch.') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

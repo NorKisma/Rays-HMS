@@ -1,0 +1,72 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Profit & Loss Statement</h1>
+
+        <form class="form-inline bg-white p-2 rounded shadow-sm">
+            <input type="date" name="start_date" class="form-control form-control-sm mr-2"
+                value="{{ request.args.get('start_date', '') }}">
+            <span class="mr-2">to</span>
+            <input type="date" name="end_date" class="form-control form-control-sm mr-2"
+                value="{{ request.args.get('end_date', '') }}">
+            <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+        </form>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th>Account</th>
+                            <th class="text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Revenue -->
+                        <tr class="font-weight-bold bg-light">
+                            <td colspan="2">Revenue</td>
+                        </tr>
+                        {% for acc, bal in revenues %}
+                        <tr>
+                            <td class="pl-4">{{ acc.code }} - {{ acc.name }}</td>
+                            <td class="text-right">{{ "%.2f"|format(bal) }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="font-weight-bold">
+                            <td class="pl-4">Total Revenue</td>
+                            <td class="text-right text-success">{{ "%.2f"|format(total_revenue) }}</td>
+                        </tr>
+
+                        <!-- Expenses -->
+                        <tr class="font-weight-bold bg-light">
+                            <td colspan="2">Expenses</td>
+                        </tr>
+                        {% for acc, bal in expenses %}
+                        <tr>
+                            <td class="pl-4">{{ acc.code }} - {{ acc.name }}</td>
+                            <td class="text-right">{{ "%.2f"|format(bal) }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="font-weight-bold">
+                            <td class="pl-4">Total Expenses</td>
+                            <td class="text-right text-danger">{{ "%.2f"|format(total_expense) }}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="bg-gray-200">
+                        <tr class="h5 font-weight-bold">
+                            <td>Net Profit / (Loss)</td>
+                            <td class="text-right {{ 'text-success' if net_profit >= 0 else 'text-danger' }}">
+                                {{ "%.2f"|format(net_profit) }}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "main/base.html" %}
+
+{% block title %}Import Inventory - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Import Inventory</h2>
+            <p class="text-muted mb-0">Bulk upload products and stock via CSV or Excel.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('inventory.index') }}" class="btn btn-white border shadow-sm btn-sm px-3">
+                <i class="fa fa-arrow-left me-2 text-muted"></i> Back to Inventory
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header table-header-blue text-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fa fa-file-upload me-2"></i> Upload Data File</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-4">
+                        Please upload a <strong>CSV</strong> or <strong>Excel</strong> file with the following columns:
+                        <br>
+                        <code>Product Name</code>, <code>Category</code>, <code>Barcode</code>,
+                        <code>Batch Number</code>,
+                        <code>Expiry Date (YYYY-MM-DD)</code>, <code>Quantity</code>, <code>Unit Cost</code>,
+                        <code>Selling Price</code>.
+                    </p>
+
+                    <div class="mb-4 text-center">
+                        <a href="{{ url_for('static', filename='files/inventory_template.xlsx') }}" download
+                            class="btn btn-outline-success btn-sm shadow-sm">
+                            <i class="fa fa-file-excel me-2"></i> Download Excel Template
+                        </a>
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">{{ form.import_file.label }}</label>
+                            {{ form.import_file(class="form-control") }}
+                            {% if form.import_file.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.import_file.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary shadow-sm") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-4 shadow-sm border-0">
+                <div class="d-flex">
+                    <i class="fa fa-info-circle fa-2x me-3 opacity-50"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Import Hints</h6>
+                        <ul class="mb-0 small ps-3">
+                            <li>New categories will be created automatically.</li>
+                            <li>If a product exists (matched by name or barcode), a new batch will be added to it.</li>
+                            <li>Dates must be in <code>YYYY-MM-DD</code> format (e.g., 2025-12-31).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

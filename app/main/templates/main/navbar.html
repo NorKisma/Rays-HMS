@@ -1,0 +1,64 @@
+<header class="navbar-custom">
+  <div class="d-flex align-items-center">
+    <div class="toggle-sidebar me-3" id="sidebarToggle">
+      <i class="fa fa-bars-staggered"></i>
+    </div>
+    <div class="theme-toggle me-4" id="themeToggle">
+      <i class="fa fa-moon"></i>
+    </div>
+    <h5 class="mb-0 fw-bold d-none d-md-block" style="letter-spacing: -0.5px;">Rays HMS</h5>
+  </div>
+
+  <div class="ms-auto d-flex align-items-center gap-3">
+    <!-- Language -->
+    <div class="dropdown">
+      <button class="btn btn-surface btn-sm border shadow-sm dropdown-toggle px-3" type="button"
+        data-bs-toggle="dropdown">
+        <i class="fa fa-globe me-2 opacity-50"></i> <span>{{ (session.get('lang', 'en')).upper() }}</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
+        <li><a class="dropdown-item" href="{{ url_for('main.set_language', lang_code='en') }}">English</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('main.set_language', lang_code='so') }}">Somali</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('main.set_language', lang_code='ar') }}">Arabic</a></li>
+      </ul>
+    </div>
+
+    <!-- Profile -->
+    <!-- Profile -->
+    <div class="dropdown">
+      <div
+        class="d-flex align-items-center bg-surface rounded-pill ps-2 pe-3 py-1 border shadow-sm cursor-pointer dropdown-toggle"
+        data-bs-toggle="dropdown" aria-expanded="false" role="button">
+        <div
+          class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+          style="width: 32px; height: 32px; font-weight: bold; font-size: 0.8rem;">
+          {{ current_user.name[0] if current_user.is_authenticated else '?' }}
+        </div>
+        <div class="d-none d-sm-block text-start">
+          <div class="small fw-bold lh-1">{{ current_user.name if current_user.is_authenticated else 'Guest' }}
+          </div>
+          <small class="text-muted" style="font-size: 0.6rem;">{{ current_user.role.name if
+            current_user.is_authenticated
+            and current_user.role else 'Public' }}</small>
+        </div>
+      </div>
+      <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2">
+        <li>
+          <a class="dropdown-item py-2" href="{{ url_for('auth.change_password') }}">
+            <i class="fa fa-key me-2 text-muted opacity-75"></i>
+            {% if session.get('lang') == 'so' %}Bedel Furaha{% else %}Change Password{% endif %}
+          </a>
+        </li>
+        <li>
+          <hr class="dropdown-divider opacity-50">
+        </li>
+        <li>
+          <a class="dropdown-item py-2 text-danger" href="{{ url_for('auth.logout') }}">
+            <i class="fa fa-sign-out-alt me-2 opacity-75"></i>
+            {% if session.get('lang') == 'so' %}Ka Bax{% else %}Logout{% endif %}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>

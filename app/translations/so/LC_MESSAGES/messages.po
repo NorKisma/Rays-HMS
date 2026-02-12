@@ -1,0 +1,433 @@
+# Somali translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-02-03 08:35+0300\n"
+"PO-Revision-Date: 2026-02-03 08:37+0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: so\n"
+"Language-Team: so <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: app/billing/templates/billing/index.html:10
+msgid "Financial Oversight"
+msgstr "Kormeerka Maaliyadda"
+
+#: app/billing/templates/billing/index.html:11
+msgid "Manage clinical revenue, patient accounts, and enterprise billing."
+msgstr "Maamul dakhliga rugta caafimaadka, xisaabaadka bukaanka, iyo qaansheegta ganacsiga."
+
+#: app/billing/templates/billing/index.html:15
+msgid "Fiscal Report"
+msgstr "Warbixinta Maaliyadda"
+
+#: app/billing/templates/billing/index.html:17
+msgid "Generate Invoice"
+msgstr "Samee Qaansheeg"
+
+#: app/billing/templates/billing/index.html:31
+msgid "Total Receivables"
+msgstr "Wadarta La Helay"
+
+#: app/billing/templates/billing/index.html:44
+msgid "Collected Liquidity"
+msgstr "Lacagta La Ururiyay"
+
+#: app/billing/templates/billing/index.html:58
+msgid "Outstanding Arrears"
+msgstr "Wadarta Dheeman"
+
+#: app/billing/templates/billing/index.html:73
+msgid "Recovery Rate"
+msgstr "Heerka Soo Kabashada"
+
+#: app/billing/templates/billing/index.html:89
+msgid "Live Billing Journal"
+msgstr "Diiwaanka Qaansheegta Tooska ah"
+
+#: app/billing/templates/billing/index.html:95
+msgid "Invoice Master"
+msgstr "Aasaaska Qaansheegta"
+
+#: app/billing/templates/billing/index.html:96
+msgid "Patient Beneficiary"
+msgstr "Bukaanka (Ka Faa'iideystaha)"
+
+#: app/billing/templates/billing/index.html:97
+msgid "Session Date"
+msgstr "Taariikhda Kulanka"
+
+#: app/billing/templates/billing/index.html:98
+msgid "Total Financial Liability"
+msgstr "Wadarta Mas'uuliyadda Maaliyadeed"
+
+#: app/billing/templates/billing/index.html:99
+msgid "Outstanding Balance"
+msgstr "Haraaga Dheeman"
+
+#: app/billing/templates/billing/index.html:100
+msgid "Settlement Status"
+msgstr "Heerka Bixinta"
+
+#: app/billing/templates/billing/index.html:101
+msgid "Fiscal Actions"
+msgstr "Ficilada Maaliyadeed"
+
+#: app/billing/templates/billing/index.html:146
+msgid "Financial Journal Empty"
+msgstr "Diiwaanka Maaliyadda Waa Faaruq"
+
+#: app/billing/templates/billing/index.html:147
+msgid "No active invoices detected in the clinical vault."
+msgstr "Ma jiraan qaansheegyo firfircoon oo laga helay kaydka rugta caafimaadka."
+
+#: app/inventory/templates/inventory/create_batch.html:11
+msgid ""
+"Record incoming medical consignments and verify pharmaceutical "
+"batches."
+msgstr "Diiwaangali rarka daawooyinka soo socda oo xaqiiji dufcadaha dawooyinka."
+
+#: app/inventory/templates/inventory/create_batch.html:15
+msgid "Back to Portfolio"
+msgstr "Ku laabo liiska"
+
+#: app/inventory/templates/inventory/create_batch.html:24
+msgid "Consignment Manifest"
+msgstr "Warbixinta Rarka"
+
+#: app/inventory/templates/inventory/create_batch.html:33
+msgid "Source Product"
+msgstr "Magaca Badeecada"
+
+#: app/inventory/templates/inventory/create_batch.html:43
+msgid "Batch Tracking Number"
+msgstr "Lambarka Raadraaca Dufcada"
+
+#: app/inventory/templates/inventory/create_batch.html:49
+msgid "Pharmacological Expiry"
+msgstr "Taariikhda Dhicitaanka"
+
+#: app/inventory/templates/inventory/create_batch.html:57
+msgid "Consignment Volume"
+msgstr "Mugga Rarka (Tirada)"
+
+#: app/inventory/templates/inventory/create_batch.html:62
+msgid "Acquisition Cost ($)"
+msgstr "Qiimaha Iibsiga ($)"
+
+#: app/inventory/templates/inventory/create_batch.html:71
+msgid "Patient Billing Rate ($)"
+msgstr "Qiimaha Bukaanka ($)"
+
+#: app/inventory/templates/inventory/create_batch.html:84
+msgid ""
+"Submitting this manifest will update the live medical inventory and "
+"initialize chronological audit logs for HIPAA compliance."
+msgstr "Gudbinta warbixintan waxay cusboonaysiin doontaa kaydka daawada tooska ah waxayna bilaabi doontaa diiwaanka xisaab xirka."
+
+#: app/inventory/templates/inventory/create_batch.html:90
+msgid "Add Stock Batch"
+msgstr "Kudar Dufcad cusub"
+
+#: app/inventory/templates/inventory/create_batch.html:99
+msgid "Supply Chain Validation"
+msgstr "Xaqiijinta Silsiladda Saadka"
+
+#: app/inventory/templates/inventory/create_batch.html:101
+msgid ""
+"Batch tracking is critical for preventing the distribution of expired "
+"pharmaceuticals. Ensure all expiry dates are verified against the "
+"physical consignment labels before system entry."
+msgstr "Raadraaca dufcaddaha ayaa muhiim u ah ka hortagga qaybinta daawooyinka dhacay. Hubi in dhammaan taariikhaha dhicitaanka la xaqiijiyay ka hor inta aan la gelin nidaamka."
+
+#: app/inventory/templates/inventory/create_batch.html:105
+msgid "Fiscal Impact"
+msgstr "Saamaynta Maaliyadeed"
+
+#: app/inventory/templates/inventory/create_batch.html:107
+msgid ""
+"The patient billing rate entered here will be used to generate automated "
+"invoices in the Billing & Finance module for this specific batch."
+msgstr "Qiimaha Bukaanka la galiyay halkan waxaa loo isticmaali doonaa in si toos ah loogu abuuro qaansheegta qaybta Maaliyadda."
+
+#: app/main/templates/main/sidebar.html:12
+msgid "Insights"
+msgstr "Xogta Guud"
+
+#: app/main/templates/main/sidebar.html:16
+msgid "Medical Center"
+msgstr "Xarunta Caafimaadka"
+
+#: app/main/templates/main/sidebar.html:20
+msgid "Patients"
+msgstr "Bukaanada"
+
+#: app/main/templates/main/sidebar.html:26
+msgid "Medical Staff"
+msgstr "Shaqaalaha Caafimaadka"
+
+#: app/main/templates/main/sidebar.html:32
+msgid "Schedules"
+msgstr "Jadwalka"
+
+#: app/main/templates/main/sidebar.html:37
+msgid "Management"
+msgstr "Maamulka"
+
+#: app/main/templates/main/sidebar.html:41
+msgid "Catalog"
+msgstr "Liiska Dawooyinka"
+
+#: app/main/templates/main/sidebar.html:47
+msgid "POS Counter"
+msgstr "Goobta Iibka (POS)"
+
+#: app/main/templates/main/sidebar.html:50
+msgid "Sales History"
+msgstr "Taariikhda Iibka"
+
+#: app/main/templates/main/sidebar.html:56
+msgid "Finances"
+msgstr "Maaliyadda"
+
+#: app/main/templates/main/sidebar.html:61
+msgid "System"
+msgstr "Nidaamka"
+
+#: app/main/templates/main/sidebar.html:65
+msgid "Security"
+msgstr "Amniga"
+
+#: app/main/templates/main/sidebar.html:70
+msgid "End Session"
+msgstr "Ka Bax Nidaamka"
+
+#: app/sales/templates/sales/pos.html:147
+msgid "Rays HMS POS"
+msgstr "POS-ka Rays HMS"
+
+#: app/sales/templates/sales/pos.html:154
+msgid "Search by name, barcode or category (e.g. Paracetamol)..."
+msgstr "Ku raadi magac, koodh ama qayb (tusaale Paracetamol)..."
+
+#: app/sales/templates/sales/pos.html:165
+msgid "Quick Inventory View"
+msgstr "Eegitaanka Degdega ah ee Kaydka"
+
+#: app/sales/templates/sales/pos.html:167
+msgid "All"
+msgstr "Dhammaan"
+
+#: app/sales/templates/sales/pos.html:168
+msgid "Tablets"
+msgstr "Kaniiniyada"
+
+#: app/sales/templates/sales/pos.html:169
+msgid "Syrups"
+msgstr "Sharoobada"
+
+#: app/sales/templates/sales/pos.html:170
+msgid "Injections"
+msgstr "Cirbadaha"
+
+#: app/sales/templates/sales/pos.html:176
+msgid "Search for a product to add it to the cart"
+msgstr "Raadi badeecad si aad ugu darto dambiisha"
+
+#: app/sales/templates/sales/pos.html:185
+msgid "Current Order"
+msgstr "Dalabka Hadda"
+
+#: app/sales/templates/sales/pos.html:186
+msgid "Clear"
+msgstr "Nadiifi"
+
+#: app/sales/templates/sales/pos.html:196
+msgid "Customer Name"
+msgstr "Magaca Macmiilka"
+
+#: app/sales/templates/sales/pos.html:198
+msgid "Walk-in Customer"
+msgstr "Macmiil Socoto ah"
+
+#: app/sales/templates/sales/pos.html:202
+msgid "Subtotal"
+msgstr "Warta Hoose"
+
+#: app/sales/templates/sales/pos.html:206
+msgid "Discount"
+msgstr "Qiimo Dhimis"
+
+#: app/sales/templates/sales/pos.html:214
+msgid "Grand Total"
+msgstr "Warta Guud"
+
+#: app/sales/templates/sales/pos.html:220
+msgid "Complete Transaction"
+msgstr "Dhammeystir Ganacsiga"
+
+#: app/patients/templates/patients/index.html:10
+msgid "Patients Registry"
+msgstr "Diiwaanka Bukaanada"
+
+#: app/patients/templates/patients/index.html:11
+msgid "Manage clinical records and patient enrollment."
+msgstr "Maamul diiwaanka caafimaadka iyo diiwaan gelinta bukaanada."
+
+#: app/patients/templates/patients/index.html:17
+msgid "Register New Patient"
+msgstr "Diiwaangeli Bukaan Cusub"
+
+#: app/patients/templates/patients/index.html:32
+msgid "Total Enrollment"
+msgstr "Wadarta Diiwaangelinta"
+
+#: app/patients/templates/patients/index.html:42
+msgid "Active Records"
+msgstr "Diiwaanada Firfircoon"
+
+#: app/patients/templates/patients/index.html:49
+msgid "Patient Profile"
+msgstr "Xogta Bukaanka"
+
+#: app/patients/templates/patients/index.html:50
+msgid "ID Number"
+msgstr "Lambarka ID"
+
+#: app/patients/templates/patients/index.html:51
+msgid "Demographics"
+msgstr "Xogta Dadweynaha"
+
+#: app/patients/templates/patients/index.html:52
+msgid "Contact Info"
+msgstr "Xogta Xidhiidhka"
+
+#: app/patients/templates/patients/index.html:53
+msgid "Clinical Data"
+msgstr "Xogta Caafimaadka"
+
+#: app/patients/templates/patients/index.html:54
+msgid "Actions"
+msgstr "Ficilada"
+
+#: app/patients/templates/patients/create.html:10
+msgid "Add New Patient"
+msgstr "Kudar Bukaan Cusub"
+
+#: app/patients/templates/patients/create.html:10
+msgid "Edit Patient"
+msgstr "Wax ka Bedel Bukaanka"
+
+#: app/patients/templates/patients/create.html:11
+msgid "Complete patient information for accurate records"
+msgstr "Buuxi xogta bukaanka si loo helo diiwaano sax ah"
+
+#: app/patients/templates/patients/create.html:14
+msgid "Back"
+msgstr "Dib u noqo"
+
+#: app/patients/templates/patients/create.html:29
+msgid "Basic Information"
+msgstr "Xogta Aasaasiga ah"
+
+#: app/patients/templates/patients/create.html:35
+msgid "Patient ID"
+msgstr "Lambarka Bukaanka"
+
+#: app/patients/templates/patients/create.html:42
+msgid "First Name"
+msgstr "Magaca Kowaad"
+
+#: app/patients/templates/patients/create.html:51
+msgid "Last Name"
+msgstr "Magaca Dambe"
+
+#: app/patients/templates/patients/create.html:60
+msgid "Age (Years)"
+msgstr "Da'da (Sanno)"
+
+#: app/patients/templates/patients/create.html:69
+msgid "Gender"
+msgstr "Jinsiga"
+
+#: app/patients/templates/patients/create.html:77
+msgid "Blood Group"
+msgstr "Kooxda Dhiigga"
+
+#: app/patients/templates/patients/create.html:82
+msgid "Phone Number"
+msgstr "Lambarka Taleefanka"
+
+#: app/patients/templates/patients/create.html:96
+msgid "Contact & Address"
+msgstr "Xidhiidhka & Cinwaanka"
+
+#: app/patients/templates/patients/create.html:102
+msgid "Emergency Contact Name"
+msgstr "Magaca Xaaladda Degdegga ah"
+
+#: app/patients/templates/patients/create.html:107
+msgid "Emergency Contact Phone"
+msgstr "Taleefanka Xaaladda Degdegga ah"
+
+#: app/patients/templates/patients/create.html:112
+msgid "Residential Address"
+msgstr "Cinwaanka Guriga"
+
+#: app/patients/templates/patients/create.html:123
+msgid "Medical History"
+msgstr "Taariikhda Caafimaadka"
+
+#: app/patients/templates/patients/create.html:129
+msgid "Medical Conditions"
+msgstr "Xaaladaha Caafimaadka"
+
+#: app/patients/templates/patients/create.html:135
+msgid "Known Allergies"
+msgstr "Xasaasiyadaha La Yaqaan"
+
+#: app/patients/templates/patients/create.html:149
+msgid "Review & Save"
+msgstr "Dib u Eeg oo Keydi"
+
+#: app/patients/templates/patients/create.html:150
+msgid "Verify all information before submitting"
+msgstr "Xaqiiji dhammaan macluumaadka ka hor inta aadan gudbin"
+
+#: app/patients/templates/patients/create.html:153
+msgid "Required Fields"
+msgstr "Meelaha Loo Baahan Yahay"
+
+#: app/patients/templates/patients/create.html:185
+msgid "Save Patient Record"
+msgstr "Keydi Diiwaanka Bukaanka"
+
+#: app/patients/templates/patients/create.html:187
+msgid "Cancel"
+msgstr "Jooji"
+
+#: app/patients/templates/patients/create.html:195
+msgid "All patient data is securely stored and compliant with medical record standards."
+msgstr "Dhammaan xogta bukaanka si badbaado ah ayaa loo kaydiyaa waxaana u hoggaansanaya heerarka diiwaanka caafimaadka."
+
+#: app/patients/templates/patients/index.html:80
+msgid "years old"
+msgstr "jir"
+
+#: app/patients/templates/patients/index.html:124
+msgid "No Records Found"
+msgstr "Diiwaano Lama Helin"
+
+#: app/patients/templates/patients/index.html:125
+msgid "Start by adding your first patient to the registry."
+msgstr "Ku bilow ku darista bukaankaaga ugu horreeya diiwaanka."
+

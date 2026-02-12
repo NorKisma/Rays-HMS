@@ -1,0 +1,86 @@
+{% extends "main/base.html" %}
+
+{% block title %}Inventory Categories - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="mb-4">
+        <a href="{{ url_for('inventory.index') }}" class="text-decoration-none">
+            <i class="fa fa-arrow-left"></i> Back to Inventory
+        </a>
+        <h1 class="mt-2">Product Categories</h1>
+    </div>
+
+    <div class="row">
+        <!-- Add Category Form -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">New Category</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{{ form.name.label }}</label>
+                            {{ form.name(class="form-control", placeholder="e.g. Antibiotics, Surgical") }}
+                            {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{%
+                            endfor %}
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">{{ form.description.label }}</label>
+                            {{ form.description(class="form-control", placeholder="Brief description...") }}
+                        </div>
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary fw-bold") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories List -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="card-header table-header-blue border-0 pt-3 px-4 pb-3">
+                    <h5 class="mb-0 fw-bold">Product Categories</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 datatable">
+                            <thead>
+                                <tr>
+                                    <th>Category Name</th>
+                                    <th>Description</th>
+                                    <th>Products</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cat in categories %}
+                                <tr>
+                                    <td><span class="fw-bold">{{ cat.name }}</span></td>
+                                    <td><small class="text-muted">{{ cat.description or '--' }}</small></td>
+                                    <td><span class="badge bg-light text-primary">{{ cat.products|length }} Items</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-light text-danger"><i
+                                                class="fa fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% if not categories %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted small">No categories defined yet.
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

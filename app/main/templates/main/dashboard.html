@@ -1,0 +1,202 @@
+{% extends "main/base.html" %}
+
+{% block title %}Insights - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">Operational Insights</h2>
+            <p class="text-muted mb-0">Welcome back, {{ user.name }}. Here is what's happening today.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-white border shadow-sm btn-sm px-3"><i class="fa fa-download me-2"></i>
+                Report</button>
+            <button class="btn btn-primary btn-sm px-4 shadow">Refresh Data</button>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="row g-4 mb-5">
+        <!-- Patients -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 border-top border-4 border-primary shadow-sm h-100">
+                <div class="card-body stat-card p-4">
+                    <div>
+                        <small class="text-muted text-uppercase d-block mb-1">Registered Patients</small>
+                        <h3 class="fw-bold mb-0 text-primary">{{ total_patients or 0 }}</h3>
+                    </div>
+                    <div class="stat-icon bg-primary-soft text-primary">
+                        <i class="fa fa-user-injured"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Doctors -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 border-top border-4 border-success shadow-sm h-100">
+                <div class="card-body stat-card p-4">
+                    <div>
+                        <small class="text-muted text-uppercase d-block mb-1">Active Staff</small>
+                        <h3 class="fw-bold mb-0 text-success">{{ total_doctors or 0 }}</h3>
+                    </div>
+                    <div class="stat-icon bg-success-soft text-success">
+                        <i class="fa fa-user-md"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Appointments -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 border-top border-4 border-info shadow-sm h-100">
+                <div class="card-body stat-card p-4">
+                    <div>
+                        <small class="text-muted text-uppercase d-block mb-1">Today's Schedule</small>
+                        <h3 class="fw-bold mb-0 text-info">{{ pending_appointments or 0 }}</h3>
+                    </div>
+                    <div class="stat-icon bg-info-soft text-info">
+                        <i class="fa fa-calendar-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Revenue/Unpaid -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 border-top border-4 border-danger shadow-sm h-100">
+                <div class="card-body stat-card p-4 text-nowrap">
+                    <div>
+                        <small class="text-muted text-uppercase d-block mb-1">Unpaid Billings</small>
+                        <h3 class="fw-bold mb-0 text-danger">{{ unpaid_bills or 0 }}</h3>
+                    </div>
+                    <div class="stat-icon bg-danger-soft text-danger">
+                        <i class="fa fa-receipt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Recent Patients Table -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="card-header bg-surface py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Recent Registrations</h5>
+                    <a href="{{ url_for('patients.index') }}" class="btn btn-link btn-sm text-decoration-none">View
+                        Registry</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">Patient</th>
+                                    <th>ID</th>
+                                    <th>Phone</th>
+                                    <th>Registration Date</th>
+                                    <th class="text-end pe-4">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for patient in recent_patients %}
+                                <tr>
+                                    <td class="ps-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                style="width: 32px; height: 32px; font-weight: bold; font-size: 0.75rem;">
+                                                {{ patient.first_name[0] }}{{ patient.last_name[0] }}
+                                            </div>
+                                            <div class="small">{{ patient.first_name }} {{ patient.last_name }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><code
+                                            class="small text-primary bg-primary-soft px-2 py-1 rounded">{{ patient.patient_id }}</code>
+                                    </td>
+                                    <td><span class="small text-muted">{{ patient.phone or '--' }}</span></td>
+                                    <td><small>{{ patient.created_at.strftime('%d %b %Y') }}</small></td>
+                                    <td class="text-end pe-4">
+                                        <a href="{{ url_for('patients.view', id=patient.id) }}"
+                                            class="btn btn-sm btn-surface border rounded-circle shadow-sm">
+                                            <i class="fa fa-chevron-right text-muted" style="font-size: 0.7rem;"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% if not recent_patients %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">No recent activity.</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Watch -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-surface py-3">
+                    <h5 class="mb-0 fw-bold">Rays HMS Watch</h5>
+                </div>
+                <div class="card-body">
+                    {% if low_stock > 0 %}
+                    <div class="alert alert-warning border-0 bg-warning-soft p-3 mb-4 d-flex align-items-center">
+                        <i class="fa fa-exclamation-circle fa-2x me-3 opacity-50"></i>
+                        <div>
+                            <h6 class="fw-bold mb-1">Critical Stock Level</h6>
+                            <p class="small mb-0">{{ low_stock }} items are below minimum safety threshold.</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="list-group list-group-flush border-0">
+                        <div
+                            class="list-group-item px-0 py-3 border-0 d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary-soft p-2 rounded-3 me-3"><i
+                                        class="fa fa-capsules text-primary"></i></div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold small">Drug Stock</h6>
+                                    <small class="text-muted">Managed items</small>
+                                </div>
+                            </div>
+                            <span class="badge bg-primary-soft text-primary">Healthy</span>
+                        </div>
+                        <div
+                            class="list-group-item px-0 py-3 border-0 d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-success-soft p-2 rounded-3 me-3"><i
+                                        class="fa fa-syringe text-success"></i></div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold small">Equipment</h6>
+                                    <small class="text-muted">Consumables</small>
+                                </div>
+                            </div>
+                            <span class="badge bg-success-soft">Stocked</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <a href="{{ url_for('inventory.index') }}"
+                            class="btn btn-outline-primary btn-sm rounded-pill fw-bold">Open Inventory Manager</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Specific overrides for dashboard widgets if needed */
+    .stat-card {
+        border-radius: var(--radius);
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

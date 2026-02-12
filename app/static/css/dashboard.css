@@ -1,0 +1,96 @@
+/* =========================
+   SUMMARY CARDS (Top Row Metrics)
+========================= */
+.summary-card { 
+    transition: transform 0.2s; 
+    cursor: pointer; 
+    text-align: center; 
+}
+
+/* Hover effect for visual feedback */
+.summary-card:hover { 
+    transform: translateY(-5px); 
+}
+
+.summary-card h5 { 
+    font-size: 1.5rem; 
+    margin: 0.5rem 0; 
+    font-weight: bold; 
+}
+
+.summary-card span { 
+    font-size: 0.9rem; 
+    opacity: 0.8; 
+}
+
+/* =========================
+   DASHBOARD CARDS (Middle/Bottom Sections)
+========================= */
+.dash-card { 
+    padding: 20px; 
+    border-radius: 10px; 
+    background: #fff; /* Light Mode background */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+    text-align: center; 
+    transition: transform 0.2s; 
+}
+
+/* Hover effect for visual feedback */
+.dash-card:hover { 
+    transform: translateY(-5px); 
+}
+
+.dash-card i { 
+    font-size: 2rem; 
+    margin-bottom: 10px; 
+}
+
+.dash-card h5 { 
+    margin: 0; 
+    font-weight: bold; 
+}
+
+.dash-card span { 
+    font-size: 0.9rem; 
+    color: #6c757d; /* Muted text color */
+}
+
+/* =========================
+   GENERAL CARDS (Charts, Lists, etc.)
+========================= */
+.card { 
+    border-radius: 10px; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+}
+
+/* =========================
+   TABLES & BADGES
+========================= */
+table#invoicesTable tbody tr:hover { 
+    background-color: #f8f9fa; /* Light hover background */
+}
+
+.badge { 
+    font-size: 0.85rem; 
+}
+
+/* =========================
+   DARK MODE OVERRIDES
+========================= */
+body.dark-mode { 
+    background-color: #121212; 
+    color: #e0e0e0; 
+}
+
+/* Change background and text color for all main card types in Dark Mode */
+body.dark-mode .dash-card, 
+body.dark-mode .summary-card, 
+body.dark-mode .card { 
+    background-color: #1e1e1e; 
+    color: #e0e0e0; 
+}
+
+/* Change table row hover background in Dark Mode */
+body.dark-mode table#invoicesTable tbody tr:hover { 
+    background-color: #2a2a2a; 
+}

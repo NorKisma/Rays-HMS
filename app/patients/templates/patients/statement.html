@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Statement of Account - {{ patient.first_name }} {{ patient.last_name }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            /* Bank statement vibe */
+            font-size: 13px;
+            color: #333;
+            background: #fff;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #0056b3;
+            /* Bank Blue */
+            padding-bottom: 10px;
+        }
+
+        .logo-section h1 {
+            color: #0056b3;
+            margin: 0;
+            font-family: sans-serif;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .meta-info {
+            text-align: right;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .statement-title {
+            text-align: center;
+            font-weight: bold;
+            font-family: sans-serif;
+            margin: 30px 0;
+            color: #aa1111;
+            /* Slight red tint for title like in image */
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+
+        .account-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-family: sans-serif;
+        }
+
+        .detail-row {
+            margin-bottom: 5px;
+        }
+
+        .label {
+            font-weight: bold;
+            width: 120px;
+            display: inline-block;
+            color: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            text-align: left;
+            border-top: 1px solid #999;
+            border-bottom: 1px solid #999;
+            padding: 8px 5px;
+            font-weight: bold;
+            color: #444;
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+
+        td {
+            padding: 6px 5px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+
+        .numeric {
+            text-align: right;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 10px;
+            color: #999;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-family: sans-serif;
+            border-radius: 4px;
+        }
+
+        @media print {
+            .print-btn {
+                display: none;
+            }
+
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <button onclick="window.print()" class="print-btn"><i class="fas fa-print"></i> Print Statement</button>
+
+    <div class="header">
+        <div class="logo-section">
+            <!-- Simulated Logo -->
+            <div
+                style="background: #0056b3; color: white; padding: 10px 15px; display: inline-block; font-weight: bold;">
+                RAYS<br>HMS
+            </div>
+            <div style="display: inline-block; vertical-align: middle; margin-left: 15px;">
+                <h2 style="margin: 0; font-size: 18px; color: #cc5500;">RAYS HOSPITAL - MOGADISHU</h2>
+                <!-- Orange for contrast -->
+                <span style="font-size: 11px;">Maka Al Mukarama Road, Hodan District</span>
+            </div>
+        </div>
+        <div class="meta-info">
+            <strong>Date:</strong> {{ now.strftime('%d/%m/%Y') }}<br>
+            <strong>Time:</strong> {{ now.strftime('%H:%M:%S') }}<br>
+            <strong>User:</strong> {{ current_user.name }}
+        </div>
+    </div>
+
+    <div class="statement-title">
+        Statement of Account From 01 Jan 2025 To {{ now.strftime('%d %b %Y') }}
+    </div>
+
+    <div class="account-details">
+        <div class="left">
+            <div class="detail-row">
+                <span class="label">Patient ID</span> {{ patient.patient_id }}
+            </div>
+            <div class="detail-row">
+                <span class="label">Name</span> <span style="text-transform: uppercase;">{{ patient.first_name }} {{
+                    patient.last_name }}</span>
+            </div>
+        </div>
+        <div class="right">
+            <div class="detail-row">
+                <span class="label">Currency</span> USD
+            </div>
+            <div class="detail-row">
+                <span class="label">Generated On</span> {{ now.strftime('%d/%m/%Y') }}
+            </div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 100px;">Date</th>
+                <th style="width: 100px;">Ref No.</th>
+                <th>Particulars</th>
+                <th class="numeric" style="width: 100px;">Withdrawal</th> <!-- Charge -->
+                <th class="numeric" style="width: 100px;">Deposit</th> <!-- Payment -->
+                <th class="numeric" style="width: 120px;">Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="background-color: #f9f9f9; font-weight: bold;">
+                <td></td>
+                <td></td>
+                <td>Opening Balance</td>
+                <td class="numeric">0.00</td>
+                <td class="numeric">0.00</td>
+                <td class="numeric">0.00</td>
+            </tr>
+            {% for t in transactions %}
+            <tr>
+                <td>{{ t.date.strftime('%d/%m/%Y') }}</td>
+                <td>{{ t.ref }}</td>
+                <td>{{ t.particulars }}</td>
+                <td class="numeric">{{ "%.2f"|format(t.d_amt) if t.d_amt > 0 else "0.00" }}</td>
+                <td class="numeric">{{ "%.2f"|format(t.c_amt) if t.c_amt > 0 else "0.00" }}</td>
+                <td class="numeric" style="font-weight: bold;">{{ "%.2f"|format(t.balance) }}</td>
+            </tr>
+            {% endfor %}
+
+            {% if not transactions %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 20px; color: #999;">No financial history found for
+                    this patient.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+        <tfoot>
+            <tr style="border-top: 2px solid #333;">
+                <td colspan="3" style="text-align: right; font-weight: bold; padding-top: 10px;">Closing Balance:</td>
+                <td colspan="3" class="numeric" style="font-weight: bold; padding-top: 10px; font-size: 14px;">
+                    {{ "%.2f"|format(transactions[-1].balance if transactions else 0) }}
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="footer">
+        <p>This is a computer-generated document and does not require a signature.</p>
+        <p>Rays HMS &copy; 2026</p>
+    </div>
+
+</body>
+
+</html>

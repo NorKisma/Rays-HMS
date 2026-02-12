@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Rays HMS - Premium Healthcare{% endblock %}</title>
+
+  <!-- Meta Tags -->
+  <meta name="description" content="Rays HMS - Enterprise Healthcare Solution">
+  <meta name="author" content="Rays HMS">
+
+  <!-- Fonts & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Custom CSS (Versioned to force reload) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ range(1, 9999) | random }}">
+
+  <!-- DataTables Bootstrap 5 + Buttons + Responsive -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.2.0/css/buttons.bootstrap5.min.css">
+
+  <!-- Select2 for searchable dropdowns -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
+
+  {% block head %}{% endblock %}
+
+  <script>
+    // Theme initialization (prevent flash)
+    (function () {
+      const theme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+
+<body>
+  <!-- Responsive Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Sidebar -->
+  {% include 'main/sidebar.html' %}
+
+  <!-- Top Navbar -->
+  {% include 'main/navbar.html' %}
+
+  <!-- Main Entry Point -->
+  <main class="main-content" id="main-content">
+    <!-- Flash Messages -->
+    <div class="container-fluid">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div
+        class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show border-0 shadow-sm mb-4"
+        role="alert">
+        <i class="fa fa-info-circle me-2"></i> {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+    </div>
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- DataTables JS & Extensions -->
+  <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.bootstrap5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.bootstrap5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.print.min.js"></script>
+
+  <!-- Select2 for searchable dropdowns -->
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Sidebar Toggle Logic
+      const sidebarBtn = document.getElementById('sidebarToggle');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+
+      if (sidebarBtn && sidebar) {
+        sidebarBtn.addEventListener('click', () => {
+          if (window.innerWidth <= 992) {
+            // Mobile
+            sidebar.classList.toggle('mobile-open');
+            if (overlay) overlay.classList.toggle('show');
+          } else {
+            // Desktop
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
+          }
+        });
+
+        // Close on overlay click (mobile)
+        if (overlay) {
+          overlay.addEventListener('click', () => {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('show');
+          });
+        }
+
+        // Restore desktop sidebar state
+        if (window.innerWidth > 992) {
+          if (localStorage.getItem('sidebar-collapsed') === 'true') {
+            sidebar.classList.add('collapsed');
+          }
+        }
+      }
+
+      // Theme Toggle Logic
+      const themeToggle = document.getElementById('themeToggle');
+      if (themeToggle) {
+        const icon = themeToggle.querySelector('i');
+
+        const updateIcon = (theme) => {
+          if (theme === 'dark') {
+            icon.classList.replace('fa-moon', 'fa-sun');
+          } else {
+            icon.classList.replace('fa-sun', 'fa-moon');
+          }
+        };
+
+        // Set initial icon
+        updateIcon(document.documentElement.getAttribute('data-theme'));
+
+        themeToggle.addEventListener('click', () => {
+          const currentTheme = document.documentElement.getAttribute('data-theme');
+          const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+          document.documentElement.setAttribute('data-theme', newTheme);
+          localStorage.setItem('theme', newTheme);
+          updateIcon(newTheme);
+        });
+      }
+
+      // Global DataTables Initialization
+      if (typeof $.fn.dataTable !== 'undefined') {
+        $.fn.dataTable.ext.errMode = 'none'; // Suppress warnings
+        $('.datatable').DataTable({
+          responsive: true,
+          pageLength: 10,
+          order: [], // No initial sort
+          language: {
+            search: "",
+            searchPlaceholder: "Search records...",
+            lengthMenu: "_MENU_ entries",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            paginate: {
+              previous: '<i class="fa fa-chevron-left"></i>',
+              next: '<i class="fa fa-chevron-right"></i>'
+            }
+          },
+          buttons: [
+            {
+              extend: 'excel',
+              text: '<i class="fa fa-file-excel me-2"></i>Export',
+              className: 'btn btn-white btn-sm border shadow-sm'
+            },
+            {
+              extend: 'print',
+              text: '<i class="fa fa-print me-2"></i>Print',
+              className: 'btn btn-white btn-sm border shadow-sm'
+            }
+          ],
+          dom: '<"d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3" f B>t<"d-flex flex-wrap justify-content-between align-items-center mt-4 gap-3" i p>'
+        });
+      }
+
+      // Global searchable selects (professional Select2 style)
+      if (typeof $.fn.select2 !== 'undefined') {
+        $('.searchable-select').each(function () {
+          const $el = $(this);
+          const placeholder = $el.data('placeholder') || $el.attr('placeholder') || 'Select option';
+          const allowClear = $el.data('allow-clear') === true || $el.data('allow-clear') === 'true';
+
+          $el.select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: placeholder,
+            allowClear: allowClear
+          });
+        });
+      }
+    });
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+
+</html>

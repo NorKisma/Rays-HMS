@@ -1,0 +1,66 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Process Lab Request</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ url_for('lab.index') }}">Lab Queue</a></li>
+        <li class="breadcrumb-item active">Process Test</li>
+    </ol>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Patient Details</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ request.appointment.patient.first_name }} {{
+                        request.appointment.patient.last_name }}</p>
+                    <p><strong>ID:</strong> {{ request.appointment.patient.patient_id }}</p>
+                    <p><strong>Gender:</strong> {{ request.appointment.patient.gender }}</p>
+                    <p><strong>Age:</strong> {{ request.appointment.patient.age }}</p>
+                    <!-- Assuming age property exists or calc in template -->
+                </div>
+            </div>
+
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Test Details</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Test Name:</strong> {{ request.test_name }}</p>
+                    <p><strong>Description:</strong> {{ request.description }}</p>
+                    <p><strong>Ordered By:</strong> Dr. {{ request.appointment.doctor.first_name }} {{
+                        request.appointment.doctor.last_name }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Enter Results</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.result.label(class="form-label") }}
+                            {{ form.result(class="form-control", rows=10, placeholder="Enter detailed findings here...")
+                            }}
+                            {% for error in form.result.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="d-grid gap-2">
+                            {{ form.submit(class="btn btn-success btn-lg") }}
+                            <a href="{{ url_for('lab.index') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ title }} - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">{{ title }}</h2>
+            <p class="text-muted mb-0">Define pharmaceutical specifications and SKU classifications.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('inventory.index') }}" class="btn btn-white border shadow-sm btn-sm px-3">
+                <i class="fa fa-arrow-left me-2 text-muted"></i> Back to Portfolio
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm p-4">
+                <div class="card-header bg-white border-bottom-0">
+                    <h6 class="mb-0 fw-bold"><i class="fa fa-microscope text-primary me-2"></i> Pharmaceutical
+                        Definition</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase"
+                                style="font-size: 0.65rem;">Institutional Common Name</label>
+                            {{ form.name(class="form-control bg-light border-0 py-2" + (" is-invalid" if
+                            form.name.errors else ""), placeholder="Generic or Trade Designation") }}
+                            {% for error in form.name.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor
+                            %}
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted text-uppercase"
+                                    style="font-size: 0.65rem;">Stock Classification</label>
+                                {{ form.category_id(
+                                    class="form-select bg-light border-0 py-2 searchable-select",
+                                    data_placeholder=_('Select category'),
+                                    data_allow_clear="true"
+                                ) }}
+                                <div class="form-text small opacity-50"><i class="fa fa-info-circle me-1"></i> <a
+                                        href="{{ url_for('inventory.categories') }}"
+                                        class="text-decoration-none">Configure Categories</a></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted text-uppercase"
+                                    style="font-size: 0.65rem;">System Barcode / SKU</label>
+                                {{ form.barcode(class="form-control bg-light border-0 py-2", placeholder="LOG-SKU-RX")
+                                }}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase"
+                                style="font-size: 0.65rem;">Logistical Base Unit</label>
+                            {{ form.base_unit(class="form-control bg-light border-0 py-2", placeholder="e.g. Unit,
+                            Tablet, Box of 10") }}
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="form-label small fw-bold text-muted text-uppercase"
+                                style="font-size: 0.65rem;">Clinical Indications / Description</label>
+                            {{ form.description(class="form-control bg-light border-0 py-2", rows="3",
+                            placeholder="Active ingredients and storage requirements...") }}
+                        </div>
+
+                        <div class="pt-2">
+                            {{ form.submit(class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-5 offset-xl-1">
+            <div class="card border-0 bg-navy text-white shadow-sm p-4 overflow-hidden position-relative mb-4">
+                <div class="position-absolute start-0 bottom-0 opacity-10"
+                    style="transform: translate(-30%, 30%); font-size: 10rem;">
+                    <i class="fa fa-box-open"></i>
+                </div>
+                <div class="position-relative z-1">
+                    <h5 class="fw-bold mb-4">Catalog Master Control</h5>
+                    <p class="small text-white-50 lh-lg mb-5">
+                        Products defined here serve as the baseline for all subsequent consignment receptions.
+                        Accurately classifying medical products ensures streamlined reporting and automated reorder
+                        alerts.
+                    </p>
+                    <div class="p-3 bg-white-10 rounded-4 border-start border-4 border-primary">
+                        <h6 class="small fw-bold mb-1">SKU Generation</h6>
+                        <p class="small text-white-50 mb-0" style="font-size: 0.7rem;">
+                            The system supports international GS1 barcodes. Once a barcode is scanned, the product is
+                            immediately searchable across the enterprise clinical database.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

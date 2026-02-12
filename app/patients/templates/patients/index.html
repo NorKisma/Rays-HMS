@@ -1,0 +1,137 @@
+{% extends "main/base.html" %}
+
+{% block title %}Patients Registry - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">{{ _('Patients Registry') }}</h2>
+            <p class="text-muted mb-0">{{ _('Manage clinical records and patient enrollment.') }}</p>
+        </div>
+        <div>
+            <a href="{{ url_for('patients.add') }}" class="btn btn-primary btn-sm px-4 shadow">
+                <i class="fa fa-user-plus me-2"></i> {{ _('Register New Patient') }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 border-top border-4 border-primary shadow-sm h-100">
+                <div class="card-body stat-card p-4 text-center">
+                    <div class="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                        style="width: 50px; height: 50px;">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.65rem;">{{
+                        _('Total Enrollment') }}</small>
+                    <h3 class="fw-bold mb-0 text-primary">{{ patients|length }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Table Card -->
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header table-header-blue border-0 pt-3 px-4 pb-3">
+            <h5 class="mb-0 fw-bold">{{ _('Active Records') }}</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 datatable">
+                    <thead class="table-header-blue">
+                        <tr>
+                            <th class="ps-4">{{ _('Patient Profile') }}</th>
+                            <th>{{ _('ID Number') }}</th>
+                            <th>{{ _('Demographics') }}</th>
+                            <th>{{ _('Contact Info') }}</th>
+                            <th>{{ _('Clinical Data') }}</th>
+                            <th class="text-end pe-4">{{ _('Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                        <tr>
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-info-soft text-info rounded-circle d-flex align-items-center justify-content-center me-3"
+                                        style="width: 40px; height: 40px; font-weight: bold;">
+                                        {{ patient.first_name[0] }}{{ patient.last_name[0] }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">{{ patient.first_name }} {{ patient.last_name }}
+                                        </div>
+                                        <small class="text-muted">Registered {{ patient.created_at.strftime('%b %d, %Y')
+                                            if patient.created_at else '--' }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <code class="small fw-bold text-primary">{{ patient.patient_id }}</code>
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <span class="text-dark">{{ patient.gender }}</span><br>
+                                    <span class="text-muted">{{ patient.age }} {{ _('years old') }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <i class="fa fa-phone me-1 opacity-50"></i> {{ patient.phone or '--' }}
+                                </div>
+                            </td>
+                            <td>
+                                {% if patient.blood_group %}
+                                <span class="badge bg-danger-soft text-danger" style="font-size: 0.7rem;">
+                                    <i class="fa fa-tint me-1"></i> {{ patient.blood_group }}
+                                </span>
+                                {% else %}
+                                <span class="text-muted small">No Data</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{{ url_for('patients.view', id=patient.id) }}"
+                                        class="btn btn-sm btn-white border shadow-sm rounded-3" title="View Chart">
+                                        <i class="fa fa-eye text-primary"></i>
+                                    </a>
+                                    <a href="{{ url_for('patients.edit', id=patient.id) }}"
+                                        class="btn btn-sm btn-white border shadow-sm rounded-3" title="Modify Record">
+                                        <i class="fa fa-edit text-muted"></i>
+                                    </a>
+                                    <form action="{{ url_for('patients.delete', id=patient.id) }}" method="POST"
+                                        class="d-inline" onsubmit="return confirm('Archive this patient record?');">
+                                        <button type="submit"
+                                            class="btn btn-sm btn-white border shadow-sm rounded-3 text-danger"
+                                            title="Archive">
+                                            <i class="fa fa-archive"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if not patients %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="py-4">
+                                    <i class="fa fa-user-slash fa-3x text-light mb-3"></i>
+                                    <h6 class="text-muted fw-bold">{{ _('No Records Found') }}</h6>
+                                    <p class="small text-muted mb-4">{{ _('Start by adding your first patient to the
+                                        registry.') }}</p>
+                                    <a href="{{ url_for('patients.add') }}"
+                                        class="btn btn-primary btn-sm rounded-pill px-4">Register New Patient</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

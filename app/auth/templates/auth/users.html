@@ -1,0 +1,150 @@
+{% extends "main/base.html" %}
+
+{% block title %}Admin Control - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">User Administration</h2>
+            <p class="text-muted mb-0">Manage system access levels and staff credentials.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm px-4 shadow">
+                <i class="fa fa-user-plus me-2"></i> Create New User
+            </a>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header table-header-blue border-0 pt-3 px-4 pb-3">
+            <h5 class="mb-0 fw-bold">System Users</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 datatable">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Team Member</th>
+                            <th>Role & Access</th>
+                            <th>Status</th>
+                            <th>Joined On</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center me-3"
+                                        style="width: 40px; height: 40px; font-weight: bold;">
+                                        {{ user.name[0] | upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">{{ user.name }}</div>
+                                        <div class="small text-muted">{{ user.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary-soft text-primary text-uppercase"
+                                    style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                                    {{ user.role.name if user.role else 'Public' }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if user.is_active %}
+                                <span class="badge bg-success-soft text-success d-inline-flex align-items-center">
+                                    <span class="rounded-circle bg-success me-1"
+                                        style="width: 6px; height: 6px;"></span>
+                                    Active
+                                </span>
+                                {% else %}
+                                <span class="badge bg-danger-soft text-danger d-inline-flex align-items-center">
+                                    <span class="rounded-circle bg-danger me-1" style="width: 6px; height: 6px;"></span>
+                                    Inactive
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ user.created_at.strftime('%b %d, %Y') if user.created_at
+                                    else '--' }}</small>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group">
+                                    {% if user.email != 'nor.jws@gmail.com' %}
+                                    <a href="{{ url_for('auth.edit_user', user_id=user.id) }}"
+                                        class="btn btn-sm btn-white border shadow-sm rounded-3 me-2"
+                                        title="Edit Access">
+                                        <i class="fa fa-pen-nib text-muted"></i>
+                                    </a>
+                                    {% if user.id != current_user.id %}
+                                    <button type="button"
+                                        class="btn btn-sm btn-white border shadow-sm rounded-3 text-danger"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                        data-user-id="{{ user.id }}" data-user-name="{{ user.name }}"
+                                        title="Revoke Access">
+                                        <i class="fa fa-user-slash"></i>
+                                    </button>
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="badge bg-light text-muted p-2 rounded-3">
+                                        <i class="fa fa-lock me-1"></i> Locked System Account
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form method="post" id="deleteForm">
+                {{ csrf_form.csrf_token }}
+                <div class="modal-body p-5 text-center">
+                    <div class="avatar-lg bg-danger-soft text-danger rounded-circle d-inline-flex align-items-center justify-content-center mb-4"
+                        style="width: 80px; height: 80px; font-size: 2rem;">
+                        <i class="fa fa-exclamation-triangle"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Revoke Access?</h4>
+                    <p class="text-muted mb-4">Are you sure you want to remove access for <span
+                            class="fw-bold text-dark" id="deleteUserName"></span>? This action cannot be undone.</p>
+                    <div class="d-flex gap-3 justify-content-center">
+                        <button type="button" class="btn btn-light px-4 rounded-pill fw-bold"
+                            data-bs-dismiss="modal">Keep User</button>
+                        <button type="submit" class="btn btn-danger px-4 rounded-pill fw-bold shadow">Delete
+                            Permanently</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const deleteModalEl = document.getElementById("deleteModal");
+        const deleteForm = document.getElementById("deleteForm");
+        const userNameLabel = document.getElementById("deleteUserName");
+
+        deleteModalEl.addEventListener("show.bs.modal", function (event) {
+            const button = event.relatedTarget;
+            const userId = button.getAttribute("data-user-id");
+            const userName = button.getAttribute("data-user-name");
+            userNameLabel.textContent = userName;
+            deleteForm.action = "{{ url_for('auth.delete_user', user_id=0) }}".replace("0", userId);
+        });
+    });
+</script>
+{% endblock %}

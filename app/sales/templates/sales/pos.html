@@ -1,0 +1,617 @@
+{% extends "main/base.html" %}
+
+{% block title %}Point of Sale - Rays HMS{% endblock %}
+
+{% block head %}
+<style>
+    :root {
+        --pos-bg: #f3f4f8;
+        --pos-card-bg: #ffffff;
+        --pos-accent: #3b82f6;
+    }
+
+    .pos-container {
+        display: flex;
+        gap: 24px;
+        height: calc(100vh - 120px);
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Left Section: Product Discovery */
+    .pos-products {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    /* Search Area */
+    .search-card {
+        background: var(--pos-card-bg);
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        position: relative;
+        z-index: 1060;
+    }
+
+    .search-input-group {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        overflow: hidden;
+    }
+
+    .search-input-group:focus-within {
+        border-color: var(--pos-accent);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        background: #fff;
+    }
+
+    .search-icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-left: 1rem;
+        color: #64748b;
+    }
+
+    #product-search {
+        border: none;
+        background: transparent;
+        padding: 1rem;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #1e293b;
+    }
+
+    #product-search:focus {
+        box-shadow: none;
+    }
+
+    /* Search Results Dropdown */
+    #product-search-results {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        border: 1px solid #e2e8f0;
+        max-height: 450px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1070;
+        padding: 0.5rem;
+    }
+
+    .search-item {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 4px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        border: 1px solid transparent;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .search-item:hover {
+        background-color: #f1f5f9;
+        border-color: #e2e8f0;
+    }
+
+    .search-item-info h6 {
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 2px;
+    }
+
+    .search-item-meta {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .search-item-stock {
+        text-align: right;
+    }
+
+    .search-item-price {
+        font-weight: 700;
+        color: var(--pos-accent);
+        font-size: 1.1rem;
+    }
+
+    /* Quick Inventory View */
+    .inventory-card {
+        background: var(--pos-card-bg);
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .filter-pills {
+        display: flex;
+        gap: 10px;
+    }
+
+    .filter-pill {
+        border-radius: 50px;
+        padding: 8px 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: 1px solid #e2e8f0;
+        background: white;
+        color: #64748b;
+        transition: all 0.2s;
+    }
+
+    .filter-pill.active {
+        background: var(--pos-accent);
+        color: white;
+        border-color: var(--pos-accent);
+        box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+    }
+
+    .filter-pill:hover:not(.active) {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #94a3b8;
+        padding: 3rem;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        background: #f1f5f9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        color: #cbd5e1;
+    }
+
+    /* Right Section: Cart */
+    .pos-cart {
+        width: 380px;
+        background: var(--pos-card-bg);
+        border-radius: 16px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .cart-header {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        padding: 1.25rem 1.5rem;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .cart-items {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        background: #ffffff;
+    }
+
+    .cart-item {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.1s;
+    }
+
+    .cart-item:hover {
+        transform: translateX(2px);
+        border-color: #cbd5e1;
+    }
+
+    .qty-control {
+        display: flex;
+        align-items: center;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        padding: 2px;
+    }
+
+    .qty-btn {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #64748b;
+        border-radius: 6px;
+    }
+
+    .qty-btn:hover {
+        background: #f1f5f9;
+        color: var(--pos-accent);
+    }
+
+    .cart-summary {
+        background: #f8fafc;
+        padding: 1.5rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+        color: #64748b;
+    }
+
+    .summary-row.total {
+        color: #0f172a;
+        font-weight: 800;
+        font-size: 1.35rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px dashed #cbd5e1;
+        align-items: baseline;
+    }
+
+    .btn-checkout {
+        background: #10b981;
+        border: none;
+        width: 100%;
+        padding: 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: white;
+        box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.4);
+        transition: all 0.2s;
+    }
+
+    .btn-checkout:hover {
+        background: #059669;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="pos-container">
+        <!-- Products Search & Selection -->
+        <div class="pos-products">
+            <div class="search-card">
+                <h4 class="fw-bold mb-3 d-flex align-items-center">
+                    <i class="fa fa-cash-register text-primary me-3"></i>
+                    {{ _('Rays HMS POS') }}
+                </h4>
+                <div class="search-wrapper">
+                    <div class="search-input-group d-flex">
+                        <div class="search-icon-wrapper">
+                            <i class="fa fa-search fa-lg"></i>
+                        </div>
+                        <input type="text" id="product-search" class="flex-grow-1"
+                            placeholder="{{ _('Search by name, barcode or category (e.g. Paracetamol)...') }}"
+                            autocomplete="off">
+                    </div>
+                    <div id="product-search-results"></div>
+                </div>
+            </div>
+
+            <div class="inventory-card">
+                <div class="p-4 border-bottom border-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0 text-dark">{{ _('Quick Inventory View') }}</h5>
+                        <div class="filter-pills">
+                            <button class="filter-pill active">{{ _('All') }}</button>
+                            <button class="filter-pill">{{ _('Tablets') }}</button>
+                            <button class="filter-pill">{{ _('Syrups') }}</button>
+                            <button class="filter-pill">{{ _('Injections') }}</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-grow-1 position-relative p-4">
+                    <div class="empty-state" id="placeholder-msg">
+                        <div class="empty-state-icon">
+                            <i class="fa fa-barcode fa-2x"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1">{{ _('Ready to Scan') }}</h6>
+                        <p class="mb-0">{{ _('Search for a product to add it to the cart') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart / Invoice Sidebar -->
+        <div class="pos-cart">
+            <div class="cart-header">
+                <div class="d-flex align-items-center">
+                    <i class="fa fa-shopping-bag me-2"></i>
+                    <span class="fw-bold">{{ _('Current Order') }}</span>
+                </div>
+                <button
+                    class="btn btn-sm btn-white-20 rounded-pill px-3 fw-bold text-white border-white border-opacity-25"
+                    onclick="clearCart()">
+                    <i class="fa fa-trash-alt me-1"></i> {{ _('Clear') }}
+                </button>
+            </div>
+
+            <div class="cart-items" id="cart-container">
+                <!-- Items injected here -->
+            </div>
+
+            <div class="cart-summary">
+                <div class="mb-3">
+                    <label class="small fw-bold text-muted mb-1">{{ _('Customer') }}</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i
+                                class="fa fa-user text-muted"></i></span>
+                        <input type="text" id="customer-name" class="form-control border-start-0 ps-0 bg-white"
+                            placeholder="{{ _('Walk-in Customer') }}">
+                    </div>
+                </div>
+
+                <div class="summary-row">
+                    <span>{{ _('Subtotal') }}</span>
+                    <span id="subtotal" class="fw-bold text-dark">$0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>{{ _('Discount') }}</span>
+                    <div class="discount-input-group d-flex align-items-center border bg-white rounded-3 px-2"
+                        style="width: 100px;">
+                        <span class="text-muted small me-1">$</span>
+                        <input type="number" id="discount-input"
+                            class="form-control border-0 p-0 text-end fw-bold shadow-none" value="0.00"
+                            onchange="updateTotals()">
+                    </div>
+                </div>
+                <div class="summary-row total">
+                    <span>{{ _('Total') }}</span>
+                    <span id="grand-total" class="text-success">$0.00</span>
+                </div>
+
+                <div class="mt-4">
+                    <button class="btn btn-checkout" onclick="processCheckout()">
+                        {{ _('Complete Payment') }} <i class="fa fa-arrow-right ms-2 opacity-50"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-body p-5 text-center">
+                <div class="mb-4">
+                    <div class="avatar-lg bg-success-soft text-success rounded-circle d-flex align-items-center justify-content-center mx-auto"
+                        style="width: 80px; height: 80px;">
+                        <i class="fa fa-check fa-3x"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-2 text-dark">{{ _('Sale Completed!') }}</h3>
+                <p class="text-muted mb-4">{{ _('Invoice') }} <span id="modal-invoice-num"
+                        class="fw-bold text-dark"></span> {{ _('has been generated successfully.') }}</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary py-3 fw-bold rounded-pill" onclick="window.location.reload()">{{
+                        _('Start New Sale') }}</button>
+                    <button class="btn btn-outline-light text-dark border py-3 fw-bold rounded-pill">{{ _('Print
+                        Invoice') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let cart = [];
+
+    // 1. Search Logic
+    const searchInput = document.getElementById('product-search');
+    const resultsDiv = document.getElementById('product-search-results');
+
+    searchInput.addEventListener('input', async (e) => {
+        const q = e.target.value.trim();
+        if (q.length < 2) {
+            resultsDiv.style.display = 'none';
+            return;
+        }
+
+        try {
+            const res = await fetch(`{{ url_for('sales.search_products') }}?q=${q}`);
+            const data = await res.json();
+
+            if (data.length > 0) {
+                // Store results globally
+                window.lastSearchResults = data;
+                resultsDiv.innerHTML = data.map((item, index) => `
+                <div class="search-item" onclick="addFromSearch(${index})">
+                    <div class="search-item-info">
+                        <h6>${item.name}</h6>
+                        <div class="search-item-meta">Batch: ${item.batch_number} • Exp: ${item.expiry}</div>
+                    </div>
+                    <div class="search-item-stock">
+                        <div class="search-item-price">$${item.price.toFixed(2)}</div>
+                        <small class="${item.stock < 10 ? 'text-danger' : 'text-success'} fw-bold">${item.stock} ${item.unit}</small>
+                    </div>
+                </div>
+            `).join('');
+                resultsDiv.style.display = 'block';
+            } else {
+                resultsDiv.innerHTML = '<div class="p-4 text-center text-muted"><i class="fa fa-box-open mb-2 d-block"></i>No products found</div>';
+                resultsDiv.style.display = 'block';
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    });
+
+    // Close search results when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+            resultsDiv.style.display = 'none';
+        }
+    });
+
+    function addFromSearch(index) {
+        const product = window.lastSearchResults[index];
+        if (product) addToCart(product);
+    }
+
+    // 2. Cart Logic
+    function addToCart(product) {
+        const existing = cart.find(item => item.id === product.id && item.batch_id === product.batch_id);
+        if (existing) {
+            if (existing.quantity < product.stock) {
+                existing.quantity++;
+            } else {
+                alert('Cannot exceed available stock');
+            }
+        } else {
+            cart.push({
+                id: product.id,
+                name: product.name,
+                batch_id: product.batch_id,
+                batch_number: product.batch_number,
+                price: product.price,
+                quantity: 1,
+                stock: product.stock
+            });
+        }
+        renderCart();
+        resultsDiv.style.display = 'none';
+        searchInput.value = '';
+    }
+
+    function updateQty(index, delta) {
+        const item = cart[index];
+        const newQty = item.quantity + delta;
+        if (newQty > 0 && newQty <= item.stock) {
+            item.quantity = newQty;
+        } else if (newQty <= 0) {
+            cart.splice(index, 1);
+        }
+        renderCart();
+    }
+
+    function renderCart() {
+        const container = document.getElementById('cart-container');
+        const placeholder = document.getElementById('placeholder-msg');
+
+        // Check if cart is empty but keep placeholder logic tied to inventory view if desired,
+        // or purely for cart list. Here we just re-render list.
+
+        container.innerHTML = cart.map((item, index) => `
+            <div class="cart-item">
+                <div class="cart-item-info">
+                    <h6 class="mb-0 fw-bold text-dark">${item.name}</h6>
+                    <small class="text-muted" style="font-size:0.75rem;">$${item.price.toFixed(2)}/unit</small>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="qty-control">
+                        <div class="qty-btn" onclick="updateQty(${index}, -1)"><i class="fa fa-minus small"></i></div>
+                        <span class="fw-bold px-2 text-dark" style="font-size:0.9rem; min-width:20px; text-align:center;">${item.quantity}</span>
+                        <div class="qty-btn" onclick="updateQty(${index}, 1)"><i class="fa fa-plus small"></i></div>
+                    </div>
+                    <div class="text-end fw-bold text-dark" style="width: 70px;">
+                        $${(item.price * item.quantity).toFixed(2)}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        updateTotals();
+    }
+
+    function updateTotals() {
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const discount = parseFloat(document.getElementById('discount-input').value) || 0;
+        const total = subtotal - discount;
+
+        document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+        document.getElementById('grand-total').textContent = `$${total.toFixed(2)}`;
+    }
+
+    function clearCart() {
+        cart = [];
+        renderCart();
+    }
+
+    // 3. Checkout Logic
+    async function processCheckout() {
+        if (cart.length === 0) {
+            alert('Your cart is empty');
+            return;
+        }
+
+        const payload = {
+            items: cart.map(item => ({
+                product_id: item.id,
+                batch_id: item.batch_id,
+                quantity: item.quantity,
+                price: item.price
+            })),
+            customer_name: document.getElementById('customer-name').value || 'Walk-in Customer',
+            discount: parseFloat(document.getElementById('discount-input').value) || 0,
+            payment_method: 'Cash'
+        };
+
+        try {
+            const response = await fetch("{{ url_for('sales.checkout') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token() if csrf_token else '' }}"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                document.getElementById('modal-invoice-num').textContent = result.invoice_number;
+                new bootstrap.Modal(document.getElementById('successModal')).show();
+            } else {
+                alert('Error: ' + result.message);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('An unexpected error occurred during checkout.');
+        }
+    }
+</script>
+{% endblock %}

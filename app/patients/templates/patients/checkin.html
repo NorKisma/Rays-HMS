@@ -1,0 +1,70 @@
+{% extends "main/base.html" %}
+
+{% block title %}Check-In Patient - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0 text-primary">
+                        <i class="fa fa-user-clock me-2"></i>Reception Check-In
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-light border shadow-sm mb-4">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-md bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center me-3"
+                                style="width: 50px; height: 50px;">
+                                <span class="fw-bold">{{ patient.first_name[0] }}{{ patient.last_name[0] }}</span>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">{{ patient.first_name }} {{ patient.last_name }}</h5>
+                                <small class="text-muted">ID: {{ patient.patient_id }} | Phone: {{ patient.phone
+                                    }}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">{{ form.doctor_id.label }}</label>
+                            {{ form.doctor_id(
+                                class="form-select form-select-lg shadow-none searchable-select" + (" is-invalid" if
+                                form.doctor_id.errors else ""),
+                                data_placeholder=_('Select doctor'),
+                                data_allow_clear="true"
+                            ) }}
+                            {% for error in form.doctor_id.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">Assigning a doctor will add the patient to their waiting list.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">{{ form.notes.label }}</label>
+                            {{ form.notes(class="form-control" + (" is-invalid" if form.notes.errors else ""), rows=3,
+                            placeholder="Reason for visit...") }}
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-5">
+                            <div>
+                                <h6 class="fw-bold mb-0 text-muted">Card Fee</h6>
+                                <h3 class="fw-bold text-dark">
+                                    ${{ '%.2f'|format(card_fee if card_fee is not none else 5.00) }}
+                                </h3>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold shadow">
+                                <i class="fa fa-check-circle me-2"></i> Confirm Check-In
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

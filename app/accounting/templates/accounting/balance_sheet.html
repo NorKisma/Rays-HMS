@@ -1,0 +1,102 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Balance Sheet</h1>
+        <button onclick="window.print()" class="btn btn-secondary btn-sm"><i class="fas fa-print"></i> Print</button>
+    </div>
+
+    <div class="row">
+        <!-- Assets -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 bg-primary text-white">
+                    <h6 class="m-0 font-weight-bold">Assets</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-borderless">
+                        <tbody>
+                            {% for acc, bal in assets %}
+                            {% if bal != 0 %}
+                            <tr>
+                                <td>{{ acc.code }} - {{ acc.name }}</td>
+                                <td class="text-right">{{ "%.2f"|format(bal) }}</td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="border-top font-weight-bold">
+                            <tr>
+                                <td>Total Assets</td>
+                                <td class="text-right">{{ "%.2f"|format(total_assets) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liabilities & Equity -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 bg-danger text-white">
+                    <h6 class="m-0 font-weight-bold">Liabilities & Equity</h6>
+                </div>
+                <div class="card-body">
+                    <h6 class="font-weight-bold text-gray-800">Liabilities</h6>
+                    <table class="table table-sm table-borderless mb-4">
+                        <tbody>
+                            {% for acc, bal in liabilities %}
+                            {% if bal != 0 %}
+                            <tr>
+                                <td>{{ acc.code }} - {{ acc.name }}</td>
+                                <td class="text-right">{{ "%.2f"|format(bal) }}</td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="border-top mb-4">
+                            <tr>
+                                <td>Total Liabilities</td>
+                                <td class="text-right">{{ "%.2f"|format(total_liabilities) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <h6 class="font-weight-bold text-gray-800 mt-4">Equity</h6>
+                    <table class="table table-sm table-borderless">
+                        <tbody>
+                            {% for acc, bal in equity %}
+                            {% if bal != 0 %}
+                            <tr>
+                                <td>{{ acc.code }} - {{ acc.name }}</td>
+                                <td class="text-right">{{ "%.2f"|format(bal) }}</td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+
+                            <!-- Net Income Line -->
+                            <tr>
+                                <td><em>Net Income (Current Period)</em></td>
+                                <td class="text-right">{{ "%.2f"|format(net_income) }}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="border-top font-weight-bold">
+                            <tr>
+                                <td>Total Equity</td>
+                                <td class="text-right">{{ "%.2f"|format(total_equity + net_income) }}</td>
+                            </tr>
+                            <tr class="bg-gray-100">
+                                <td>Total Liabilities & Equity</td>
+                                <td class="text-right">{{ "%.2f"|format(total_liabilities + total_equity + net_income)
+                                    }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

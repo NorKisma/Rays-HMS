@@ -1,0 +1,237 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ patient.first_name }} {{ patient.last_name }} - Patient Profile{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1400px;">
+    <!-- Header with Gradient -->
+    <div class="mb-5 p-4 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #0047AB 0%, #1e40af 100%);">
+        <a href="{{ url_for('patients.index') }}"
+            class="text-decoration-none text-white opacity-75 d-inline-block mb-3 small">
+            <i class="fa fa-arrow-left me-1"></i> {% if session.get('lang') == 'so' %}Ku laabo Diiwaanka{% else %}Back
+            to Registry{% endif %}
+        </a>
+        <div class="d-flex justify-content-between align-items-start">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center me-4 shadow-lg"
+                    style="width: 80px; height: 80px; font-size: 2rem; font-weight: 700;">
+                    {{ patient.first_name[0] }}{{ patient.last_name[0] }}
+                </div>
+                <div class="text-white">
+                    <h2 class="fw-bold mb-2">{{ patient.first_name }} {{ patient.last_name }}</h2>
+                    <div class="d-flex align-items-center gap-3">
+                        <code class="bg-white bg-opacity-25 text-white fw-bold px-3 py-1 rounded"
+                            style="font-size: 0.85rem;">{{ patient.patient_id }}</code>
+                        <span class="badge bg-success px-3 py-2 shadow-sm">{% if session.get('lang') == 'so' %}DIIWAAN
+                            SHAQEYNAYA{% else %}ACTIVE RECORD{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button onclick="window.print()" class="btn btn-white shadow">
+                    <i class="fa fa-print me-2"></i> {% if session.get('lang') == 'so' %}Daabac{% else %}Print Chart{%
+                    endif %}
+                </button>
+                <a href="{{ url_for('patients.edit', id=patient.id) }}" class="btn btn-warning shadow">
+                    <i class="fa fa-edit me-2"></i> {% if session.get('lang') == 'so' %}Bedel{% else %}Edit Profile{%
+                    endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Main Column -->
+        <div class="col-lg-8">
+            <!-- Clinical Profile -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 py-3 px-4">
+                    <h6 class="mb-0 fw-bold">{% if session.get('lang') == 'so' %}Tusmada Xogta Caafimaadka{% else
+                        %}Clinical Profile Matrix{% endif %}</h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <div class="text-uppercase small fw-bold text-muted mb-2"
+                                style="font-size: 0.65rem; letter-spacing: 0.5px;">{% if session.get('lang') == 'so'
+                                %}Jinsiga{% else %}Gender{% endif %}</div>
+                            <div class="fw-semibold">{{ patient.gender }}</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-uppercase small fw-bold text-muted mb-2"
+                                style="font-size: 0.65rem; letter-spacing: 0.5px;">{% if session.get('lang') == 'so'
+                                %}Dhiigga{% else %}Blood Group{% endif %}</div>
+                            <span class="badge bg-danger-soft text-danger px-3 py-2">{{ patient.blood_group or 'A+'
+                                }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-uppercase small fw-bold text-muted mb-2"
+                                style="font-size: 0.65rem; letter-spacing: 0.5px;">{% if session.get('lang') == 'so'
+                                %}Dhalashada{% else %}Date of Birth{% endif %}</div>
+                            <div class="fw-semibold">{{ patient.date_of_birth.strftime('%d %b %Y') }}</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-uppercase small fw-bold text-muted mb-2"
+                                style="font-size: 0.65rem; letter-spacing: 0.5px;">{% if session.get('lang') == 'so'
+                                %}Xiriirka{% else %}Primary Contact{% endif %}</div>
+                            <div class="fw-semibold">{{ patient.phone or '+252617220603' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical History & Allergies -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white border-0 py-3 px-4">
+                            <h6 class="mb-0 fw-bold d-flex align-items-center">
+                                <i class="fa fa-notes-medical text-primary me-2"></i>
+                                {% if session.get('lang') == 'so' %}Taariikhda Caafimaadka{% else %}Medical History{%
+                                endif %}
+                            </h6>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="bg-light p-3 rounded small">
+                                {{ patient.medical_history or ('Ma jiro taariikh caafimaad oo diiwaangashan.' if
+                                session.get('lang') == 'so' else 'No documented clinical history on record.') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white border-0 py-3 px-4">
+                            <h6 class="mb-0 fw-bold d-flex align-items-center">
+                                <i class="fa fa-exclamation-triangle text-danger me-2"></i>
+                                {% if session.get('lang') == 'so' %}Xasaasiyadaha La Ogyahay{% else %}Identified
+                                Allergies{% endif %}
+                            </h6>
+                        </div>
+                        <div class="card-body p-4">
+                            {% if patient.allergies %}
+                            <div class="bg-danger-soft border border-danger p-3 rounded small text-danger fw-semibold">
+                                <i class="fa fa-shield-virus me-2"></i> {{ patient.allergies }}
+                            </div>
+                            {% else %}
+                            <div class="bg-success-soft p-3 rounded small text-success fw-semibold">
+                                <i class="fa fa-check-circle me-2"></i> {% if session.get('lang') == 'so' %}Ma jirto
+                                xasaasiyad dawo/deegaan o la ogyahay.{% else %}No known medicinal or environmental
+                                allergies.{% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3 px-4 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">{% if session.get('lang') == 'so' %}Dhaqdhaqaaqyada Caafimaad ee Dhowaa{%
+                        else %}Recent Clinical Interactions{% endif %}</h6>
+                    <a href="{{ url_for('appointments.index') }}" class="btn btn-link btn-sm text-decoration-none">
+                        {% if session.get('lang') == 'so' %}Eeg Jadwalka{% else %}View All Schedules{% endif %}
+                    </a>
+                </div>
+                <div class="card-body py-5 text-center">
+                    <div class="py-4">
+                        <div class="rounded-circle bg-light text-muted d-inline-flex align-items-center justify-content-center mb-3"
+                            style="width: 60px; height: 60px; font-size: 1.5rem;">
+                            <i class="fa fa-calendar-times"></i>
+                        </div>
+                        <h6 class="text-muted fw-bold">{% if session.get('lang') == 'so' %}Ma Jiro Dhaqdhaqaaq Dhow{%
+                            else %}No Recent Activity{% endif %}</h6>
+                        <p class="small text-muted mb-0">
+                            {% if session.get('lang') == 'so' %}Ma jiro balamo loo diiwaangeliyay bukaankan.{% else
+                            %}There are no documented appointments for this patient in the current session.{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Communication Channels -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 py-3 px-4">
+                    <h6 class="mb-0 fw-bold">{% if session.get('lang') == 'so' %}Kanaalada Xiriirka{% else
+                        %}Communication Channels{% endif %}</h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-start">
+                        <div class="rounded-circle bg-primary-soft text-primary d-flex align-items-center justify-content-center me-3"
+                            style="width: 42px; height: 42px;">
+                            <i class="fa fa-map-marker-alt"></i>
+                        </div>
+                        <div class="flex-fill">
+                            <div class="text-uppercase small fw-bold text-muted mb-1"
+                                style="font-size: 0.65rem; letter-spacing: 0.5px;">{% if session.get('lang') == 'so'
+                                %}Cinwaanka Guriga{% else %}Residential Address{% endif %}</div>
+                            <div class="small fw-semibold lh-sm">{{ patient.address or ('Cinwaan lama hayo' if
+                                session.get('lang') == 'so' else 'No address on record') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Contact -->
+            <div class="card border-0 shadow-lg mb-4"
+                style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
+                <div class="card-body p-4 text-white">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center me-3"
+                            style="width: 50px; height: 50px;">
+                            <i class="fa fa-phone-volume fa-lg"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold">{% if session.get('lang') == 'so' %}Xiriirka Degdegga ah{% else
+                                %}Emergency Contact{% endif %}</h6>
+                            <small class="opacity-75">{% if session.get('lang') == 'so' %}Khadka Labaad ee Tooska ah{%
+                                else %}Direct Secondary Channel{% endif %}</small>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded p-3 mb-3">
+                        <div class="fw-bold text-dark mb-1">{{ patient.emergency_contact_name or ('Wakiil Aan La
+                            Cayimin' if session.get('lang') == 'so' else 'Unspecified Agent') }}
+                        </div>
+                        <div class="small text-muted">{% if session.get('lang') == 'so' %}Qofka Lala Xiriirayo Xaalada
+                            Degdega{% else %}Emergency Point of Contact{% endif %}</div>
+                    </div>
+
+                    <a href="tel:{{ patient.emergency_contact_phone }}"
+                        class="btn btn-white w-100 py-3 fw-bold shadow-sm">
+                        <i class="fa fa-phone me-2"></i> {{ patient.emergency_contact_phone or 'NO NUMBER' }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Record Metadata -->
+            <div class="card border-0 shadow-sm bg-navy text-white overflow-hidden position-relative">
+                <div class="position-absolute end-0 bottom-0 opacity-10"
+                    style="transform: translate(20%, 20%); font-size: 7rem;">
+                    <i class="fa fa-file-medical"></i>
+                </div>
+                <div class="card-body p-4 position-relative">
+                    <h6 class="fw-bold mb-4">{% if session.get('lang') == 'so' %}Xogta Diiwaanka{% else %}Record
+                        Metadata{% endif %}</h6>
+                    <div class="mb-3">
+                        <div class="small opacity-75 mb-1">{% if session.get('lang') == 'so' %}Diiwaanka La Abuuray:{%
+                            else %}Record Created:{% endif %}</div>
+                        <div class="fw-bold">{{ patient.created_at.strftime('%B %d, %Y') if patient.created_at else
+                            'February 04, 2026' }}</div>
+                    </div>
+                    <p class="small opacity-75 lh-base mb-0">
+                        {% if session.get('lang') == 'so' %}Diiwaankaan waxaa ilaalinaya xeerarka gaarka ah ee
+                        isbitaalka. Wax ka beddel kasta waa la diiwaangeliyaa.{% else %}This record is protected by
+                        hospital patient privacy policies. Any modifications are logged for HIPAA compliance auditing.{%
+                        endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

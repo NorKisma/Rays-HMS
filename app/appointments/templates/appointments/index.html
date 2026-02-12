@@ -1,0 +1,194 @@
+{% extends "main/base.html" %}
+
+{% block title %}Daily Schedule - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">{% if session.get('lang') == 'so' %}Socodka Balamaha Tooska ah{% else %}Live
+                Appointment Stream{% endif %}</h2>
+            <p class="text-muted mb-0">{% if session.get('lang') == 'so' %}La soco oo maamul talooyinka caafimaad iyo
+                socodka bukaanada.{% else %}Monitor and manage clinical consultations and patient flow.{% endif %}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-white border shadow-sm btn-sm px-3 fw-bold"><i
+                    class="fa fa-calendar-day me-2 text-muted"></i> {% if session.get('lang') == 'so' %}Maanta{% else
+                %}Today's View{% endif %}</button>
+            <a href="{{ url_for('appointments.add') }}" class="btn btn-primary btn-sm px-4 shadow fw-bold">
+                <i class="fa fa-calendar-plus me-2"></i> {% if session.get('lang') == 'so' %}Diiwaangeli Balan{% else
+                %}Book Appointment{% endif %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Status Cards -->
+    <div class="row g-4 mb-5 text-center">
+        <div class="col-xl-2 col-md-4">
+            <div class="card border-0 border-top border-4 border-primary shadow-sm p-3 h-100">
+                <h3 class="fw-bold text-primary mb-1">{{ appointments|selectattr('status', 'equalto',
+                    'scheduled')|list|length }}</h3>
+                <span class="form-label-small mb-0">{% if session.get('lang') == 'so' %}Qorsheysan{% else %}Scheduled{%
+                    endif %}</span>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4">
+            <div class="card border-0 border-top border-4 border-info shadow-sm p-3 h-100">
+                <h3 class="fw-bold text-info mb-1">{{ appointments|selectattr('status', 'equalto',
+                    'arrived')|list|length }}</h3>
+                <span class="form-label-small mb-0">{% if session.get('lang') == 'so' %}Sugaya{% else %}In Waiting{%
+                    endif %}</span>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4">
+            <div class="card border-0 border-top border-4 border-warning shadow-sm p-3 h-100">
+                <h3 class="fw-bold text-warning mb-1">{{ appointments|selectattr('status', 'equalto',
+                    'in_consultation')|list|length }}</h3>
+                <span class="form-label-small mb-0">{% if session.get('lang') == 'so' %}Hadda Socda{% else %}Active
+                    Now{% endif %}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Schedule Card -->
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header table-header-blue border-0 pt-3 px-4 pb-3">
+            <h5 class="mb-0 fw-bold text-white">{% if session.get('lang') == 'so' %}Safkah Talo-siinta Maalinlaha{% else
+                %}Daily Consultation Queue{% endif %}</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 datatable">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 text-xs uppercase tracking-wide">{% if session.get('lang') == 'so'
+                                %}Tixraac{% else %}Reference{% endif %}</th>
+                            <th class="text-xs uppercase tracking-wide">{% if session.get('lang') == 'so' %}Aqoonsiga
+                                Bukaanka{% else %}Patient Identity{% endif %}</th>
+                            <th class="text-xs uppercase tracking-wide">{% if session.get('lang') == 'so' %}Dhaqtarka
+                                Talo-siinta{% else %}Consulting Doctor{% endif %}</th>
+                            <th class="text-xs uppercase tracking-wide">{% if session.get('lang') == 'so' %}Waqtiga
+                                Qorsheysan{% else %}Scheduled Time{% endif %}</th>
+                            <th class="text-xs uppercase tracking-wide">{% if session.get('lang') == 'so' %}Xaaladda
+                                Hada{% else %}Current Status{% endif %}</th>
+                            <th class="text-end pe-4 text-xs uppercase tracking-wide">{% if session.get('lang') == 'so'
+                                %}Ficilada Kiliinikada{% else %}Clinical Actions{% endif %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for apt in appointments %}
+                        <tr>
+                            <td class="ps-4">
+                                <code class="small fw-bold text-primary">{{ apt.appointment_number }}</code>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-info-soft text-info rounded-circle d-flex align-items-center justify-content-center me-3"
+                                        style="width: 35px; height: 35px; font-weight: bold; font-size: 0.75rem;">
+                                        {{ apt.patient.first_name[0] }}{{ apt.patient.last_name[0] }}
+                                    </div>
+                                    <div class="fw-bold text-dark small">{{ apt.patient.first_name }} {{
+                                        apt.patient.last_name }}</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="ms-1">
+                                        <div class="small fw-bold text-dark">Dr. {{ apt.doctor.first_name }} {{
+                                            apt.doctor.last_name }}</div>
+                                        <div class="badge bg-light text-muted" style="font-size: 0.6rem;">{{
+                                            apt.doctor.specialization }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <div class="fw-bold text-dark"><i class="fa fa-clock opacity-50 me-1"></i> {{
+                                        apt.appointment_date.strftime('%H:%M') }}</div>
+                                    <div class="text-muted">{{ apt.appointment_date.strftime('%d %b, %Y') }}</div>
+                                </div>
+                            </td>
+                            <td>
+                                {% set sc = {
+                                'scheduled': ('primary', 'Scheduled'),
+                                'arrived': ('info', 'Waiting'),
+                                'in_consultation': ('warning', 'Live'),
+                                'completed': ('success', 'Completed'),
+                                'cancelled': ('danger', 'Cancelled')
+                                }.get(apt.status, ('secondary', apt.status)) %}
+                                <span class="badge bg-{{ sc[0] }}-soft text-{{ sc[0] }} text-uppercase"
+                                    style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                                    <span class="rounded-circle bg-{{ sc[0] }} me-1 d-inline-block"
+                                        style="width: 5px; height: 5px;"></span>
+                                    {{ sc[1] }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group gap-2">
+                                    <a href="{{ url_for('appointments.view', id=apt.id) }}"
+                                        class="btn btn-sm btn-white border shadow-sm rounded-3" title="View Detail">
+                                        <i class="fa fa-eye text-primary"></i>
+                                    </a>
+
+                                    {% if apt.status == 'scheduled' %}
+                                    <a href="{{ url_for('appointments.update_status', id=apt.id, status='arrived') }}"
+                                        class="btn btn-sm btn-white border shadow-sm rounded-3 text-info"
+                                        title="Mark Arrived">
+                                        <i class="fa fa-walking"></i>
+                                    </a>
+                                    {% elif apt.status == 'arrived' or apt.status == 'in_consultation' %}
+                                    <a href="{{ url_for('appointments.consult', id=apt.id) }}"
+                                        class="btn btn-sm btn-white border shadow-sm rounded-3 text-warning"
+                                        title="Clinical Portal">
+                                        <i class="fa fa-stethoscope"></i>
+                                    </a>
+                                    {% endif %}
+
+                                    {% if apt.status != 'cancelled' and apt.status != 'completed' %}
+                                    <a href="{{ url_for('appointments.update_status', id=apt.id, status='cancelled') }}"
+                                        class="btn btn-sm btn-white border shadow-sm rounded-3 text-danger"
+                                        title="Cancel"
+                                        onclick="return confirm('Immediately terminate this appointment?');">
+                                        <i class="fa fa-ban"></i>
+                                    </a>
+                                    {% endif %}
+
+                                    {% if apt.status == 'cancelled' %}
+                                    <form action="{{ url_for('appointments.delete', id=apt.id) }}" method="POST"
+                                        class="d-inline" onsubmit="return confirm('Permanently delete this record?');">
+                                        <button type="submit"
+                                            class="btn btn-sm btn-white border shadow-sm rounded-3 text-danger"
+                                            title="Delete">
+                                            <i class="fa fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if not appointments %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="py-5">
+                                    <div
+                                        class="avatar-lg bg-light-soft text-muted rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                                        <i class="fa fa-calendar-times fa-2x"></i>
+                                    </div>
+                                    <h6 class="text-muted fw-bold">{% if session.get('lang') == 'so' %}Safku wuu Faaruq
+                                        yahay{% else %}Queue Empty{% endif %}</h6>
+                                    <p class="small text-muted mb-0">{% if session.get('lang') == 'so' %}Ma jiraan
+                                        bukaan socod ah.{% else %}No active patient bookings detected for the selected
+                                        period.{% endif %}</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

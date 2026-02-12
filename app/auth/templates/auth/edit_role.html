@@ -1,0 +1,182 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ title }} - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">{{ title }}</h2>
+            <p class="text-muted mb-0">{% if session.get('lang') == 'so' %}Habee faahfaahinta doorka iyo
+                ogolaanshaha la xiriira.{% else %}Configure role details and associated permissions.{% endif %}</p>
+        </div>
+        <a href="{{ url_for('auth.list_roles') }}" class="btn btn-white border shadow-sm">
+            <i class="fas fa-arrow-left me-2"></i> {% if session.get('lang') == 'so' %}Ku laabo Doorarka{% else
+            %}Back to Roles{% endif %}
+        </a>
+    </div>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h6 class="mb-0 fw-bold">{% if session.get('lang') == 'so' %}Faahfaahinta Doorka{% else
+                            %}Role Details{% endif %}</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label fw-bold small text-uppercase") }}
+                            {{ form.name(class="form-control", placeholder="e.g. Lab Technician") }}
+                            {% for error in form.name.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label fw-bold small text-uppercase") }}
+                            {{ form.description(class="form-control", placeholder="Brief description...") }}
+                            {% for error in form.description.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="d-grid mt-4">
+                            {{ form.submit(class="btn btn-primary shadow-sm fw-bold", value="Keydi Doorka" if
+                            session.get('lang') == 'so' else "Save Role") }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h6 class="mb-0 fw-bold">{% if session.get('lang') == 'so' %}Qoondee Ogolaanshaha{% else
+                            %}Assign Permissions{% endif %}</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-light border mb-4">
+                            <i class="fas fa-info-circle me-2 text-info"></i> {% if session.get('lang') == 'so'
+                            %}Dooro ogolaanshaha ay tahay inay yeeshaan dadka doorkan leh.{% else %}Select the
+                            permissions that users with
+                            this role should possess.{% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-3 align-items-center">
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary fw-bold"
+                                    onclick="toggleAll(true)">
+                                    <i class="fa fa-check-double me-1"></i>
+                                    {% if session.get('lang') == 'so' %}Dooro Dhammaan{% else %}Select All{% endif %}
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary fw-bold"
+                                    onclick="toggleAll(false)">
+                                    <i class="fa fa-times me-1"></i>
+                                    {% if session.get('lang') == 'so' %}Ka Qaad Dhammaan{% else %}Deselect All{% endif
+                                    %}
+                                </button>
+                            </div>
+                            <div class="input-group input-group-sm" style="width: 200px;">
+                                <span class="input-group-text bg-white"><i class="fa fa-search text-muted"></i></span>
+                                <input type="text" id="permSearch" class="form-control"
+                                    placeholder="{% if session.get('lang') == 'so' %}Raadi...{% else %}Search...{% endif %}"
+                                    onkeyup="filterPermissions()">
+                            </div>
+                        </div>
+
+
+
+                        {# Translation Map for Permissions #}
+                        {% set perm_map = {
+                        'Add Appointments': 'Kudar Balamaha',
+                        'Add Diagnosis': 'Kudar Natiijada',
+                        'Add Doctors': 'Kudar Dhaqaatiir',
+                        'Add Inventory': 'Kudar Alaab',
+                        'Add Patients': 'Kudar Bukaan',
+                        'Add Prescription': 'Kudar Daawo',
+                        'Add Vitals': 'Kudar Calaamadaha',
+                        'Adjust Stock': 'Sax Kaydka',
+                        'Cancel Appointments': 'Jooji Balamaha',
+                        'Complete Appointments': 'Dhameystir Balamaha',
+                        'Create Billing': 'Samee Qaansheeg',
+                        'Delete Patients': 'Tirtir Bukaanada',
+                        'Edit Appointments': 'Bedel Balamaha',
+                        'Edit Doctors': 'Bedel Dhaqaatiirta',
+                        'Edit Inventory': 'Bedel Alaabta',
+                        'Edit Patients': 'Bedel Bukaanada',
+                        'Export Reports': 'Dhoofi Warbixin',
+                        'Manage Discounts': 'Maamul Dhimista',
+                        'Manage Users': 'Maamul Shaqaalaha',
+                        'Process Payment': 'Fuli Lacag Bixinta',
+                        'Process Sales': 'Fuli Iibka',
+                        'Return Sales': 'Soo Celin Iibka',
+                        'Update Settings': 'Cusbooneysii Nidaamka',
+                        'View Appointments': 'Arag Balamaha',
+                        'View Billing': 'Arag Qaansheegta',
+                        'View Doctors': 'Arag Dhaqaatiirta',
+                        'View Inventory': 'Arag Alaabta',
+                        'View Logs': 'Arag Diiwaanka',
+                        'View Patients': 'Arag Bukaanada',
+                        'View Reports': 'Arag Warbixinada',
+                        'View Sales': 'Arag Iibka',
+                        'View Vitals': 'Arag Calaamadaha'
+                        } %}
+
+                        <div class="row g-3" id="permission-grid">
+                            {% for subfield in form.permissions %}
+                            <div class="col-md-6 col-lg-4 perm-item">
+                                <div class="form-check p-3 border rounded-3 bg-light h-100 d-flex align-items-center position-relative hover-shadow transition-all"
+                                    style="cursor: pointer;">
+                                    {{ subfield(class="form-check-input me-2 mt-0") }}
+                                    <label class="form-check-label fw-medium stretched-link small text-dark"
+                                        for="{{ subfield.id }}">
+                                        {% if session.get('lang') == 'so' %}
+                                        {{ perm_map.get(subfield.label.text, subfield.label.text) }}
+                                        {% else %}
+                                        {{ subfield.label.text }}
+                                        {% endif %}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% for error in form.permissions.errors %}
+                        <div class="text-danger small mt-2">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<script>
+    function toggleAll(checked) {
+        // Only toggle visible checkboxes if filtering is active, or all if not
+        const visibleItems = Array.from(document.querySelectorAll('.perm-item')).filter(item => item.style.display !== 'none');
+        visibleItems.forEach(item => {
+            const cb = item.querySelector('input[type="checkbox"]');
+            if (cb) cb.checked = checked;
+        });
+    }
+
+    function filterPermissions() {
+        var input, filter, grid, items, label, i, txtValue;
+        input = document.getElementById("permSearch");
+        filter = input.value.toUpperCase();
+        grid = document.getElementById("permission-grid");
+        items = grid.getElementsByClassName("perm-item");
+
+        for (i = 0; i < items.length; i++) {
+            label = items[i].querySelector("label");
+            txtValue = label.textContent || label.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                items[i].style.display = "";
+            } else {
+                items[i].style.display = "none";
+            }
+        }
+    }
+</script>
+{% endblock %}
