@@ -4,77 +4,196 @@
 
 {% block content %}
 <div class="container-fluid px-0">
-    <div class="d-flex justify-content-between align-items-end mb-5">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
         <div>
-            <h2 class="fw-bold mb-1">Transaction History</h2>
-            <p class="text-muted mb-0">Overview of all sales and invoices.</p>
+            <h2 class="fw-bold mb-1" style="color: var(--text-main);">
+                <i class="fa fa-receipt me-2 text-primary opacity-75"></i>{{ _('Transaction History') }}
+            </h2>
+            <p class="text-muted mb-0">{{ _('Overview of all sales, invoices, and revenue.') }}</p>
         </div>
-        <div>
-            <a href="{{ url_for('sales.pos') }}" class="btn btn-primary btn-sm px-4 shadow">
-                <i class="fa fa-plus me-2"></i> New Transaction
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('sales.pos') }}" class="btn btn-primary shadow-sm px-4">
+                <i class="fa fa-plus me-2"></i>{{ _('New Sale') }}
             </a>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm overflow-hidden">
-        <div class="card-header table-header-blue border-0 pt-3 px-4 pb-3">
-            <h5 class="mb-0 fw-bold">Transaction History</h5>
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-3 d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-primary-soft">
+                        <i class="fa fa-shopping-cart"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">{{ _('Total Sales')
+                            }}</small>
+                        <h4 class="fw-bold mb-0">{{ sales|length }}</h4>
+                    </div>
+                </div>
+            </div>
         </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-3 d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-success-soft">
+                        <i class="fa fa-dollar-sign"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">{{ _('Total
+                            Revenue') }}</small>
+                        <h4 class="fw-bold mb-0">${{ "%.2f"|format(sales|sum(attribute='net_total')) }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-3 d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-info-soft">
+                        <i class="fa fa-tags"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">{{ _('Total
+                            Discount') }}</small>
+                        <h4 class="fw-bold mb-0">${{ "%.2f"|format(sales|sum(attribute='discount')) }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-3 d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-danger-soft">
+                        <i class="fa fa-money-bill-wave"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">{{ _('Cash
+                            Collected') }}</small>
+                        <h4 class="fw-bold mb-0">${{ "%.2f"|format(sales|sum(attribute='paid_amount')) }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Table -->
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 datatable">
-                    <thead>
+                    <thead class="table-header-slate">
                         <tr>
-                            <th class="ps-4">Invoice #</th>
-                            <th>Customer</th>
-                            <th>Items</th>
-                            <th>Total</th>
-                            <th>User</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th class="text-end pe-4">Actions</th>
+                            <th class="ps-4">{{ _('Invoice') }}</th>
+                            <th>{{ _('Customer') }}</th>
+                            <th>{{ _('Items') }}</th>
+                            <th>{{ _('Subtotal') }}</th>
+                            <th>{{ _('Discount') }}</th>
+                            <th>{{ _('Net Total') }}</th>
+                            <th>{{ _('Payment') }}</th>
+                            <th>{{ _('Cashier') }}</th>
+                            <th>{{ _('Status') }}</th>
+                            <th>{{ _('Date') }}</th>
+                            <th class="text-end pe-4">{{ _('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for sale in sales %}
                         <tr>
-                            <td class="ps-4 py-3 fw-bold text-primary">{{ sale.invoice_number }}</td>
-                            <td>{{ sale.customer_name }}</td>
-                            <td>
-                                <span class="badge bg-light text-dark border">
-                                    {{ sale.items|length }} items
-                                </span>
-                            </td>
-                            <td class="fw-bold">${{ "%.2f"|format(sale.net_total) }}</td>
-                            <td><small class="text-muted">{{ sale.user.name }}</small></td>
-                            <td>
-                                <span class="badge bg-success-soft">
-                                    <i class="fa fa-check-circle me-1"></i> {{ sale.status|title }}
-                                </span>
+                            <td class="ps-4 py-3">
+                                <span class="fw-bold text-primary">{{ sale.invoice_number }}</span>
                             </td>
                             <td>
-                                <small class="text-muted">
-                                    {{ sale.created_at.strftime('%b %d, %H:%M') }}
-                                </small>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex align-items-center justify-content-center rounded-circle bg-light border"
+                                        style="width:30px;height:30px;min-width:30px;">
+                                        <i class="fa fa-user text-muted" style="font-size:0.7rem;"></i>
+                                    </div>
+                                    <span class="fw-bold small">{{ sale.customer_name or 'Walk-in' }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border fw-bold px-2">
+                                    {{ sale.items|length }} {{ _('items') }}
+                                </span>
+                            </td>
+                            <td class="fw-bold">${{ "%.2f"|format(sale.total_amount) }}</td>
+                            <td>
+                                {% if sale.discount > 0 %}
+                                <span class="text-danger fw-bold">-${{ "%.2f"|format(sale.discount) }}</span>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="fw-bold text-success">${{ "%.2f"|format(sale.net_total) }}</span>
+                            </td>
+                            <td>
+                                {% if sale.payment_method == 'Cash' %}
+                                <span
+                                    class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2">
+                                    <i class="fa fa-money-bill-wave me-1"></i>{{ sale.payment_method }}
+                                </span>
+                                {% elif sale.payment_method == 'Card' %}
+                                <span
+                                    class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2">
+                                    <i class="fa fa-credit-card me-1"></i>{{ sale.payment_method }}
+                                </span>
+                                {% else %}
+                                <span
+                                    class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-2">
+                                    <i class="fa fa-mobile-alt me-1"></i>{{ sale.payment_method }}
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ sale.user.name }}</small>
+                            </td>
+                            <td>
+                                {% if sale.status == 'completed' %}
+                                <span class="badge bg-success-soft text-success fw-bold px-2">
+                                    <i class="fa fa-check-circle me-1"></i>{{ _('Completed') }}
+                                </span>
+                                {% elif sale.status == 'cancelled' %}
+                                <span class="badge bg-danger-soft text-danger fw-bold px-2">
+                                    <i class="fa fa-times-circle me-1"></i>{{ _('Cancelled') }}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning fw-bold px-2">
+                                    {{ sale.status|title }}
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div>
+                                    <small class="fw-bold">{{ sale.created_at.strftime('%b %d, %Y') }}</small><br>
+                                    <small class="text-muted">{{ sale.created_at.strftime('%H:%M') }}</small>
+                                </div>
                             </td>
                             <td class="text-end pe-4">
-                                <div class="btn-group">
-                                    <button class="btn btn-sm btn-white border shadow-sm rounded-3 me-2"
-                                        title="View Details">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <button class="btn btn-sm btn-white border shadow-sm rounded-3"
+                                        title="{{ _('View Details') }}">
                                         <i class="fa fa-eye text-muted"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-white border shadow-sm rounded-3 text-primary"
-                                        title="Print Invoice">
-                                        <i class="fa fa-print"></i>
+                                    <button class="btn btn-sm btn-white border shadow-sm rounded-3"
+                                        title="{{ _('Print Invoice') }}">
+                                        <i class="fa fa-print text-primary"></i>
                                     </button>
                                 </div>
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
-                                <i class="fa fa-receipt fa-3x mb-3 opacity-25"></i>
-                                <p>No sales recorded yet.</p>
+                            <td colspan="11" class="text-center py-5 text-muted">
+                                <i class="fa fa-receipt fa-3x mb-3 d-block opacity-25"></i>
+                                <h6 class="fw-bold mb-1">{{ _('No Sales Yet') }}</h6>
+                                <p class="small mb-3">{{ _('Start by creating a new sale from the POS.') }}</p>
+                                <a href="{{ url_for('sales.pos') }}" class="btn btn-primary btn-sm px-4">
+                                    <i class="fa fa-plus me-2"></i>{{ _('New Sale') }}
+                                </a>
                             </td>
                         </tr>
                         {% endfor %}

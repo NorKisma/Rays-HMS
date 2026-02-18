@@ -68,7 +68,7 @@ def role_required(*roles):
             allowed_roles = [r.lower() for r in roles]
             if not hasattr(current_user, 'role') or not current_user.role or current_user.role.name.lower() not in allowed_roles:
                 flash("You do not have permission to access this resource.", "danger")
-                return abort(403) # Forbidden
+                return redirect(url_for('main.dashboard'))
 
             return f(*args, **kwargs)
         return decorated_function

@@ -29,7 +29,7 @@ mail = Mail()
 # Babel (Translations)
 # --------------------------
 babel = Babel()
-LANGUAGES = ['en', 'so', 'ar']
+LANGUAGES = ['en', 'so']
 
 # New way for Flask-Babel 3.x
 def get_locale():

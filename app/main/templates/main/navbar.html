@@ -19,7 +19,6 @@
       <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
         <li><a class="dropdown-item" href="{{ url_for('main.set_language', lang_code='en') }}">English</a></li>
         <li><a class="dropdown-item" href="{{ url_for('main.set_language', lang_code='so') }}">Somali</a></li>
-        <li><a class="dropdown-item" href="{{ url_for('main.set_language', lang_code='ar') }}">Arabic</a></li>
       </ul>
     </div>
 
@@ -35,7 +34,7 @@
           {{ current_user.name[0] if current_user.is_authenticated else '?' }}
         </div>
         <div class="d-none d-sm-block text-start">
-          <div class="small fw-bold lh-1">{{ current_user.name if current_user.is_authenticated else 'Guest' }}
+          <div class="small fw-bold lh-1">{{ current_user.name if current_user.is_authenticated else 'User' }}
           </div>
           <small class="text-muted" style="font-size: 0.6rem;">{{ current_user.role.name if
             current_user.is_authenticated
@@ -46,7 +45,7 @@
         <li>
           <a class="dropdown-item py-2" href="{{ url_for('auth.change_password') }}">
             <i class="fa fa-key me-2 text-muted opacity-75"></i>
-            {% if session.get('lang') == 'so' %}Bedel Furaha{% else %}Change Password{% endif %}
+            {{ _('Change Password') }}
           </a>
         </li>
         <li>
@@ -55,7 +54,7 @@
         <li>
           <a class="dropdown-item py-2 text-danger" href="{{ url_for('auth.logout') }}">
             <i class="fa fa-sign-out-alt me-2 opacity-75"></i>
-            {% if session.get('lang') == 'so' %}Ka Bax{% else %}Logout{% endif %}
+            {{ _('Logout') }}
           </a>
         </li>
       </ul>

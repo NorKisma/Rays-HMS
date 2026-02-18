@@ -1,0 +1,106 @@
+{% extends "main/base.html" %}
+
+{% block title %}Record Vitals - {{ patient.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 900px;">
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('patients.index') }}">Patients</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('patients.view', id=patient.id) }}">{{ patient.full_name }}</a></li>
+                <li class="breadcrumb-item active">Record Vitals</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold text-navy">
+            <i class="fa fa-heartbeat text-danger me-2"></i>Record Patient Vitals
+        </h2>
+        <p class="text-muted text-uppercase small fw-bold" style="letter-spacing: 1px;">Capture current physiological statistics for clinical assessment.</p>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-navy text-white py-3 px-4">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-white text-navy d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="fa fa-user"></i>
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold">{{ patient.full_name }}</h6>
+                    <small class="opacity-75">ID: {{ patient.patient_id }} | {{ patient.age }} Years | {{ patient.gender }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4 p-lg-5">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Weight (kg)</label>
+                        {{ form.weight(class="form-control form-control-lg bg-light border-0", placeholder="e.g. 70") }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Height (cm)</label>
+                        {{ form.height(class="form-control form-control-lg bg-light border-0", placeholder="e.g. 175") }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Temperature (°C)</label>
+                        {{ form.temperature(class="form-control form-control-lg bg-light border-0", placeholder="e.g. 37.2") }}
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Blood Pressure</label>
+                        {{ form.blood_pressure(class="form-control form-control-lg bg-light border-0", placeholder="e.g. 120/80") }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Heart Rate (bpm)</label>
+                        {{ form.heart_rate(class="form-control form-control-lg bg-light border-0", placeholder="e.g. 72") }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase">SpO2 (%)</label>
+                        {{ form.spo2(class="form-control form-control-lg bg-light border-0", placeholder="e.g. 98") }}
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-muted text-uppercase">Respiratory Rate (bpm)</label>
+                    {{ form.respiratory_rate(class="form-control form-control-lg bg-light border-0", placeholder="e.g. 16") }}
+                </div>
+
+                <div class="mb-5">
+                    <label class="form-label fw-bold small text-muted text-uppercase">Nursing Notes / Observation</label>
+                    {{ form.note(class="form-control bg-light border-0", rows="4", placeholder="Mention any specific observations or patient concerns...") }}
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{{ url_for('patients.view', id=patient.id) }}" class="btn btn-light btn-lg px-5 fw-bold">Cancel</a>
+                    <button type="submit" class="btn btn-navy btn-lg px-5 fw-bold shadow-sm">
+                        <i class="fa fa-save me-2"></i>Record Vitals
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-navy { color: #0047AB; }
+    .bg-navy { background-color: #0047AB; }
+    .btn-navy {
+        background-color: #0047AB;
+        color: white;
+        border: none;
+    }
+    .btn-navy:hover {
+        background-color: #00378b;
+        color: white;
+    }
+    .form-control:focus {
+        background-color: #fff !important;
+        box-shadow: 0 0 0 0.25rem rgba(0, 71, 171, 0.1);
+        border: 1px solid #0047AB !important;
+    }
+</style>
+{% endblock %}

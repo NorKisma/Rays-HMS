@@ -431,3 +431,688 @@ msgstr "Diiwaano Lama Helin"
 msgid "Start by adding your first patient to the registry."
 msgstr "Ku bilow ku darista bukaankaaga ugu horreeya diiwaanka."
 
+msgid "Change Password"
+msgstr "Bedel Furaha"
+
+msgid "Logout"
+msgstr "Ka Bax"
+
+msgid "Professional Portal"
+msgstr "Albaabka Maamulka"
+
+msgid "Enter your credentials to access Rays HMS"
+msgstr "Gali macluumaadkaaga si aad u gashid Rays HMS"
+
+msgid "Email Address"
+msgstr "Cinwaanka Email-ka"
+
+msgid "Security Password"
+msgstr "Furaha Sirta ah"
+
+msgid "Remember session"
+msgstr "Xasuuso xubinnimada"
+
+msgid "Forgot password?"
+msgstr "Ma ilowday furaha?"
+
+msgid "Sign In to Dashboard"
+msgstr "Gal nidaamka"
+
+msgid "New staff member?"
+msgstr "Shaqaale cusub?"
+
+msgid "Request Registration"
+msgstr "Codso diiwaangelin"
+
+msgid "Operational Insights"
+msgstr "Xogta Shaqada"
+
+msgid "Welcome back"
+msgstr "Ku soo dhawaada"
+
+msgid "Here is what's happening today."
+msgstr "Halkan waa waxa dhacaya maanta."
+
+msgid "Report"
+msgstr "Warbixinta"
+
+msgid "Refresh Data"
+msgstr "Cusboonaysii Xogta"
+
+msgid "Registered Patients"
+msgstr "Bukaanada Diiwaangashan"
+
+msgid "Active Staff"
+msgstr "Shaqaalaha Firfircoon"
+
+msgid "Today's Schedule"
+msgstr "Jadwalka Maanta"
+
+msgid "Unpaid Billings"
+msgstr "Bill-asha Aan La Bixinn"
+
+msgid "Emergency Triage Queue"
+msgstr "Safarka Degdegga ah"
+
+msgid "Manage Hub"
+msgstr "Maamul Xarunta"
+
+msgid "In-Patient Admissions"
+msgstr "Bukaanada La Dhigay (IPD)"
+
+msgid "Live Grid"
+msgstr "Shaxda Tooska ah"
+
+msgid "Ward Management"
+msgstr "Maamulka Qaybaha"
+
+msgid "Ward & Bed Management"
+msgstr "Maamulka Qaybaha & Sariiraha"
+
+msgid "Monitor hospital capacity, ward utilization, and real-time bed availability."
+msgstr "Kormeer awoodda isbitaalka, isticmaalka qaybaha, iyo sariiraha bannaan ee hadda."
+
+msgid "View Occupied Beds"
+msgstr "Eeg Sariiraha la Deggan yahay"
+
+msgid "Configure New Ward"
+msgstr "Samee Qayb Cusub"
+
+msgid "Total Capacity"
+msgstr "Wadarta Boosaska"
+
+msgid "Beds"
+msgstr "Sariiro"
+
+msgid "Availability"
+msgstr "Helitaanka"
+
+msgid "Free"
+msgstr "Bannaan"
+
+msgid "Bed"
+msgstr "Sariirta"
+
+msgid "Manage Ward & Staff"
+msgstr "Maamul Qaybta & Shaqaalaha"
+
+msgid "Floor"
+msgstr "Dabaqa"
+
+msgid "Status: Active"
+msgstr "Heerka: Firfircoon"
+
+msgid "No Wards Configured"
+msgstr "Ma jiraan qaybo la habeeyey"
+
+msgid "Please set up hospital wards to begin managing patient admissions."
+msgstr "Fadlan samee qaybaha isbitaalka si aad u bilowdo maamulista bukaanada la dhigayo."
+
+msgid "Configure First Ward"
+msgstr "Habeey Qaybta Kowaad"
+
+msgid "Active Admissions"
+msgstr "Bukaanada Jiifa ee Firfircoon"
+
+msgid "Active patient stays and occupied beds across all wards."
+msgstr "Bukaannada hadda jiifa iyo sariiraha la deggan yahay ee dhammaan qaybaha."
+
+msgid "New Admission"
+msgstr "Diiwaangelin Jiif oo Cusub"
+
+msgid "Location"
+msgstr "Goobta"
+
+msgid "Doctor in Charge"
+msgstr "Dhakhtarka Mas'uulka ah"
+
+msgid "Days Stayed"
+msgstr "Maalmood ee uu Joogay"
+
+msgid "Notes"
+msgstr "Qoraallo"
+
+msgid "Transfer"
+msgstr "Bedel"
+
+msgid "Are you sure you want to discharge this patient?"
+msgstr "Ma hubtaa inaad rabto inaad saarto bukaankan?"
+
+msgid "Discharge"
+msgstr "Ka bixi"
+
+msgid "No active admissions currently."
+msgstr "Ma jiraan bukaanada jiifa hadda."
+
+msgid "Action"
+msgstr "Ficilka"
+
+msgid "Patient"
+msgstr "Bukaanka"
+
+msgid "Admission Date"
+msgstr "Taariikhda la Dhigay"
+
+msgid "Reason"
+msgstr "Sababta"
+
+msgid "ID"
+msgstr "Aqoonsiga"
+
+msgid "Dr."
+msgstr "Dr."
+
+msgid "New Patient Admission"
+msgstr "Diiwaangelin Jiif oo Cusub ee Bukaanka"
+
+msgid "Patient Admission"
+msgstr "Diiwaangelinta Jiifka Bukaanka"
+
+msgid "Allocate a ward and bed for in-patient clinical care."
+msgstr "U qoondee qayb iyo sariir daryeelka caafimaad ee bukaanka jiifka ah."
+
+msgid "Select Patient"
+msgstr "Dooro Bukaanka"
+
+msgid "Choose Patient"
+msgstr "Dooro Bukaanka"
+
+msgid "Admitting Doctor"
+msgstr "Dhakhtarka Dhigaya"
+
+msgid "Choose Doctor"
+msgstr "Dooro Dhakhtarka"
+
+msgid "Available Bed Allocation"
+msgstr "Qoondaynta Sariirta Bannaan"
+
+msgid "Choose Ward & Bed"
+msgstr "Dooro Qaybta & Sariirta"
+
+msgid "Reason for Admission / Initial Diagnosis"
+msgstr "Sababta la Dhigay / Baaritaanka Horudhaca ah"
+
+msgid "Describe the reason for admitting the patient..."
+msgstr "Sharax sababta bukaanka loo dhigay..."
+
+msgid "Cancel"
+msgstr "Jooji"
+
+msgid "Finalize Admission"
+msgstr "Dhamaystir Diiwaangelinta"
+
+msgid "Nursing Notes"
+msgstr "Qoraallada Kalkaalinta"
+
+msgid "Nursing Progress Notes"
+msgstr "Qoraallada Horumarka Kalkaalinta"
+
+msgid "Ward"
+msgstr "Qaybta"
+
+msgid "Back to Admissions"
+msgstr "Ku laabo Diiwaanka Jiifka"
+
+msgid "Add Observation"
+msgstr "Ku dar indho-indheyn"
+
+msgid "Vitals Snapshot (Optional)"
+msgstr "Sawirka Calaamadaha Muhiimka ah (Ikhtiyaari)"
+
+msgid "Temp"
+msgstr "Heerkulka"
+
+msgid "BP (e.g. 120/80)"
+msgstr "BP (tusaale 120/80)"
+
+msgid "Pulse (bpm)"
+msgstr "Garaaca Wadnaha (bpm)"
+
+msgid "Clinical Note / Progress Update"
+msgstr "Xusuusin Caafimaad / Cusboonaysiinta Horumarka"
+
+msgid "Record patient status, medication administration, or any observations..."
+msgstr "Diiwaangeli heerka bukaanka, bixinta dawada, ama indho-indheyn kasta..."
+
+msgid "Save Note"
+msgstr "Keydi Qoraalka"
+
+msgid "No progress notes recorded for this stay yet."
+msgstr "Ma jiraan qoraallo horumarineed oo loo diiwaangeliyey joogitaankan weli."
+
+msgid "Admissions"
+msgstr "Jiifka Bukaanka"
+
+msgid "Internal Transfer"
+msgstr "Bedelaad Gudaha ah"
+
+msgid "Patient Transfer"
+msgstr "Bedelaadda Bukaanka"
+
+msgid "Transfer Patient"
+msgstr "Bedel Bukaanka"
+
+msgid "Relocate patient to a different ward or bed."
+msgstr "U rar bukaanka qayb ama sariir ka duwan."
+
+msgid "Current Location"
+msgstr "Goobta Hadda"
+
+msgid "Admission ID"
+msgstr "Aqoonsiga Diiwaangelinta"
+
+msgid "Date"
+msgstr "Taariikhda"
+
+msgid "Select New Destination Bed"
+msgstr "Dooro Sariirta Cusub ee loo Rarayo"
+
+msgid "Ensure the target ward type matches clinical requirements."
+msgstr "Hubi in nooca qaybta lala rabo ay waafaqsan tahay shuruudaha caafimaad."
+
+msgid "Execute Transfer"
+msgstr "Fulinta Bedelaadda"
+
+msgid "Laboratory Workbench"
+msgstr "Xarunta Shaybaarka"
+
+msgid "Manage analytic testing queues and diagnostic reporting."
+msgstr "Maamul safafka baaritaanka shaybaarka iyo warbixinnada cudur-aqoonsiga."
+
+msgid "Refresh Queue"
+msgstr "Cusboonaysii Safka"
+
+msgid "Pending Analysis"
+msgstr "Baaritaannada Sugaya"
+
+msgid "Req. ID"
+msgstr "ID-ga Codsiga"
+
+msgid "Patient details"
+msgstr "Macluumaadka Bukaanka"
+
+msgid "Test Description"
+msgstr "Faahfaahinta Baaritaanka"
+
+msgid "Requested At"
+msgstr "Waqtiga la Codsaday"
+
+msgid "Start Test"
+msgstr "Bilow Baaritaanka"
+
+msgid "All Caught Up"
+msgstr "Dhammaan waa la Dhammeeyey"
+
+msgid "There are no pending lab requests waiting for analysis."
+msgstr "Ma jiraan codsiyo shaybaar oo sugaya in la baaro."
+
+msgid "Process Lab Test"
+msgstr "Socodsiinta Baaritaanka Shaybaarka"
+
+msgid "Process Lab Request"
+msgstr "Socodsiinta Codsiga Shaybaarka"
+
+msgid "Analyze sample and record diagnostic findings."
+msgstr "Baar sambalka oo diiwaangeli natiijooyinka."
+
+msgid "Back to Queue"
+msgstr "Ku laabo Safka"
+
+msgid "Full Name"
+msgstr "Magaca oo Buuxa"
+
+msgid "Patient ID"
+msgstr "ID-ga Bukaanka"
+
+msgid "Gender"
+msgstr "Jinsiga"
+
+msgid "Test Name"
+msgstr "Magaca Baaritaanka"
+
+msgid "Doctor Notes"
+msgstr "Qoraallada Dhakhtarka"
+
+msgid "Ordered By"
+msgstr "Cidda Codsatay"
+
+msgid "Enter Analysis Results"
+msgstr "Gali Natiijooyinka Baaritaanka"
+
+msgid "Use Template"
+msgstr "Isticmaal Shax"
+
+msgid "Diagnostic Findings"
+msgstr "Natiijooyinka Cudur-aqoonsiga"
+
+msgid "Enter detailed lab findings here...\n\nYou can also use a template from the dropdown above to pre-fill standard test fields."
+msgstr "Gali faahfaahinta natiijooyinka shaybaarka halkan...\n\nSidoo kale waxaad isticmaali kartaa shax ka mid ah kuwa kor ku xusan si aad u buuxiso meelaha caadiga ah."
+
+msgid "Quality Check:"
+msgstr "Xaqiijinta Tayada:"
+
+msgid "Ensure all values are within standard units and flag any critical or abnormal values clearly."
+msgstr "Hubi in dhammaan qiimayaashu ay ku jiraan unugyada caadiga ah oo si cad u calaamadi qiimayaasha khatarta ah ama aan caadiga ahayn."
+
+msgid "Save Results"
+msgstr "Keydi Natiijooyinka"
+
+msgid "Search records..."
+msgstr "Raadi diiwaannada..."
+
+msgid "Showing _START_ to _END_ of _TOTAL_ entries"
+msgstr "Muujinaya _START_ ilaa _END_ ee _TOTAL_ diiwaannada"
+
+msgid "Export"
+msgstr "Dhoofso"
+
+msgid "Print"
+msgstr "Daabac"
+
+msgid "Female"
+msgstr "Dheddig"
+
+msgid "Male"
+msgstr "Lab"
+
+msgid "Rays HMS Watch"
+msgstr "Kormeerka Rays HMS"
+
+msgid "Lab Analysis"
+msgstr "Baaritaanka Shaybaarka"
+
+msgid "Drug Stock"
+msgstr "Kaydka Daawada"
+
+msgid "Pending tests"
+msgstr "Baaritaanno sugaya"
+
+msgid "Managed items"
+msgstr "Alaabta la maamulay"
+
+msgid "Queued"
+msgstr "Saf ku jira"
+
+msgid "Healthy"
+msgstr "Caafimaad qaba"
+
+msgid "Recent Registrations"
+msgstr "Diiwaangelinnadii Ugu Dambeeyey"
+
+msgid "View Registry"
+msgstr "Eeg Diiwaanka"
+
+msgid "Patient"
+msgstr "Bukaanka"
+
+msgid "ID"
+msgstr "Aqoonsiga"
+
+msgid "Phone"
+msgstr "Telefoonka"
+
+msgid "Registration Date"
+msgstr "Taariikhda Diiwaangelinta"
+
+msgid "Action"
+msgstr "Ficil"
+
+msgid "No recent activity."
+msgstr "Ma jiraan waxqabad dhowaan dhacay."
+
+msgid "Critical Stock Level"
+msgstr "Heerka Kaydka oo Khatar ah"
+
+msgid "items are below minimum threshold."
+msgstr "alaabo ayaa ka hooseeya heerka loo baahan yahay."
+
+msgid "Review"
+msgstr "Eeg"
+
+msgid "Expiration Warning"
+msgstr "Digniin ku saabsan Dhicitaanka"
+
+msgid "batches expiring within 90 days."
+msgstr "dufcado ayaa dhacaya 90 maalmood gudahood."
+
+msgid "Live Grid"
+msgstr "Shaxda Tooska ah"
+
+msgid "Open Inventory Manager"
+msgstr "Fur Maamulaha Kaydka"
+
+msgid "Laboratory"
+msgstr "Shaybaarka"
+
+msgid "Lab Results"
+msgstr "Natiijooyinka Shaybaarka"
+
+msgid "Result Templates"
+msgstr "Shaxyada Natiijooyinka"
+
+msgid "Bed Management"
+msgstr "Maamulka Sariiraha"
+
+msgid "Patient Invoices"
+msgstr "Qaansheegyada Bukaanka"
+
+msgid "Accounting Central"
+msgstr "Xarunta Xisaabaadka"
+
+msgid "Expense Tracker"
+msgstr "Raadraaca Kharashka"
+
+msgid "P&L Statements"
+msgstr "Warbixinnada Qasaaraha iyo Faa'iidada"
+
+msgid "System"
+msgstr "Nidaamka"
+
+msgid "Security"
+msgstr "Amniga"
+
+msgid "Roles & Permissions"
+msgstr "Xilalka iyo Ogolaanshiyaha"
+
+msgid "Settings"
+msgstr "Habaynta"
+
+msgid "End Session"
+msgstr "Ka Bax"
+
+msgid "Completed Lab Results"
+msgstr "Natiijooyinka Shaybaarka ee Dhammaystiran"
+
+msgid "Completed Results"
+msgstr "Natiijooyinka Dhammaystiran"
+
+msgid "Review finalized diagnostic reports and lab findings."
+msgstr "Diriiri warbixinnada cudur-aqoonsiga ee ugu dambeeyay iyo natiijooyinka shaybaarka."
+
+msgid "Pending Queue"
+msgstr "Safka Sugaya"
+
+msgid "Templates"
+msgstr "Shaxyada"
+
+msgid "Finalized Reports"
+msgstr "Warbixinnada la Dhammeeyey"
+
+msgid "Completed On"
+msgstr "La Dhammeeyey"
+
+msgid "Status"
+msgstr "Heerka"
+
+msgid "Completed"
+msgstr "La Dhammeeyey"
+
+msgid "Reviewed"
+msgstr "La Eegay"
+
+msgid "View"
+msgstr "Eeg"
+
+msgid "No Completed Results"
+msgstr "Ma jiraan Natiijooyin Dhammaystiran"
+
+msgid "Completed lab results will appear here after analysis."
+msgstr "Natiijooyinka shaybaarka ee dhammaystiran waxay ka soo muuqan doonaan halkan ka dib baaritaanka."
+
+msgid "Lab Result"
+msgstr "Natiijada Shaybaarka"
+
+msgid "Technician"
+msgstr "Farsamayaqaanka"
+
+msgid "Date"
+msgstr "Taariikhda"
+
+msgid "Result Findings"
+msgstr "Natiijooyinka Baaritaanka"
+
+msgid "No findings recorded."
+msgstr "Ma jiraan natiijooyin la diiwaangeliyey."
+
+msgid "Close"
+msgstr "Xir"
+
+msgid "Print Report"
+msgstr "Daabac Warbixinta"
+
+msgid "Lab Result Templates"
+msgstr "Shaxyada Natiijada Shaybaarka"
+
+msgid "Result Templates"
+msgstr "Shaxyada Natiijada"
+
+msgid "Standardized test field templates for consistent, rapid lab data entry."
+msgstr "Shaxyo baaritaan oo joogto ah si loogu fududeeyo diiwaangelinta xogta shaybaarka."
+
+msgid "Create Template"
+msgstr "Abuur Shax"
+
+msgid "General"
+msgstr "Guud"
+
+msgid "Remove this template?"
+msgstr "Ma tirtirtaa shaxdan?"
+
+msgid "Delete"
+msgstr "Tirtir"
+
+msgid "fields"
+msgstr "goobood"
+
+msgid "No Templates Yet"
+msgstr "Weli ma jiraan Shaxyo"
+
+msgid "Create reusable templates to standardize your lab reporting workflow."
+msgstr "Abuur shaxyo dib loo isticmaali karo si loo habeeyo warbixinnada shaybaarka."
+
+msgid "Create First Template"
+msgstr "Abuur Shaxdii Koowaad"
+
+msgid "Create Result Template"
+msgstr "Abuur Shaxda Natiijada"
+
+msgid "Template Name"
+msgstr "Magaca Shaxda"
+
+msgid "e.g. Complete Blood Count (CBC)"
+msgstr "tusaale. Complete Blood Count (CBC)"
+
+msgid "Category"
+msgstr "Qaybta"
+
+msgid "Hematology"
+msgstr "Hematology"
+
+msgid "Chemistry"
+msgstr "Chemistry"
+
+msgid "Microbiology"
+msgstr "Microbiology"
+
+msgid "Urinalysis"
+msgstr "Urinalysis"
+
+msgid "Serology"
+msgstr "Serology"
+
+msgid "Parasitology"
+msgstr "Parasitology"
+
+msgid "Imaging"
+msgstr "Imaging"
+
+msgid "Other"
+msgstr "Kale"
+
+msgid "Enter one field per line, e.g:\n'WBC (White Blood Cells)\n'RBC (Red Blood Cells)\n'Hemoglobin (Hb)\n'Hematocrit (Hct)\n'Platelet Count\n'MCV\n'MCH\n'MCHC"
+msgstr "Gali hal meel xarriiq kasta, tusaale:\n'WBC (White Blood Cells)\n'RBC (Red Blood Cells)\n'Hemoglobin (Hb)\n'Hematocrit (Hct)\n'Platelet Count\n'MCV\n'MCH\n'MCHC"
+
+msgid "Enter one test parameter per line. These will become the fields technicians fill during result entry."
+msgstr "Gali hal xaddid koobitaan xarriiq kasta. Kuwani waxay noqon doonaan meelaha ay farsamayaqaannadu buuxinayaan."
+
+msgid "Pro Tip:"
+msgstr "Talo Muhiim ah:"
+
+msgid "Include reference ranges in your field names, e.g. \"WBC (4.5-11.0 x10³/µL)\" for faster technician data entry."
+msgstr "Ku dar xadadka tixraaca magacyada goobahaaga, tusaale. \"WBC (4.5-11.0 x10³/µL)\" si loo dardargeliyo diiwaangelinta xogta."
+
+msgid "Save Template"
+msgstr "Keydi Shaxda"
+
+msgid "Lab Report"
+msgstr "Warbixinta Shaybaarka"
+
+msgid "Print Final Report"
+msgstr "Daabac Warbixinta Ugu Dambaysa"
+
+msgid "RAYS HOSPITAL"
+msgstr "RAYS HOSPITAL"
+
+msgid "Advanced Diagnostic & Clinical Excellence"
+msgstr "Baaritaan Sare & Heer Caafimaad oo Sare"
+
+msgid "Mogadishu, Somalia"
+msgstr "Muqdisho, Soomaaliya"
+
+msgid "LAB REPORT"
+msgstr "WARBIXINTA SHAYBAARKA"
+
+msgid "Laboratory Investigation Result"
+msgstr "Natiijada Baaritaanka Shaybaarka"
+
+msgid "Patient Name"
+msgstr "Magaca Bukaanka"
+
+msgid "Age / Gender"
+msgstr "Da'da / Jinsiga"
+
+msgid "Auth. Doctor"
+msgstr "Dhakhtarka Amray"
+
+msgid "Dr."
+msgstr "Dr."
+
+msgid "Ref Date"
+msgstr "Taariikhda Codsiga"
+
+msgid "Report Date"
+msgstr "Taariikhda Warbixinta"
+
+msgid "TEST"
+msgstr "BAARITAANKA"
+
+msgid "This is a computer-generated report and does not require a physical signature if verified."
+msgstr "Kani waa warbixin kumbuyuutar laga soo saaray, uma baahna saxeex gacan haddii la xaqiijiyo."
+
+msgid "Page 1 of 1"
+msgstr "Bogga 1 ee 1"
+
+
+
+
+

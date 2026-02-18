@@ -1,0 +1,94 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ _('New Patient Admission') }} - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 900px;">
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('ipd.wards') }}">IPD</a></li>
+                <li class="breadcrumb-item active">{{ _('New Admission') }}</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold text-navy">
+            <i class="fa fa-bed text-primary me-2"></i>{{ _('Patient Admission') }}
+        </h2>
+        <p class="text-muted text-uppercase small fw-bold" style="letter-spacing: 1px;">{{ _('Allocate a ward and bed
+            for in-patient clinical care.') }}</p>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4 p-lg-5">
+            <form method="POST">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small text-muted text-uppercase">{{ _('Select Patient')
+                            }}</label>
+                        <select name="patient_id" class="form-select form-select-lg bg-light border-0" required>
+                            <option value="">-- {{ _('Choose Patient') }} --</option>
+                            {% for p in patients %}
+                            <option value="{{ p.id }}">{{ p.full_name }} ({{ p.patient_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small text-muted text-uppercase">{{ _('Admitting Doctor')
+                            }}</label>
+                        <select name="doctor_id" class="form-select form-select-lg bg-light border-0" required>
+                            <option value="">-- {{ _('Choose Doctor') }} --</option>
+                            {% for d in doctors %}
+                            <option value="{{ d.id }}">{{ _('Dr.') }} {{ d.full_name }} ({{ d.specialization }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-muted text-uppercase">{{ _('Available Bed Allocation')
+                        }}</label>
+                    <select name="bed_id" class="form-select form-select-lg bg-light border-0" required>
+                        <option value="">-- {{ _('Choose Ward & Bed') }} --</option>
+                        {% for b in beds %}
+                        <option value="{{ b.id }}">{{ b.ward.name }} - {{ _('Bed') }} #{{ b.bed_number }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-5">
+                    <label class="form-label fw-bold small text-muted text-uppercase">{{ _('Reason for Admission /
+                        Initial Diagnosis') }}</label>
+                    <textarea name="reason" class="form-control bg-light border-0" rows="4"
+                        placeholder="{{ _('Describe the reason for admitting the patient...') }}" required></textarea>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{{ url_for('ipd.admissions') }}" class="btn btn-light btn-lg px-5 fw-bold">{{ _('Cancel')
+                        }}</a>
+                    <button type="submit" class="btn btn-navy btn-lg px-5 fw-bold shadow-sm">
+                        <i class="fa fa-check-circle me-2"></i>{{ _('Finalize Admission') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-navy {
+        color: #0047AB;
+    }
+
+    .btn-navy {
+        background-color: #0047AB;
+        color: white;
+        border: none;
+    }
+
+    .btn-navy:hover {
+        background-color: #00378b;
+        color: white;
+    }
+</style>
+{% endblock %}

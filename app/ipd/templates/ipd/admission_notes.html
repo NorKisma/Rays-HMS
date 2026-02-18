@@ -1,0 +1,132 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ _('Nursing Notes') }} - {{ admission.patient.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold text-navy"><i class="fa fa-clipboard-list text-primary me-2"></i>{{ _('Nursing Progress
+                Notes') }}
+            </h2>
+            <p class="text-muted small mb-0">{{ _('Patient') }}: <strong>{{ admission.patient.full_name }}</strong> | {{
+                _('Ward') }}: {{
+                admission.bed.ward.name }} | {{ _('Bed') }}: {{ admission.bed.bed_number }}</p>
+        </div>
+        <a href="{{ url_for('ipd.admissions') }}" class="btn btn-light shadow-sm fw-bold">
+            <i class="fa fa-arrow-left me-2"></i>{{ _('Back to Admissions') }}
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0 fw-bold"><i class="fa fa-plus-circle text-success me-2"></i>{{ _('Add Observation')
+                        }}</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">{{ _('Vitals Snapshot (Optional)')
+                                }}</label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text bg-light border-0"><i
+                                        class="fa fa-thermometer-half"></i></span>
+                                <input type="text" name="temp" class="form-control bg-light border-0"
+                                    placeholder="{{ _('Temp') }} °C">
+                            </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text bg-light border-0"><i class="fa fa-heartbeat"></i></span>
+                                <input type="text" name="bp" class="form-control bg-light border-0"
+                                    placeholder="{{ _('BP (e.g. 120/80)') }}">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="fa fa-pulse"></i></span>
+                                <input type="text" name="pulse" class="form-control bg-light border-0"
+                                    placeholder="{{ _('Pulse (bpm)') }}">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">{{ _('Clinical Note / Progress Update')
+                                }}</label>
+                            <textarea name="note_content" class="form-control bg-light border-0" rows="5"
+                                placeholder="{{ _('Record patient status, medication administration, or any observations...') }}"
+                                required></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-navy fw-bold shadow-sm">{{ _('Save Note') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="vstack gap-3">
+                {% for note in admission.nursing_notes %}
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-primary-soft text-primary d-flex align-items-center justify-content-center me-3 fw-bold"
+                                    style="width: 40px; height: 40px;">
+                                    {{ note.staff.name[0] }}
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ note.staff.name }}</h6>
+                                    <small class="text-muted">{{ note.created_at.strftime('%d %b Y, %I:%M %p')
+                                        }}</small>
+                                </div>
+                            </div>
+                            {% if note.temperature or note.blood_pressure or note.pulse_rate %}
+                            <div class="text-end">
+                                <span class="badge bg-light text-dark border me-1">T: {{ note.temperature or '-'
+                                    }}°C</span>
+                                <span class="badge bg-light text-dark border me-1">BP: {{ note.blood_pressure or '-'
+                                    }}</span>
+                                <span class="badge bg-light text-dark border">P: {{ note.pulse_rate or '-' }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <p class="mb-0 text-dark lh-base">{{ note.note_content }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if not admission.nursing_notes %}
+                <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
+                    <div class="opacity-25 mb-3"><i class="fa fa-notes-medical fa-3x"></i></div>
+                    <h6 class="text-muted">{{ _('No progress notes recorded for this stay yet.') }}</h6>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-navy {
+        color: #0047AB;
+    }
+
+    .bg-navy {
+        background-color: #0047AB;
+    }
+
+    .btn-navy {
+        background-color: #0047AB;
+        color: white;
+        border: none;
+    }
+
+    .btn-navy:hover {
+        background-color: #00378b;
+        color: white;
+    }
+
+    .bg-primary-soft {
+        background-color: rgba(0, 71, 171, 0.1);
+    }
+</style>
+{% endblock %}

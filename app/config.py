@@ -36,6 +36,7 @@ class BaseConfig:
     # Internationalization
     BABEL_DEFAULT_LOCALE = os.getenv("BABEL_DEFAULT_LOCALE", "en")
     BABEL_DEFAULT_TIMEZONE = os.getenv("BABEL_DEFAULT_TIMEZONE", "Africa/Mogadishu")
+    BABEL_TRANSLATION_DIRECTORIES = "translations"
 
     # Email settings
     MAIL_SERVER = os.getenv("MAIL_SERVER")

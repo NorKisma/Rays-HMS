@@ -1,0 +1,119 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ _('Active Admissions') }} - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold text-navy mb-1">
+                <i class="fa fa-procedures text-danger me-2"></i>{{ _('In-Patient Admissions') }}
+            </h2>
+            <p class="text-muted mb-0">{{ _('Active patient stays and occupied beds across all wards.') }}</p>
+        </div>
+        <div>
+            <a href="{{ url_for('ipd.new_admission') }}" class="btn btn-primary shadow px-4 fw-bold">
+                <i class="fa fa-plus me-2"></i>{{ _('New Admission') }}
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 py-3">{{ _('Patient') }}</th>
+                            <th>{{ _('Location') }}</th>
+                            <th>{{ _('Doctor in Charge') }}</th>
+                            <th>{{ _('Admission Date') }}</th>
+                            <th>{{ _('Reason') }}</th>
+                            <th class="pe-4 text-end">{{ _('Action') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for adm in admissions %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-primary-soft text-primary d-flex align-items-center justify-content-center me-3 fw-bold"
+                                        style="width: 40px; height: 40px;">
+                                        {{ adm.patient.first_name[0] }}{{ adm.patient.last_name[0] }}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">{{ adm.patient.full_name }}</h6>
+                                        <small class="text-muted">{{ _('ID') }}: {{ adm.patient.patient_id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-navy">{{ adm.bed.ward.name }}</div>
+                                <div class="small text-muted">{{ _('Bed') }}: {{ adm.bed.bed_number }}</div>
+                            </td>
+                            <td>
+                                <div class="small fw-semibold">{{ _('Dr.') }} {{ adm.doctor.full_name }}</div>
+                                <div class="text-muted" style="font-size: 11px;">{{ adm.doctor.specialization }}</div>
+                            </td>
+                            <td>
+                                <div class="small fw-bold">{{ adm.admission_date.strftime('%d %b, %Y') }}</div>
+                                <div class="text-muted" style="font-size: 11px;">{{ (datetime.utcnow() -
+                                    adm.admission_date).days }} {{ _('Days Stayed') }}</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border fw-normal">{{ adm.reason[:30] }}{% if
+                                    adm.reason|length > 30 %}...{% endif %}</span>
+                            </td>
+                            <td class="pe-4 text-end">
+                                <a href="{{ url_for('ipd.admission_notes', id=adm.id) }}"
+                                    class="btn btn-outline-success btn-sm px-3 rounded-pill fw-bold me-1">{{ _('Notes')
+                                    }}</a>
+                                <a href="{{ url_for('ipd.transfer', id=adm.id) }}"
+                                    class="btn btn-outline-primary btn-sm px-3 rounded-pill fw-bold me-1">{{
+                                    _('Transfer') }}</a>
+                                <form action="{{ url_for('ipd.discharge', id=adm.id) }}" method="POST"
+                                    onsubmit="return confirm('{{ _(" Are you sure you want to discharge this patient?")
+                                    }}');" class="d-inline">
+                                    <button type="submit"
+                                        class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-bold">{{
+                                        _('Discharge') }}</button>
+                                </form>
+                                <a href="{{ url_for('patients.view', id=adm.patient_id) }}"
+                                    class="btn btn-navy btn-sm rounded-circle px-2 ms-1">
+                                    <i class="fa fa-chevron-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                        {% if not admissions %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="opacity-25 mb-3"><i class="fa fa-bed fa-3x"></i></div>
+                                <h6 class="text-muted">{{ _('No active admissions currently.') }}</h6>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-navy {
+        color: #0047AB;
+    }
+
+    .btn-navy {
+        background-color: #0047AB;
+        color: white;
+        border: none;
+    }
+
+    .bg-primary-soft {
+        background-color: rgba(0, 71, 171, 0.1);
+    }
+</style>
+{% endblock %}

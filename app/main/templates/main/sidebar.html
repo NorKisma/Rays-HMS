@@ -1,91 +1,225 @@
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-logo">
-    <div class="bg-primary text-white rounded-3 d-flex align-items-center justify-content-center"
-      style="width: 35px; height: 35px;">
+  <!-- Brand Header -->
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-icon">
       <i class="fa fa-notes-medical"></i>
     </div>
-    <span>Rays HMS</span>
+    <div class="sidebar-brand-text">
+      <span class="brand-name">Rays HMS</span>
+      <span class="brand-tagline">Healthcare System</span>
+    </div>
   </div>
 
-  <div class="sidebar-menu">
-    <a href="{{ url_for('main.dashboard') }}" class="{{ 'active' if request.endpoint == 'main.dashboard' }}">
-      <i class="fa fa-chart-pie"></i> <span>{{ _('Insights') }}</span>
-    </a>
+  <!-- Scrollable Navigation -->
+  <nav class="sidebar-nav" id="sidebarNav">
+    <!-- Dashboard -->
+    <ul class="sidebar-menu">
+      <li class="sidebar-item">
+        <a href="{{ url_for('main.dashboard') }}"
+          class="sidebar-link {{ 'active' if request.endpoint == 'main.dashboard' }}"
+          data-tooltip="{{ _('Insights') }}">
+          <i class="fa fa-chart-pie sidebar-icon"></i>
+          <span class="sidebar-text">{{ _('Insights') }}</span>
+        </a>
+      </li>
+    </ul>
 
-    <div class="px-4 py-2 mt-4 mb-1 small text-uppercase text-white-50 opacity-25"
-      style="letter-spacing: 1px; font-size: 0.65rem;">{{ _('Medical Center') }}</div>
+    <!-- Medical Center Section -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-header" data-bs-toggle="collapse" data-bs-target="#menuMedical" aria-expanded="true">
+        <span class="sidebar-section-title">{{ _('Medical Center') }}</span>
+        <i class="fa fa-chevron-down sidebar-section-chevron"></i>
+      </div>
+      <ul class="sidebar-menu collapse show" id="menuMedical">
+        {% if current_user.has_permission('view_patients') %}
+        <li class="sidebar-item">
+          <a href="{{ url_for('patients.index') }}"
+            class="sidebar-link {{ 'active' if 'patients.' in (request.endpoint or '') }}"
+            data-tooltip="{{ _('Patients') }}">
+            <i class="fa fa-hospital-user sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Patients') }}</span>
+          </a>
+        </li>
+        {% endif %}
 
-    {% if current_user.has_permission('view_patients') %}
-    <a href="{{ url_for('patients.index') }}" class="{{ 'active' if 'patients.' in (request.endpoint or '') }}">
-      <i class="fa fa-hospital-user"></i> <span>{{ _('Patients') }}</span>
-    </a>
-    {% endif %}
+        {% if current_user.has_permission('view_doctors') %}
+        <li class="sidebar-item">
+          <a href="{{ url_for('doctors.index') }}"
+            class="sidebar-link {{ 'active' if 'doctors.' in (request.endpoint or '') }}"
+            data-tooltip="{{ _('Medical Staff') }}">
+            <i class="fa fa-user-md sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Medical Staff') }}</span>
+          </a>
+        </li>
+        {% endif %}
 
-    {% if current_user.has_permission('view_doctors') %}
-    <a href="{{ url_for('doctors.index') }}" class="{{ 'active' if 'doctors.' in (request.endpoint or '') }}">
-      <i class="fa fa-user-md"></i> <span>{{ _('Medical Staff') }}</span>
-    </a>
-    {% endif %}
+        {% if current_user.has_permission('view_appointments') %}
+        <li class="sidebar-item">
+          <a href="{{ url_for('appointments.index') }}"
+            class="sidebar-link {{ 'active' if 'appointments.' in (request.endpoint or '') }}"
+            data-tooltip="{{ _('Schedules') }}">
+            <i class="fa fa-calendar-alt sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Schedules') }}</span>
+          </a>
+        </li>
+        {% endif %}
 
-    {% if current_user.has_permission('view_appointments') %}
-    <a href="{{ url_for('appointments.index') }}" class="{{ 'active' if 'appointments.' in (request.endpoint or '') }}">
-      <i class="fa fa-calendar-alt"></i> <span>{{ _('Schedules') }}</span>
-    </a>
-    {% endif %}
+        {% if current_user.has_permission('view_appointments') %}
+        <li class="sidebar-item">
+          <a href="{{ url_for('lab.index') }}" class="sidebar-link {{ 'active' if request.endpoint == 'lab.index' }}"
+            data-tooltip="{{ _('Laboratory') }}">
+            <i class="fa fa-vials sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Laboratory') }}</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{ url_for('lab.completed') }}"
+            class="sidebar-link {{ 'active' if request.endpoint == 'lab.completed' }}"
+            data-tooltip="{{ _('Lab Results') }}">
+            <i class="fa fa-clipboard-check sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Lab Results') }}</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{ url_for('lab.list_templates') }}"
+            class="sidebar-link {{ 'active' if request.endpoint == 'lab.list_templates' }}"
+            data-tooltip="{{ _('Result Templates') }}">
+            <i class="fa fa-file-medical sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Result Templates') }}</span>
+          </a>
+        </li>
+        {% endif %}
 
-    {% if current_user.has_permission('view_appointments') %}
-    <a href="{{ url_for('lab.index') }}" class="{{ 'active' if 'lab.' in (request.endpoint or '') }}">
-      <i class="fa fa-vials"></i> <span>{{ _('Laboratory') }}</span>
-    </a>
-    {% endif %}
+        <li class="sidebar-item">
+          <a href="{{ url_for('ipd.wards') }}" class="sidebar-link {{ 'active' if 'ipd.' in (request.endpoint or '') }}"
+            data-tooltip="{{ _('Bed Management') }}">
+            <i class="fa fa-bed sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Bed Management') }}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
 
-    <div class="px-4 py-2 mt-4 mb-1 small text-uppercase text-white-50 opacity-25"
-      style="letter-spacing: 1px; font-size: 0.65rem;">{{ _('Management') }}</div>
+    <!-- Management Section -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-header" data-bs-toggle="collapse" data-bs-target="#menuManagement"
+        aria-expanded="true">
+        <span class="sidebar-section-title">{{ _('Management') }}</span>
+        <i class="fa fa-chevron-down sidebar-section-chevron"></i>
+      </div>
+      <ul class="sidebar-menu collapse show" id="menuManagement">
+        {% if current_user.has_permission('view_inventory') %}
+        <li class="sidebar-item">
+          <a href="{{ url_for('inventory.index') }}"
+            class="sidebar-link {{ 'active' if 'inventory.' in (request.endpoint or '') }}"
+            data-tooltip="{{ _('Catalog') }}">
+            <i class="fa fa-pills sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Catalog') }}</span>
+          </a>
+        </li>
+        {% endif %}
 
-    {% if current_user.has_permission('view_inventory') %}
-    <a href="{{ url_for('inventory.index') }}" class="{{ 'active' if 'inventory.' in (request.endpoint or '') }}">
-      <i class="fa fa-pills"></i> <span>{{ _('Catalog') }}</span>
-    </a>
-    {% endif %}
+        {% if current_user.has_permission('view_sales') %}
+        <li class="sidebar-item">
+          <a href="{{ url_for('sales.pos') }}" class="sidebar-link {{ 'active' if request.endpoint == 'sales.pos' }}"
+            data-tooltip="{{ _('Sales') }}">
+            <i class="fa fa-cash-register sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Sales') }}</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{ url_for('sales.list_sales') }}"
+            class="sidebar-link {{ 'active' if request.endpoint == 'sales.list_sales' }}"
+            data-tooltip="{{ _('Sales History') }}">
+            <i class="fa fa-history sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Sales History') }}</span>
+          </a>
+        </li>
+        {% endif %}
 
-    {% if current_user.has_permission('view_sales') %}
-    <a href="{{ url_for('sales.pos') }}" class="{{ 'active' if request.endpoint == 'sales.pos' }}">
-      <i class="fa fa-cash-register"></i> <span>{{ _('Sales') }}</span>
-    </a>
-    <a href="{{ url_for('sales.list_sales') }}" class="{{ 'active' if request.endpoint == 'sales.list_sales' }}">
-      <i class="fa fa-history"></i> <span>{{ _('Sales History') }}</span>
-    </a>
-    {% endif %}
+        {% if current_user.has_permission('view_billing') %}
+        <li class="sidebar-item">
+          <a href="{{ url_for('billing.index') }}"
+            class="sidebar-link {{ 'active' if 'billing.' in (request.endpoint or '') }}"
+            data-tooltip="{{ _('Patient Invoices') }}">
+            <i class="fa fa-file-invoice-dollar sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Patient Invoices') }}</span>
+          </a>
+        </li>
+        {% endif %}
 
-    {% if current_user.has_permission('view_billing') %}
-    <a href="{{ url_for('billing.index') }}" class="{{ 'active' if 'billing.' in (request.endpoint or '') }}">
-      <i class="fa fa-file-invoice-dollar"></i> <span>{{ _('Patient Invoices') }}</span>
-    </a>
-    {% endif %}
+        {% if current_user.has_permission('view_reports') %}
+        <li class="sidebar-item">
+          <a href="{{ url_for('accounting.dashboard') }}"
+            class="sidebar-link {{ 'active' if 'accounting.dashboard' == request.endpoint }}"
+            data-tooltip="{{ _('Accounting Central') }}">
+            <i class="fa fa-calculator sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Accounting Central') }}</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{ url_for('accounting.list_expenses') }}"
+            class="sidebar-link {{ 'active' if 'accounting.list_expenses' == request.endpoint }}"
+            data-tooltip="{{ _('Expense Tracker') }}">
+            <i class="fa fa-wallet sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Expense Tracker') }}</span>
+          </a>
+        </li>
+        {% endif %}
 
-    {% if current_user.has_permission('view_reports') %}
-    <a href="{{ url_for('accounting.dashboard') }}" class="{{ 'active' if 'accounting.' in (request.endpoint or '') }}">
-      <i class="fa fa-calculator"></i> <span>{{ _('Accounting') }}</span>
-    </a>
-    {% endif %}
+        <li class="sidebar-item">
+          <a href="{{ url_for('accounting.profit_loss') }}"
+            class="sidebar-link {{ 'active' if 'accounting.profit_loss' == request.endpoint }}"
+            data-tooltip="{{ _('P&L Statements') }}">
+            <i class="fa fa-chart-line sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('P&L Statements') }}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
 
-    <div class="px-4 py-2 mt-4 mb-1 small text-uppercase text-white-50 opacity-25"
-      style="letter-spacing: 1px; font-size: 0.65rem;">{{ _('System') }}</div>
-
+    <!-- System Section -->
     {% if current_user.has_permission('manage_users') %}
-    <a href="{{ url_for('auth.list_users') }}" class="{{ 'active' if 'auth.list_users' in (request.endpoint or '') }}">
-      <i class="fa fa-shield-alt"></i> <span>{{ _('Security') }}</span>
-    </a>
-    <a href="{{ url_for('auth.list_roles') }}" class="{{ 'active' if 'auth.list_roles' in (request.endpoint or '') }}">
-      <i class="fa fa-user-tag"></i> <span>{{ _('Roles & Permissions') }}</span>
-    </a>
-    <a href="{{ url_for('settings.index') }}" class="{{ 'active' if 'settings.' in (request.endpoint or '') }}">
-      <i class="fa fa-sliders-h"></i> <span>{{ _('Settings') }}</span>
-    </a>
+    <div class="sidebar-section">
+      <div class="sidebar-section-header" data-bs-toggle="collapse" data-bs-target="#menuSystem" aria-expanded="true">
+        <span class="sidebar-section-title">{{ _('System') }}</span>
+        <i class="fa fa-chevron-down sidebar-section-chevron"></i>
+      </div>
+      <ul class="sidebar-menu collapse show" id="menuSystem">
+        <li class="sidebar-item">
+          <a href="{{ url_for('auth.list_users') }}"
+            class="sidebar-link {{ 'active' if 'auth.list_users' in (request.endpoint or '') }}"
+            data-tooltip="{{ _('Security') }}">
+            <i class="fa fa-shield-alt sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Security') }}</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{ url_for('auth.list_roles') }}"
+            class="sidebar-link {{ 'active' if 'auth.list_roles' in (request.endpoint or '') }}"
+            data-tooltip="{{ _('Roles & Permissions') }}">
+            <i class="fa fa-user-tag sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Roles & Permissions') }}</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{ url_for('settings.index') }}"
+            class="sidebar-link {{ 'active' if 'settings.' in (request.endpoint or '') }}"
+            data-tooltip="{{ _('Settings') }}">
+            <i class="fa fa-sliders-h sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Settings') }}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
     {% endif %}
+  </nav>
 
-    <a href="{{ url_for('auth.logout') }}" class="mt-5 text-danger opacity-75">
-      <i class="fa fa-power-off"></i> <span>{{ _('End Session') }}</span>
+  <!-- Sidebar Footer -->
+  <div class="sidebar-footer">
+    <a href="{{ url_for('auth.logout') }}" class="sidebar-logout" data-tooltip="{{ _('End Session') }}">
+      <i class="fa fa-power-off"></i>
+      <span class="sidebar-text">{{ _('End Session') }}</span>
     </a>
   </div>
 </aside>

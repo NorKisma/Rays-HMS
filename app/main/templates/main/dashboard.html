@@ -1,19 +1,20 @@
 {% extends "main/base.html" %}
 
-{% block title %}Insights - Rays HMS{% endblock %}
+{% block title %}{{ _("Insights") }} - Rays HMS{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-end mb-5">
         <div>
-            <h2 class="fw-bold mb-1">Operational Insights</h2>
-            <p class="text-muted mb-0">Welcome back, {{ user.name }}. Here is what's happening today.</p>
+            <h2 class="fw-bold mb-1">{{ _('Operational Insights') }}</h2>
+            <p class="text-muted mb-0">{{ _('Welcome back') }}, {{ user.name }}. {{ _('Here is what\'s happening
+                today.') }}</p>
         </div>
         <div class="d-flex gap-2">
             <button class="btn btn-white border shadow-sm btn-sm px-3"><i class="fa fa-download me-2"></i>
-                Report</button>
-            <button class="btn btn-primary btn-sm px-4 shadow">Refresh Data</button>
+                {{ _('Report') }}</button>
+            <button class="btn btn-primary btn-sm px-4 shadow">{{ _('Refresh Data') }}</button>
         </div>
     </div>
 
@@ -24,7 +25,7 @@
             <div class="card border-0 border-top border-4 border-primary shadow-sm h-100">
                 <div class="card-body stat-card p-4">
                     <div>
-                        <small class="text-muted text-uppercase d-block mb-1">Registered Patients</small>
+                        <small class="text-muted text-uppercase d-block mb-1">{{ _('Registered Patients') }}</small>
                         <h3 class="fw-bold mb-0 text-primary">{{ total_patients or 0 }}</h3>
                     </div>
                     <div class="stat-icon bg-primary-soft text-primary">
@@ -38,7 +39,7 @@
             <div class="card border-0 border-top border-4 border-success shadow-sm h-100">
                 <div class="card-body stat-card p-4">
                     <div>
-                        <small class="text-muted text-uppercase d-block mb-1">Active Staff</small>
+                        <small class="text-muted text-uppercase d-block mb-1">{{ _('Active Staff') }}</small>
                         <h3 class="fw-bold mb-0 text-success">{{ total_doctors or 0 }}</h3>
                     </div>
                     <div class="stat-icon bg-success-soft text-success">
@@ -52,7 +53,7 @@
             <div class="card border-0 border-top border-4 border-info shadow-sm h-100">
                 <div class="card-body stat-card p-4">
                     <div>
-                        <small class="text-muted text-uppercase d-block mb-1">Today's Schedule</small>
+                        <small class="text-muted text-uppercase d-block mb-1">{{ _('Today\'s Schedule') }}</small>
                         <h3 class="fw-bold mb-0 text-info">{{ pending_appointments or 0 }}</h3>
                     </div>
                     <div class="stat-icon bg-info-soft text-info">
@@ -63,14 +64,56 @@
         </div>
         <!-- Revenue/Unpaid -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 border-top border-4 border-danger shadow-sm h-100">
+            <div class="card border-0 border-top border-4 border-warning shadow-sm h-100">
                 <div class="card-body stat-card p-4 text-nowrap">
                     <div>
-                        <small class="text-muted text-uppercase d-block mb-1">Unpaid Billings</small>
-                        <h3 class="fw-bold mb-0 text-danger">{{ unpaid_bills or 0 }}</h3>
+                        <small class="text-muted text-uppercase d-block mb-1">{{ _('Unpaid Billings') }}</small>
+                        <h3 class="fw-bold mb-0 text-warning">{{ unpaid_bills or 0 }}</h3>
                     </div>
-                    <div class="stat-icon bg-danger-soft text-danger">
+                    <div class="stat-icon bg-warning-soft text-warning">
                         <i class="fa fa-receipt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Medical Hub Stats -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm bg-danger text-white rounded-4 overflow-hidden">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="stat-icon bg-white bg-opacity-25 text-white me-4"
+                        style="width: 60px; height: 60px; font-size: 1.8rem;">
+                        <i class="fa fa-ambulance"></i>
+                    </div>
+                    <div>
+                        <h2 class="fw-bold mb-0">{{ emergency_queue or 0 }}</h2>
+                        <span class="text-white-50 text-uppercase small fw-bold" style="letter-spacing: 1px;">{{
+                            _('Emergency Triage Queue') }}</span>
+                    </div>
+                    <div class="ms-auto">
+                        <a href="{{ url_for('ipd.wards') }}" class="btn btn-light btn-sm rounded-pill px-3 fw-bold">{{
+                            _('Manage Hub') }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm bg-navy text-white rounded-4 overflow-hidden">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="stat-icon bg-white bg-opacity-25 text-white me-4"
+                        style="width: 60px; height: 60px; font-size: 1.8rem;">
+                        <i class="fa fa-procedures"></i>
+                    </div>
+                    <div>
+                        <h2 class="fw-bold mb-0">{{ active_admissions or 0 }}</h2>
+                        <span class="text-white-50 text-uppercase small fw-bold" style="letter-spacing: 1px;">{{
+                            _('In-Patient Admissions') }}</span>
+                    </div>
+                    <div class="ms-auto">
+                        <a href="{{ url_for('ipd.admissions') }}"
+                            class="btn btn-light btn-sm rounded-pill px-3 fw-bold">{{ _('Live Grid') }}</a>
                     </div>
                 </div>
             </div>
@@ -82,20 +125,20 @@
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm overflow-hidden">
                 <div class="card-header bg-surface py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Recent Registrations</h5>
-                    <a href="{{ url_for('patients.index') }}" class="btn btn-link btn-sm text-decoration-none">View
-                        Registry</a>
+                    <h5 class="mb-0 fw-bold">{{ _('Recent Registrations') }}</h5>
+                    <a href="{{ url_for('patients.index') }}" class="btn btn-link btn-sm text-decoration-none">{{
+                        _('View Registry') }}</a>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th class="ps-4">Patient</th>
-                                    <th>ID</th>
-                                    <th>Phone</th>
-                                    <th>Registration Date</th>
-                                    <th class="text-end pe-4">Action</th>
+                                    <th class="ps-4">{{ _('Patient') }}</th>
+                                    <th>{{ _('ID') }}</th>
+                                    <th>{{ _('Phone') }}</th>
+                                    <th>{{ _('Registration Date') }}</th>
+                                    <th class="text-end pe-4">{{ _('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -126,7 +169,8 @@
                                 {% endfor %}
                                 {% if not recent_patients %}
                                 <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">No recent activity.</td>
+                                    <td colspan="5" class="text-center py-5 text-muted">{{ _('No recent activity.') }}
+                                    </td>
                                 </tr>
                                 {% endif %}
                             </tbody>
@@ -140,49 +184,67 @@
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-surface py-3">
-                    <h5 class="mb-0 fw-bold">Rays HMS Watch</h5>
+                    <h5 class="mb-0 fw-bold">{{ _('Rays HMS Watch') }}</h5>
                 </div>
                 <div class="card-body">
                     {% if low_stock > 0 %}
-                    <div class="alert alert-warning border-0 bg-warning-soft p-3 mb-4 d-flex align-items-center">
-                        <i class="fa fa-exclamation-circle fa-2x me-3 opacity-50"></i>
+                    <div class="alert alert-warning border-0 bg-warning-soft p-3 mb-3 d-flex align-items-center">
+                        <i class="fa fa-exclamation-triangle fa-2x me-3 opacity-50"></i>
                         <div>
-                            <h6 class="fw-bold mb-1">Critical Stock Level</h6>
-                            <p class="small mb-0">{{ low_stock }} items are below minimum safety threshold.</p>
+                            <h6 class="fw-bold mb-1">{{ _('Critical Stock Level') }}</h6>
+                            <p class="small mb-0">{{ low_stock }} {{ _('items are below minimum threshold.') }} <a
+                                    href="{{ url_for('inventory.index') }}" class="fw-bold text-decoration-none">{{
+                                    _('Review') }}</a></p>
                         </div>
                     </div>
                     {% endif %}
 
-                    <div class="list-group list-group-flush border-0">
+                    {% if expiring_soon > 0 %}
+                    <div class="alert alert-danger border-0 bg-danger-soft p-3 mb-4 d-flex align-items-center">
+                        <i class="fa fa-clock fa-2x me-3 opacity-50"></i>
+                        <div>
+                            <h6 class="fw-bold mb-1">{{ _('Expiration Warning') }}</h6>
+                            <p class="small mb-0">{{ expiring_soon }} {{ _('batches expiring within 90 days.') }} <a
+                                    href="{{ url_for('inventory.index') }}" class="fw-bold text-decoration-none">{{
+                                    _('Action') }}</a></p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="list-group list-group-flush">
                         <div
                             class="list-group-item px-0 py-3 border-0 d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
-                                <div class="bg-primary-soft p-2 rounded-3 me-3"><i
-                                        class="fa fa-capsules text-primary"></i></div>
+                                <div class="bg-info-soft p-2 rounded-3 me-3"><i class="fa fa-microscope text-info"></i>
+                                </div>
                                 <div>
-                                    <h6 class="mb-0 fw-bold small">Drug Stock</h6>
-                                    <small class="text-muted">Managed items</small>
+                                    <h6 class="mb-0 fw-bold small">{{ _('Lab Analysis') }}</h6>
+                                    <small class="text-muted">{{ _('Pending tests') }}</small>
                                 </div>
                             </div>
-                            <span class="badge bg-primary-soft text-primary">Healthy</span>
+                            <span class="badge bg-info-soft text-info rounded-pill">
+                                {{ lab_pending }} {{ _('Queued') }}
+                            </span>
                         </div>
                         <div
                             class="list-group-item px-0 py-3 border-0 d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
-                                <div class="bg-success-soft p-2 rounded-3 me-3"><i
-                                        class="fa fa-syringe text-success"></i></div>
+                                <div class="bg-primary-soft p-2 rounded-3 me-3"><i
+                                        class="fa fa-capsules text-primary"></i>
+                                </div>
                                 <div>
-                                    <h6 class="mb-0 fw-bold small">Equipment</h6>
-                                    <small class="text-muted">Consumables</small>
+                                    <h6 class="mb-0 fw-bold small">{{ _('Drug Stock') }}</h6>
+                                    <small class="text-muted">{{ _('Managed items') }}</small>
                                 </div>
                             </div>
-                            <span class="badge bg-success-soft">Stocked</span>
+                            <span class="badge bg-primary-soft text-primary rounded-pill">{{ _('Healthy') }}</span>
                         </div>
                     </div>
 
                     <div class="d-grid mt-4">
                         <a href="{{ url_for('inventory.index') }}"
-                            class="btn btn-outline-primary btn-sm rounded-pill fw-bold">Open Inventory Manager</a>
+                            class="btn btn-outline-primary btn-sm rounded-pill fw-bold">{{ _('Open Inventory Manager')
+                            }}</a>
                     </div>
                 </div>
             </div>
@@ -194,6 +256,26 @@
     /* Specific overrides for dashboard widgets if needed */
     .stat-card {
         border-radius: var(--radius);
+    }
+
+    .bg-danger-soft {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+
+    .bg-warning-soft {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+
+    .bg-info-soft {
+        background-color: rgba(13, 202, 240, 0.1);
+    }
+
+    .bg-primary-soft {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+
+    .bg-success-soft {
+        background-color: rgba(25, 135, 84, 0.1);
     }
 </style>
 {% endblock %}

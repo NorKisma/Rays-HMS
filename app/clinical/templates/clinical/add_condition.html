@@ -1,0 +1,81 @@
+{% extends "main/base.html" %}
+
+{% block title %}Add Chronic Condition - {{ patient.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 600px;">
+    <div class="mb-4">
+        <h2 class="fw-bold text-navy"><i class="fa fa-notes-medical text-primary me-2"></i>Medical History Log</h2>
+        <p class="text-muted small fw-bold text-uppercase">Document persistent medical conditions for long-term clinical
+            care.</p>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4 p-md-5">
+            <form method="POST">
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Condition Name</label>
+                    <input type="text" name="condition_name" class="form-control form-control-lg bg-light border-0"
+                        placeholder="e.g. Type 2 Diabetes" required>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Onset Date (Estimated)</label>
+                        <input type="date" name="on_set_date" class="form-control bg-light border-0">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Severity</label>
+                        <select name="severity" class="form-select bg-light border-0">
+                            <option value="Mild">Mild</option>
+                            <option value="Moderate">Moderate</option>
+                            <option value="Severe">Severe</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Current Status</label>
+                    <select name="status" class="form-select bg-light border-0">
+                        <option value="active">Active (Under Treatment)</option>
+                        <option value="in_remission">In Remission / Managed</option>
+                        <option value="resolved">Resolved / History</option>
+                    </select>
+                </div>
+
+                <div class="mb-5">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Clinical Notes / Therapy</label>
+                    <textarea name="notes" class="form-control bg-light border-0" rows="3"
+                        placeholder="Describe current management plan or therapy..."></textarea>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-navy btn-lg fw-bold shadow-sm">
+                        <i class="fa fa-save me-2"></i>Link to Patient Record
+                    </button>
+                    <a href="{{ url_for('patients.view', id=patient.id) }}"
+                        class="btn btn-link text-muted text-decoration-none">Cancel and Return</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-navy {
+        color: #0047AB;
+    }
+
+    .btn-navy {
+        background-color: #0047AB;
+        color: white;
+        border: none;
+    }
+
+    .btn-navy:hover {
+        background-color: #00378b;
+        color: white;
+    }
+</style>
+{% endblock %}

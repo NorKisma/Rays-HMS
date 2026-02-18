@@ -1,0 +1,240 @@
+{% extends "main/base.html" %}
+
+{% block title %}Create Prescription - {{ patient.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1000px;">
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('patients.index') }}">Patients</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('patients.view', id=patient.id) }}">{{ patient.full_name
+                        }}</a></li>
+                <li class="breadcrumb-item active">New Prescription</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold text-navy">
+            <i class="fa fa-prescription text-primary me-2"></i>Medical Prescription
+        </h2>
+        <p class="text-muted text-uppercase small fw-bold" style="letter-spacing: 1px;">Authorize medication and dosage
+            for clinical treatment.</p>
+    </div>
+
+    <form method="POST" id="prescriptionForm">
+        {{ form.hidden_tag() }}
+
+        <div class="row g-4 mb-4">
+            <!-- Left Side: Prescription Details -->
+            <div class="col-lg-12">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-navy text-white py-3 px-4">
+                        <h6 class="mb-0 fw-bold">Clinical Assessment</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Prescribing
+                                    Physician</label>
+                                {{ form.doctor_id(class="form-select form-select-lg bg-light border-0") }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Related Appointment
+                                    (Optional)</label>
+                                {{ form.appointment_id(class="form-select form-select-lg bg-light border-0") }}
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label fw-bold small text-muted text-uppercase mb-0">Diagnosis /
+                                    Clinical Findings</label>
+                                <button type="button" class="btn btn-outline-primary btn-sm border-0 fw-bold"
+                                    id="btnAnalyze">
+                                    <i class="fa fa-robot me-1"></i> Get AI Suggestions
+                                </button>
+                            </div>
+                            {{ form.diagnosis(class="form-control bg-light border-0", rows="3", placeholder="Enter
+                            primary diagnosis...") }}
+                            <div id="aiSuggestions" class="mt-2 hstack gap-2 flex-wrap" style="display: none;">
+                                <!-- AI suggestions will appear here -->
+                            </div>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Internal Doctor's Notes
+                                (Optional)</label>
+                            {{ form.notes(class="form-control bg-light border-0", rows="2", placeholder="Private notes
+                            for clinical reference...") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 mb-5">
+                    <div class="card-header bg-light py-3 px-4 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-navy">Medication Details</h6>
+                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-3"
+                            onclick="addMedicationRow()">
+                            <i class="fa fa-plus me-1"></i> Add Medicine
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="medicationTable">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-4 py-3 small text-muted text-uppercase" style="width: 30%;">
+                                            Medicine Name</th>
+                                        <th class="py-3 small text-muted text-uppercase" style="width: 15%;">Dosage</th>
+                                        <th class="py-3 small text-muted text-uppercase" style="width: 15%;">Frequency
+                                        </th>
+                                        <th class="py-3 small text-muted text-uppercase" style="width: 15%;">Duration
+                                        </th>
+                                        <th class="py-3 small text-muted text-uppercase">Instructions</th>
+                                        <th class="pe-4 py-3" style="width: 50px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="medication-row">
+                                        <td class="ps-4">
+                                            <input type="text" name="medicine_name[]"
+                                                class="form-control border-0 bg-light" placeholder="e.g. Paracetamol"
+                                                required>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="dosage[]" class="form-control border-0 bg-light"
+                                                placeholder="500mg">
+                                        </td>
+                                        <td>
+                                            <input type="text" name="frequency[]" class="form-control border-0 bg-light"
+                                                placeholder="1x3">
+                                        </td>
+                                        <td>
+                                            <input type="text" name="duration[]" class="form-control border-0 bg-light"
+                                                placeholder="7 days">
+                                        </td>
+                                        <td>
+                                            <input type="text" name="instructions[]"
+                                                class="form-control border-0 bg-light" placeholder="After meal">
+                                        </td>
+                                        <td class="pe-4">
+                                            <button type="button"
+                                                class="btn btn-outline-danger btn-sm border-0 rounded-circle"
+                                                onclick="removeRow(this)">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{{ url_for('patients.view', id=patient.id) }}"
+                        class="btn btn-light btn-lg px-5 fw-bold">Cancel</a>
+                    <button type="submit" class="btn btn-navy btn-lg px-5 fw-bold shadow-sm">
+                        <i class="fa fa-check-circle me-2"></i>Finalize Prescription
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    function addMedicationRow() {
+        const tbody = document.querySelector('#medicationTable tbody');
+        const newRow = document.querySelector('.medication-row').cloneNode(true);
+
+        // Clear inputs
+        newRow.querySelectorAll('input').forEach(input => input.value = '');
+
+        tbody.appendChild(newRow);
+    }
+
+    function removeRow(btn) {
+        const rows = document.querySelectorAll('.medication-row');
+        if (rows.length > 1) {
+            btn.closest('tr').remove();
+        } else {
+            alert('At least one medicine is required.');
+        }
+    }
+
+    document.getElementById('btnAnalyze').addEventListener('click', function () {
+        const diagnosis = document.querySelector('[name="diagnosis"]').value;
+        const suggestionDiv = document.getElementById('aiSuggestions');
+
+        if (!diagnosis) {
+            alert('Please enter some clinical findings or symptoms first.');
+            return;
+        }
+
+        this.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Analyzing...';
+        this.disabled = true;
+
+        fetch('{{ url_for("clinical.ai_suggest") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ symptoms: diagnosis })
+        })
+            .then(response => response.json())
+            .then(data => {
+                suggestionDiv.innerHTML = '';
+                suggestionDiv.style.display = 'flex';
+                data.suggestions.forEach(s => {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-info-soft text-info px-3 py-2 rounded-pill cursor-pointer';
+                    badge.innerText = s;
+                    badge.style.cursor = 'pointer';
+                    badge.onclick = function () {
+                        document.querySelector('[name="diagnosis"]').value += (document.querySelector('[name="diagnosis"]').value ? ', ' : '') + s;
+                    };
+                    suggestionDiv.appendChild(badge);
+                });
+                this.innerHTML = '<i class="fa fa-robot me-1"></i> Get AI Suggestions';
+                this.disabled = false;
+            });
+    });
+</script>
+
+<style>
+    .bg-info-soft {
+        background-color: rgba(13, 202, 240, 0.1);
+    }
+
+    .cursor-pointer:hover {
+        background-color: rgba(13, 202, 240, 0.2);
+    }
+
+    .text-navy {
+        color: #0047AB;
+    }
+
+    .bg-navy {
+        background-color: #0047AB;
+    }
+
+    .btn-navy {
+        background-color: #0047AB;
+        color: white;
+        border: none;
+    }
+
+    .btn-navy:hover {
+        background-color: #00378b;
+        color: white;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        background-color: #fff !important;
+        box-shadow: 0 0 0 0.25rem rgba(0, 71, 171, 0.1);
+        border: 1px solid #0047AB !important;
+    }
+
+    .table thead th {
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+</style>
+{% endblock %}

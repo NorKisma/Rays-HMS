@@ -76,3 +76,20 @@ class JournalItem(db.Model):
     
     def __repr__(self):
         return f"<JournalItem {self.account.name} Dr:{self.debit} Cr:{self.credit}>"
+
+class Expense(db.Model, TimestampMixin, SoftDeleteMixin):
+    __tablename__ = 'expenses'
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(255), nullable=False)
+    amount = db.Column(db.Numeric(12, 2), nullable=False)
+    category = db.Column(db.String(50)) # Rent, Salary, Supplies, Utilities
+    date = db.Column(db.Date, default=datetime.utcnow)
+    
+    account_id = db.Column(db.Integer, db.ForeignKey('accounts.id')) # Link to Expense Account
+    recorded_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    
+    staff = db.relationship('User')
+    account = db.relationship('Account')
+
+    def __repr__(self):
+        return f"<Expense {self.category} - {self.amount}>"

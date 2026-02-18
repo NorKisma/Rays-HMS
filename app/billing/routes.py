@@ -91,15 +91,22 @@ def create():
         
         # Calculate total from selected services
         selected_services = form.service_types.data  # List of selected service types
-        total = float(form.service_amount.data)
-        net = total - float(form.discount.data)
-        balance = net - float(form.paid_amount.data)
+        total = Decimal(str(form.service_amount.data))
+        
+        # Tax calculation
+        tax_pct = Decimal(str(SystemSetting.get('billing.tax.percentage', '0.00')))
+        tax_amt = (total * tax_pct / 100).quantize(Decimal('0.01'))
+        
+        net = total + tax_amt - Decimal(str(form.discount.data))
+        balance = net - Decimal(str(form.paid_amount.data))
         
         billing = Billing(
             invoice_number=inv_num,
             patient_id=form.patient_id.data,
             appointment_id=form.appointment_id.data if form.appointment_id.data != 0 else None,
             total_amount=total,
+            tax_percentage=tax_pct,
+            tax_amount=tax_amt,
             discount=form.discount.data,
             net_amount=net,
             paid_amount=form.paid_amount.data,
@@ -166,6 +173,7 @@ def create():
         form=form,
         title="Generate Invoice",
         service_prices=service_prices,
+        tax_percentage=float(SystemSetting.get('billing.tax.percentage', '0.00'))
     )
 
 @bp.route('/view/<int:id>')

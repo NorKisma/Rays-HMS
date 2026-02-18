@@ -1,0 +1,184 @@
+{% extends "main/base.html" %}
+
+{% block title %}Stock Alerts & Expiry Control{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1400px;">
+    <div class="mb-5 d-flex justify-content-between align-items-end">
+        <div>
+            <h2 class="fw-bold text-navy mb-1">
+                <i class="fa fa-bell text-warning me-2"></i>Stock Inventory Alerts
+            </h2>
+            <p class="text-muted mb-0">Automated monitoring for low stock levels and product expiration dates.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-outline-secondary shadow-sm">
+                <i class="fa fa-print me-1"></i> Print Report
+            </button>
+            <a href="{{ url_for('inventory.index') }}" class="btn btn-navy shadow-sm px-4">
+                <i class="fa fa-boxes me-1"></i> Back to Inventory
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <!-- Low Stock Summary -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-inline-flex align-items-center justify-content-center mb-3"
+                        style="width: 60px; height: 60px;">
+                        <i class="fa fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">{{ low_stock|length }}</h3>
+                    <p class="text-muted small text-uppercase mb-0 fw-bold">Low Stock Items</p>
+                </div>
+            </div>
+        </div>
+        <!-- Expiring Soon Summary -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3"
+                        style="width: 60px; height: 60px;">
+                        <i class="fa fa-hourglass-half fa-2x"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">{{ expiring|length }}</h3>
+                    <p class="text-muted small text-uppercase mb-0 fw-bold">Expiring (90 Days)</p>
+                </div>
+            </div>
+        </div>
+        <!-- Expired Summary -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg rounded-4 h-100 bg-danger text-white">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-white bg-opacity-25 d-inline-flex align-items-center justify-content-center mb-3"
+                        style="width: 60px; height: 60px;">
+                        <i class="fa fa-skull-crossbones fa-2x"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">{{ expired|length }}</h3>
+                    <p class="opacity-75 small text-uppercase mb-0 fw-bold">Expired Products</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Details Section -->
+    <div class="row g-4">
+        <!-- Critical: Expired & Expiring -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white py-3 px-4 d-flex align-items-center justify-content-between">
+                    <h6 class="mb-0 fw-bold"><i class="fa fa-calendar-times text-danger me-2"></i>Expiry Watchlist</h6>
+                    <span class="badge bg-danger">Critical Action Required</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Product Name</th>
+                                    <th>Batch #</th>
+                                    <th>Expiry Date</th>
+                                    <th>Status</th>
+                                    <th class="pe-4 text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in expired %}
+                                <tr class="bg-danger bg-opacity-10">
+                                    <td class="ps-4 fw-bold text-danger">{{ b.product.name }}</td>
+                                    <td><code>{{ b.batch_number }}</code></td>
+                                    <td class="fw-bold">{{ b.expiry_date.strftime('%d %b, %Y') if b.expiry_date else
+                                        'N/A' }}</td>
+                                    <td><span class="badge bg-danger px-3">EXPIRED</span></td>
+                                    <td class="pe-4 text-end">
+                                        <button class="btn btn-sm btn-outline-danger">Remove Stock</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% for b in expiring %}
+                                <tr>
+                                    <td class="ps-4 fw-bold">{{ b.product.name }}</td>
+                                    <td><code>{{ b.batch_number }}</code></td>
+                                    <td class="fw-bold">{{ b.expiry_date.strftime('%d %b, %Y') if b.expiry_date else
+                                        'N/A' }}</td>
+                                    <td><span class="badge bg-warning text-dark">Expiring {% if b.expiry_date %}({{
+                                            (b.expiry_date - today).days }} days){% endif %}</span></td>
+                                    <td class="pe-4 text-end">
+                                        <button class="btn btn-sm btn-outline-primary">Discount Sale</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% if not expired and not expiring %}
+                                <tr>
+                                    <td colspan="5" class="py-5 text-center text-muted">
+                                        <i class="fa fa-check-circle fa-2x mb-2 text-success"></i>
+                                        <p class="mb-0">No expiring or expired batches found.</p>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Low Stock -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white py-3 px-4">
+                    <h6 class="mb-0 fw-bold"><i class="fa fa-cubes text-warning me-2"></i>Reorder Suggestions</h6>
+                </div>
+                <div class="card-body p-4">
+                    {% if low_stock %}
+                    <div class="vstack gap-3">
+                        {% for item in low_stock %}
+                        <div class="p-3 bg-light rounded-3 border-start border-4 border-warning">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="fw-bold mb-0">{{ item.product.name }}</h6>
+                                <span class="badge bg-warning text-dark">Qty: {{ item.quantity }}</span>
+                            </div>
+                            <p class="small text-muted mb-3">Barcode: {{ item.product.barcode or 'N/A' }}</p>
+                            <button class="btn btn-sm btn-navy w-100 fw-bold">
+                                <i class="fa fa-shopping-cart me-1"></i> Create Purchase Order
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fa fa-warehouse fa-3x text-muted opacity-25 mb-3"></i>
+                        <p class="text-muted mb-0">All stock levels are optimal.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-navy {
+        color: #0047AB;
+    }
+
+    .btn-navy {
+        background-color: #0047AB;
+        color: white;
+        border: none;
+    }
+
+    .btn-navy:hover {
+        background-color: #00378b;
+        color: white;
+    }
+
+    .table thead th {
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        border: none;
+    }
+</style>
+{% endblock %}

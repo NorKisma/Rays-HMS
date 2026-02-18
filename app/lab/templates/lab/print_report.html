@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Report - #{{ req.id }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .print-container {
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 3px solid #0047AB;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .hospital-brand h1 {
+            color: #0047AB;
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .hospital-brand p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .report-title {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #444;
+            margin-bottom: 30px;
+            font-weight: bold;
+            border: 1px solid #ddd;
+            padding: 5px;
+            background: #f9f9f9;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-box {
+            font-size: 14px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #0047AB;
+            width: 120px;
+            display: inline-block;
+        }
+
+        .test-content {
+            border: 1px solid #eee;
+            padding: 20px;
+            min-height: 300px;
+            margin-bottom: 40px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .footer {
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .signature-space {
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .signature-line {
+            border-top: 1px solid #333;
+            width: 200px;
+            margin: 10px auto;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            .print-container {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="no-print" style="background: #333; padding: 10px; text-align: center;">
+        <button onclick="window.print()"
+            style="padding: 10px 20px; cursor: pointer; background: #0047AB; color: white; border: none; border-radius: 4px; font-weight: bold;">
+            <i class="fa fa-print me-2"></i> {{ _('Print Final Report') }}
+        </button>
+    </div>
+
+    <div class="print-container">
+        <div class="header">
+            <div class="hospital-brand">
+                <h1>{{ _('RAYS HOSPITAL') }}</h1>
+                <p>{{ _('Advanced Diagnostic & Clinical Excellence') }}</p>
+                <p>{{ _('Mogadishu, Somalia') }} | +252 61 XXX XXXX</p>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 24px; color: #0047AB; font-weight: bold;">{{ _('LAB REPORT') }}</div>
+                <div style="color: #888;">{{ _('ID') }}: #REQ-{{ req.id }}</div>
+            </div>
+        </div>
+
+        <div class="report-title">{{ _('Laboratory Investigation Result') }}</div>
+
+        <div class="info-grid">
+            <div class="info-box">
+                <div><span class="info-label">{{ _('Patient Name') }}:</span> {{ req.appointment.patient.full_name }}
+                </div>
+                <div><span class="info-label">{{ _('Patient ID') }}:</span> {{ req.appointment.patient.patient_id }}
+                </div>
+                <div><span class="info-label">{{ _('Age / Gender') }}:</span> {{ req.appointment.patient.age }} / {{
+                    _(req.appointment.patient.gender) if req.appointment.patient.gender else 'N/A' }}</div>
+            </div>
+            <div class="info-box" style="text-align: right;">
+                <div><span class="info-label">{{ _('Auth. Doctor') }}:</span> {{ _('Dr.') }} {{
+                    req.appointment.doctor.full_name }}</div>
+                <div><span class="info-label">{{ _('Ref Date') }}:</span> {{ req.created_at.strftime('%d %b %Y') }}
+                </div>
+                <div><span class="info-label">{{ _('Report Date') }}:</span> {{ req.updated_at.strftime('%d %b %Y') }}
+                </div>
+            </div>
+        </div>
+
+        <div style="font-weight: bold; margin-bottom: 10px; color: #0047AB;">{{ _('TEST') }}: {{ req.test_name }}</div>
+
+        <div class="test-content">
+            {{ req.result }}
+        </div>
+
+        <div class="signature-space">
+            <div style="display: flex; justify-content: space-around;">
+                <div>
+                    <div class="signature-line"></div>
+                    <div>{{ _('Laboratory Technician') }}</div>
+                </div>
+                <div>
+                    <div class="signature-line"></div>
+                    <div>{{ _('Head of Department') }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div>{{ _('This is a computer-generated report and does not require a physical signature if verified.') }}
+            </div>
+            <div>{{ _('Page 1 of 1') }}</div>
+        </div>
+    </div>
+</body>
+
+</html>

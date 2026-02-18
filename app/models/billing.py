@@ -8,6 +8,8 @@ class Billing(db.Model, SoftDeleteMixin, TimestampMixin):
     patient_id = db.Column(db.Integer, db.ForeignKey("patients.id"), nullable=False)
     appointment_id = db.Column(db.Integer, db.ForeignKey("appointments.id"), nullable=True)
     total_amount = db.Column(db.Numeric(10, 2), nullable=False)
+    tax_percentage = db.Column(db.Numeric(5, 2), default=0.0)
+    tax_amount = db.Column(db.Numeric(10, 2), default=0.0)
     discount = db.Column(db.Numeric(10, 2), default=0.0)
     net_amount = db.Column(db.Numeric(10, 2), nullable=False)
     paid_amount = db.Column(db.Numeric(10, 2), default=0.0)

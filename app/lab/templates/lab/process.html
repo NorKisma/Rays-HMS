@@ -1,61 +1,147 @@
 {% extends "main/base.html" %}
 
-{% block content %}
-<div class="container-fluid px-4">
-    <h1 class="mt-4">Process Lab Request</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ url_for('lab.index') }}">Lab Queue</a></li>
-        <li class="breadcrumb-item active">Process Test</li>
-    </ol>
+{% block title %}{{ _('Process Lab Test') }} - Rays HMS{% endblock %}
 
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">Patient Details</h5>
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold text-navy mb-1">
+                <i class="fas fa-microscope me-2 text-primary"></i>{{ _('Process Lab Request') }} #{{ request.id }}
+            </h2>
+            <p class="text-muted mb-0">{{ _('Analyze sample and record diagnostic findings.') }}</p>
+        </div>
+        <a href="{{ url_for('lab.index') }}" class="btn btn-white border shadow-sm btn-sm px-3">
+            <i class="fas fa-arrow-left me-2 text-muted"></i> {{ _('Back to Queue') }}
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Panel: Patient & Test Info -->
+        <div class="col-lg-4">
+            <!-- Patient Card -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                <div class="card-header border-0 bg-gradient text-white p-4"
+                    style="background: linear-gradient(135deg, #0047AB, #1e3a8a);">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-user me-2"></i>{{ _('Patient Information') }}</h6>
                 </div>
-                <div class="card-body">
-                    <p><strong>Name:</strong> {{ request.appointment.patient.first_name }} {{
-                        request.appointment.patient.last_name }}</p>
-                    <p><strong>ID:</strong> {{ request.appointment.patient.patient_id }}</p>
-                    <p><strong>Gender:</strong> {{ request.appointment.patient.gender }}</p>
-                    <p><strong>Age:</strong> {{ request.appointment.patient.age }}</p>
-                    <!-- Assuming age property exists or calc in template -->
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">{{ _('Full Name')
+                            }}</small>
+                        <div class="fw-bold text-dark fs-5">{{ request.appointment.patient.first_name }} {{
+                            request.appointment.patient.last_name }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">{{ _('Patient
+                                ID') }}</small>
+                            <div class="fw-bold"><code>{{ request.appointment.patient.patient_id }}</code></div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">{{ _('Gender')
+                                }}</small>
+                            <div class="fw-bold">{{ _(request.appointment.patient.gender) if
+                                request.appointment.patient.gender else 'N/A' }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0">Test Details</h5>
+            <!-- Test Details Card -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header border-0 bg-warning bg-opacity-10 p-4">
+                    <h6 class="mb-0 fw-bold text-dark"><i class="fas fa-flask me-2 text-warning"></i>{{ _('Test
+                        Details') }}</h6>
                 </div>
-                <div class="card-body">
-                    <p><strong>Test Name:</strong> {{ request.test_name }}</p>
-                    <p><strong>Description:</strong> {{ request.description }}</p>
-                    <p><strong>Ordered By:</strong> Dr. {{ request.appointment.doctor.first_name }} {{
-                        request.appointment.doctor.last_name }}</p>
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">{{ _('Test Name')
+                            }}</small>
+                        <div class="fw-bold text-dark">{{ request.test_name }}</div>
+                    </div>
+                    {% if request.description %}
+                    <div class="mb-3">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">{{ _('Doctor Notes')
+                            }}</small>
+                        <div class="text-dark">{{ request.description }}</div>
+                    </div>
+                    {% endif %}
+                    <div class="mb-0">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">{{ _('Ordered By')
+                            }}</small>
+                        <div class="fw-bold">
+                            <span class="badge bg-light text-dark border px-3">
+                                <i class="fas fa-user-md me-1 text-muted"></i>
+                                {{ _('Dr.') }} {{ request.appointment.doctor.first_name }} {{
+                                request.appointment.doctor.last_name
+                                }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-8">
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Enter Results</h5>
+        <!-- Right Panel: Result Entry -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header border-0 bg-white pt-4 px-4 pb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-navy">
+                            <i class="fas fa-edit me-2 text-success"></i>{{ _('Enter Analysis Results') }}
+                        </h5>
+                        {% if templates %}
+                        <div class="dropdown">
+                            <button class="btn btn-light border btn-sm px-3" data-bs-toggle="dropdown">
+                                <i class="fas fa-file-medical me-1"></i> {{ _('Use Template') }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                {% for tmpl in templates %}
+                                <li>
+                                    <a class="dropdown-item template-option" href="#" data-template-id="{{ tmpl.id }}">
+                                        <i class="fas fa-vial me-2 text-muted"></i>{{ tmpl.name }}
+                                        <small class="text-muted ms-2">({{ _(tmpl.category) if tmpl.category else
+                                            _('General') }})</small>
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <form method="POST">
                         {{ form.hidden_tag() }}
-                        <div class="mb-3">
-                            {{ form.result.label(class="form-label") }}
-                            {{ form.result(class="form-control", rows=10, placeholder="Enter detailed findings here...")
-                            }}
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase"
+                                style="font-size: 0.65rem;">{{ _('Diagnostic Findings') }}</label>
+                            {{ form.result(class="form-control bg-light border-0", rows=14, id="result-area",
+                            placeholder=_("Enter detailed lab findings here...\n\nYou can also use a template from the
+                            dropdown above to pre-fill standard test fields.")) }}
                             {% for error in form.result.errors %}
-                            <div class="text-danger">{{ error }}</div>
+                            <div class="text-danger small mt-1">{{ error }}</div>
                             {% endfor %}
                         </div>
-                        <div class="d-grid gap-2">
-                            {{ form.submit(class="btn btn-success btn-lg") }}
-                            <a href="{{ url_for('lab.index') }}" class="btn btn-secondary">Cancel</a>
+
+                        <div class="p-3 bg-info-soft rounded-3 border-start border-4 border-info mb-4">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-info-circle text-info me-3"></i>
+                                <span class="small text-muted">
+                                    <strong>{{ _('Quality Check:') }}</strong> {{ _('Ensure all values are within
+                                    standard units and flag any critical or abnormal values clearly.') }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-success px-5 py-2 fw-bold shadow flex-grow-1">{{
+                                _('Save Results') }}</button>
+                            <a href="{{ url_for('lab.index') }}" class="btn btn-light border px-4 py-2 fw-bold">{{
+                                _('Cancel') }}</a>
                         </div>
                     </form>
                 </div>
@@ -63,4 +149,54 @@
         </div>
     </div>
 </div>
+
+<style>
+    .text-navy {
+        color: #0047AB;
+    }
+
+    .bg-navy {
+        background-color: #0047AB;
+    }
+
+    .bg-info-soft {
+        background-color: rgba(13, 202, 240, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    function loadTemplate(templateId) {
+        fetch('/lab/api/template/' + templateId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.fields) {
+                    const fields = data.fields.split('\n');
+                    let output = '=== ' + data.name + ' ===\n';
+                    output += ''.padStart(40, '-') + '\n\n';
+                    fields.forEach(function (field) {
+                        if (field.trim()) {
+                            output += field.trim() + ': \n';
+                        }
+                    });
+                    output += '\n' + ''.padStart(40, '-') + '\n';
+                    output += 'INTERPRETATION: \n';
+                    output += 'REMARKS: \n';
+
+                    document.getElementById('result-area').value = output;
+                }
+            })
+            .catch(err => console.error('Template load error:', err));
+    }
+
+    // Event delegation for template options
+    document.querySelectorAll('.template-option').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+            loadTemplate(this.dataset.templateId);
+        });
+    });
+</script>
 {% endblock %}

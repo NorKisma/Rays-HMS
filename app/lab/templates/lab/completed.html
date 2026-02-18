@@ -1,0 +1,193 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ _('Completed Lab Results') }} - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-navy">
+                <i class="fas fa-clipboard-check me-2 text-success"></i>{{ _('Completed Results') }}
+            </h2>
+            <p class="text-muted mb-0">{{ _('Review finalized diagnostic reports and lab findings.') }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('lab.index') }}" class="btn btn-white border shadow-sm btn-sm px-3">
+                <i class="fas fa-flask me-2 text-muted"></i> {{ _('Pending Queue') }}
+            </a>
+            <a href="{{ url_for('lab.list_templates') }}" class="btn btn-white border shadow-sm btn-sm px-3">
+                <i class="fas fa-file-medical me-2 text-muted"></i> {{ _('Templates') }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header bg-white border-0 border-bottom pt-4 px-4 pb-3">
+            <h5 class="mb-0 fw-bold text-navy">
+                <i class="fas fa-check-double me-2 text-success"></i>
+                {{ _('Finalized Reports') }}
+                <span class="badge bg-success-soft text-success ms-2 rounded-pill"
+                    style="font-size: 0.65em; vertical-align: middle;">{{ results|length }}</span>
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            {% if results %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 datatable" id="datatablesSimple">
+                    <thead class="table-header-navy">
+                        <tr>
+                            <th class="ps-4">{{ _('Req. ID') }}</th>
+                            <th>{{ _('Patient') }}</th>
+                            <th>{{ _('Test Name') }}</th>
+                            <th>{{ _('Technician') }}</th>
+                            <th>{{ _('Completed On') }}</th>
+                            <th>{{ _('Status') }}</th>
+                            <th class="text-end pe-4">{{ _('Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for res in results %}
+                        <tr>
+                            <td class="ps-4">
+                                <code class="fw-bold text-primary">#{{ res.id }}</code>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ res.appointment.patient.first_name }} {{
+                                    res.appointment.patient.last_name }}</div>
+                                <small class="text-muted opacity-50">{{ res.appointment.patient.patient_id }}</small>
+                            </td>
+                            <td>
+                                <span class="fw-medium text-dark">{{ res.test_name }}</span>
+                            </td>
+                            <td>
+                                {% if res.technician %}
+                                <span class="badge bg-light text-dark border">
+                                    <i class="fas fa-user-nurse me-1 text-muted"></i>{{ res.technician.name }}
+                                </span>
+                                {% else %}
+                                <span class="text-muted small">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="small text-muted">{{ res.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                            </td>
+                            <td>
+                                {% if res.status == 'completed' %}
+                                <span class="badge bg-success-soft text-success px-3 rounded-pill">{{ _('Completed')
+                                    }}</span>
+                                {% elif res.status == 'reviewed' %}
+                                <span class="badge bg-info-soft text-info px-3 rounded-pill">{{ _('Reviewed') }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-light border" data-bs-toggle="modal"
+                                        data-bs-target="#resultModal{{ res.id }}">
+                                        <i class="fas fa-eye me-1"></i> {{ _('View') }}
+                                    </button>
+                                    <a href="{{ url_for('lab.print_report', id=res.id) }}" class="btn btn-primary"
+                                        target="_blank">
+                                        <i class="fas fa-print me-1"></i> {{ _('Print') }}
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="avatar-sm bg-light text-muted rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                    style="width: 70px; height: 70px; font-size: 2rem;">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h6 class="text-muted fw-bold">{{ _('No Completed Results') }}</h6>
+                <p class="small text-muted mb-0">{{ _('Completed lab results will appear here after analysis.') }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Result Detail Modals -->
+{% for res in results %}
+<div class="modal fade" id="resultModal{{ res.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 bg-navy text-white p-4">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-microscope me-2"></i>{{ _('Lab Result') }} #{{ res.id }} — {{ res.test_name }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">{{ _('Patient')
+                            }}</small>
+                        <div class="fw-bold">{{ res.appointment.patient.first_name }} {{
+                            res.appointment.patient.last_name }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">{{ _('Technician')
+                            }}</small>
+                        <div class="fw-bold">{{ res.technician.name if res.technician else 'N/A' }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">{{ _('Date')
+                            }}</small>
+                        <div class="fw-bold">{{ res.updated_at.strftime('%d %b, %Y') }}</div>
+                    </div>
+                </div>
+                <hr>
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">{{ _('Result Findings')
+                    }}</small>
+                <div class="bg-light rounded-3 p-3 mt-2"
+                    style="white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.85rem;">{{
+                    res.result or _('No findings recorded.') }}</div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" class="btn btn-light px-4 fw-bold" data-bs-dismiss="modal">{{ _('Close')
+                    }}</button>
+                <a href="{{ url_for('lab.print_report', id=res.id) }}" class="btn btn-navy px-4 fw-bold shadow"
+                    target="_blank">
+                    <i class="fas fa-print me-2"></i>{{ _('Print Report') }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<style>
+    .text-navy {
+        color: #0047AB;
+    }
+
+    .bg-navy {
+        background-color: #0047AB;
+    }
+
+    .btn-navy {
+        background-color: #0047AB;
+        color: white;
+        border: none;
+    }
+
+    .btn-navy:hover {
+        background-color: #003580;
+        color: white;
+    }
+
+    .bg-success-soft {
+        background-color: rgba(25, 135, 84, 0.1);
+    }
+
+    .bg-info-soft {
+        background-color: rgba(13, 202, 240, 0.1);
+    }
+</style>
+{% endblock %}

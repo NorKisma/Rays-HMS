@@ -1,0 +1,209 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ _('Lab Result Templates') }} - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold text-navy mb-1">
+                <i class="fas fa-file-medical me-2 text-primary"></i>{{ _('Result Templates') }}
+            </h2>
+            <p class="text-muted mb-0">{{ _('Standardized test field templates for consistent, rapid lab data entry.')
+                }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('lab.index') }}" class="btn btn-white border shadow-sm btn-sm px-3">
+                <i class="fas fa-flask me-2 text-muted"></i> {{ _('Pending Queue') }}
+            </a>
+            <button class="btn btn-primary shadow px-4" data-bs-toggle="modal" data-bs-target="#addTemplateModal">
+                <i class="fas fa-plus me-2"></i>{{ _('Create Template') }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Templates Grid -->
+    <div class="row g-4">
+        {% for tmpl in templates %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 template-card">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <span class="badge bg-primary-soft text-primary px-3 rounded-pill mb-2"
+                                style="font-size: 0.7rem;">{{ _(tmpl.category) if tmpl.category else _('General')
+                                }}</span>
+                            <h5 class="fw-bold text-dark mb-0">{{ tmpl.name }}</h5>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-light btn-sm rounded-circle" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                <li><a class="dropdown-item text-danger"
+                                        href="{{ url_for('lab.delete_template', id=tmpl.id) }}"
+                                        onclick="return confirm(this.dataset.confirm)"
+                                        data-confirm="{{ _('Remove this template?') }}">
+                                        <i class="fas fa-trash me-2"></i>{{ _('Delete') }}
+                                    </a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted text-uppercase fw-bold"
+                            style="font-size: 0.6rem; letter-spacing: 1px;">{{ _('Test Fields') }}</small>
+                        <div class="mt-2">
+                            {% for field in (tmpl.fields or '').split('\n') if field.strip() %}
+                            <span class="badge bg-light text-dark border me-1 mb-1 px-2 py-1"
+                                style="font-size: 0.75rem;">
+                                <i class="fas fa-vial me-1 text-muted" style="font-size: 0.6rem;"></i>{{ field.strip()
+                                }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                        <small class="text-muted">
+                            <i class="fas fa-list me-1"></i>{{ (tmpl.fields or '').split('\n')|select|list|length }}
+                            {{ _('fields') }}
+                        </small>
+                        <small class="text-muted">{{ tmpl.created_at.strftime('%d %b %Y') }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if not templates %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                    style="width: 80px; height: 80px;">
+                    <i class="fas fa-file-medical-alt fa-2x text-muted"></i>
+                </div>
+                <h5 class="fw-bold text-muted">{{ _('No Templates Yet') }}</h5>
+                <p class="text-muted mb-4">{{ _('Create reusable templates to standardize your lab reporting workflow.')
+                    }}</p>
+                <button class="btn btn-primary px-4 shadow" data-bs-toggle="modal" data-bs-target="#addTemplateModal">
+                    <i class="fas fa-plus me-2"></i>{{ _('Create First Template') }}
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add Template Modal -->
+<div class="modal fade" id="addTemplateModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 bg-navy text-white p-4">
+                <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle me-2"></i>{{ _('Create Result Template') }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('lab.add_template') }}" method="POST">
+                <div class="modal-body p-4">
+                    <div class="row mb-3">
+                        <div class="col-md-7">
+                            <label class="form-label small fw-bold text-muted text-uppercase">{{ _('Template Name')
+                                }}</label>
+                            <input type="text" name="name" class="form-control bg-light border-0"
+                                placeholder="{{ _('e.g. Complete Blood Count (CBC)') }}" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label small fw-bold text-muted text-uppercase">{{ _('Category')
+                                }}</label>
+                            <select name="category" class="form-select bg-light border-0">
+                                <option value="Hematology">{{ _('Hematology') }}</option>
+                                <option value="Chemistry">{{ _('Chemistry') }}</option>
+                                <option value="Microbiology">{{ _('Microbiology') }}</option>
+                                <option value="Urinalysis">{{ _('Urinalysis') }}</option>
+                                <option value="Serology">{{ _('Serology') }}</option>
+                                <option value="Parasitology">{{ _('Parasitology') }}</option>
+                                <option value="Imaging">{{ _('Imaging') }}</option>
+                                <option value="Other">{{ _('Other') }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase">{{ _('Test Fields') }}</label>
+                        <textarea name="fields" class="form-control bg-light border-0" rows="8" placeholder="{{ _('Enter one field per line, e.g:\n'
+                             'WBC (White Blood Cells)\n'
+                             'RBC (Red Blood Cells)\n'
+                             'Hemoglobin (Hb)\n'
+                             'Hematocrit (Hct)\n'
+                             'Platelet Count\n'
+                             'MCV\n'
+                             'MCH\n'
+                             'MCHC') }}" required></textarea>
+                        <small class="text-muted mt-1 d-block">
+                            <i class="fas fa-info-circle me-1"></i>{{ _('Enter one test parameter per line. These will
+                            become the fields technicians fill during result entry.') }}
+                        </small>
+                    </div>
+
+                    <div class="p-3 bg-info-soft rounded-3 border-start border-4 border-info">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-lightbulb text-info me-3"></i>
+                            <span class="small text-muted">
+                                <strong>{{ _('Pro Tip:') }}</strong> {{ _('Include reference ranges in your field names,
+                                e.g. "WBC (4.5-11.0 x10³/µL)" for faster technician data entry.') }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light px-4 fw-bold" data-bs-dismiss="modal">{{ _('Cancel')
+                        }}</button>
+                    <button type="submit" class="btn btn-navy px-4 fw-bold shadow">
+                        <i class="fas fa-save me-2"></i>{{ _('Save Template') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-navy {
+        color: #0047AB;
+    }
+
+    .bg-navy {
+        background-color: #0047AB;
+    }
+
+    .btn-navy {
+        background-color: #0047AB;
+        color: white;
+        border: none;
+    }
+
+    .btn-navy:hover {
+        background-color: #003580;
+        color: white;
+    }
+
+    .bg-primary-soft {
+        background-color: rgba(0, 71, 171, 0.1);
+    }
+
+    .bg-info-soft {
+        background-color: rgba(13, 202, 240, 0.1);
+    }
+
+    .template-card {
+        transition: all 0.2s ease;
+    }
+
+    .template-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.12) !important;
+    }
+</style>
+{% endblock %}

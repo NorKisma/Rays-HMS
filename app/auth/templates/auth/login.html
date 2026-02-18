@@ -119,8 +119,8 @@
             <i class="fa fa-hand-holding-medical"></i>
         </div>
 
-        <h3 class="text-center fw-bold mb-1">Professional Portal</h3>
-        <p class="text-center text-muted small mb-4">Enter your credentials to access Rays HMS</p>
+        <h3 class="text-center fw-bold mb-1">{{ _('Professional Portal') }}</h3>
+        <p class="text-center text-muted small mb-4">{{ _('Enter your credentials to access Rays HMS') }}</p>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -137,7 +137,7 @@
             {{ form.hidden_tag() }}
 
             <div class="mb-3">
-                <label class="form-label small fw-bold text-muted">{{ form.email.label }}</label>
+                <label class="form-label small fw-bold text-muted">{{ _('Email Address') }}</label>
                 {{ form.email(class="form-control", placeholder="name@hospital.com", autofocus=True) }}
                 {% for error in form.email.errors %}
                 <small class="text-danger">{{ error }}</small>
@@ -145,7 +145,7 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label small fw-bold text-muted">{{ form.password.label }}</label>
+                <label class="form-label small fw-bold text-muted">{{ _('Security Password') }}</label>
                 {{ form.password(class="form-control", placeholder="••••••••") }}
                 {% for error in form.password.errors %}
                 <small class="text-danger">{{ error }}</small>
@@ -155,20 +155,20 @@
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <div class="form-check">
                     {{ form.remember(class="form-check-input") }}
-                    <label class="form-check-label small text-muted" for="remember">Remember session</label>
+                    <label class="form-check-label small text-muted" for="remember">{{ _('Remember session') }}</label>
                 </div>
-                <a href="#" class="small text-decoration-none fw-bold">Forgot password?</a>
+                <a href="#" class="small text-decoration-none fw-bold">{{ _('Forgot password?') }}</a>
             </div>
 
             <button type="submit" class="btn btn-login shadow">
-                Sign In to Dashboard <i class="fa fa-arrow-right ms-2 small"></i>
+                {{ _('Sign In to Dashboard') }} <i class="fa fa-arrow-right ms-2 small"></i>
             </button>
         </form>
 
         <div class="mt-4 pt-3 border-top text-center">
             <p class="small text-muted mb-0">
-                New staff member? <a href="{{ url_for('auth.register') }}" class="fw-bold text-decoration-none">Request
-                    Registration</a>
+                {{ _('New staff member?') }} <a href="{{ url_for('auth.register') }}"
+                    class="fw-bold text-decoration-none">{{ _('Request Registration') }}</a>
             </p>
         </div>
     </div>

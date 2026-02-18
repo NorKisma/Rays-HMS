@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ session.get('lang', 'en') }}">
 
 <head>
   <meta charset="UTF-8">
@@ -158,9 +158,8 @@
           order: [], // No initial sort
           language: {
             search: "",
-            searchPlaceholder: "Search records...",
-            lengthMenu: "_MENU_ entries",
-            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            searchPlaceholder: "{{ _('Search records...') }}",
+            info: "{{ _('Showing _START_ to _END_ of _TOTAL_ entries') }}",
             paginate: {
               previous: '<i class="fa fa-chevron-left"></i>',
               next: '<i class="fa fa-chevron-right"></i>'
@@ -169,12 +168,12 @@
           buttons: [
             {
               extend: 'excel',
-              text: '<i class="fa fa-file-excel me-2"></i>Export',
+              text: '<i class="fa fa-file-excel me-2"></i>{{ _("Export") }}',
               className: 'btn btn-white btn-sm border shadow-sm'
             },
             {
               extend: 'print',
-              text: '<i class="fa fa-print me-2"></i>Print',
+              text: '<i class="fa fa-print me-2"></i>{{ _("Print") }}',
               className: 'btn btn-white btn-sm border shadow-sm'
             }
           ],

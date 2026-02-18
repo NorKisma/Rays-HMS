@@ -11,9 +11,11 @@ def permission_required(permission_name):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated:
-                abort(403)
+                flash("Please log in to access this page.", "warning")
+                return redirect(url_for("auth.login"))
             if not current_user.role or permission_name not in [p.name for p in current_user.role.permissions]:
-                abort(403)
+                flash(f"You do not have the required permission: {permission_name}", "danger")
+                return redirect(url_for("main.dashboard"))
             return f(*args, **kwargs)
         return decorated_function
     return decorator
@@ -30,10 +32,12 @@ def role_required(allowed_roles):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated:
-                abort(403)
+                flash("Please log in to access this page.", "warning")
+                return redirect(url_for("auth.login"))
             user_role_name = getattr(current_user.role, 'name', None)
             if user_role_name not in allowed_roles:
-                abort(403)
+                flash("You do not have permission to access this resource.", "danger")
+                return redirect(url_for("main.dashboard"))
             return f(*args, **kwargs)
         return decorated_function
     return decorator

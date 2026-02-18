@@ -17,3 +17,15 @@ class LabRequest(db.Model, SoftDeleteMixin, TimestampMixin):
     
     def __repr__(self):
         return f"<LabRequest {self.test_name} - {self.status}>"
+
+class LabResultTemplate(db.Model, SoftDeleteMixin, TimestampMixin):
+    """Reusable templates for common lab tests (CBC, Urinalysis, etc.)"""
+    __tablename__ = 'lab_result_templates'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)  # e.g. Complete Blood Count
+    category = db.Column(db.String(50))  # Hematology, Microbiology, Chemistry
+    fields = db.Column(db.Text)  # Newline-separated field names: WBC\nRBC\nHemoglobin\nPlatelets
+    
+    def __repr__(self):
+        return f"<LabResultTemplate {self.name}>"

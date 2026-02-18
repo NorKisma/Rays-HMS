@@ -31,12 +31,12 @@
                 <table class="table table-hover align-middle mb-0 datatable" id="datatablesSimple">
                     <thead class="table-header-navy">
                         <tr>
-                            <th class="ps-4">Req. ID</th>
-                            <th>Patient details</th>
-                            <th>Doctor</th>
-                            <th>Test Description</th>
-                            <th>Requested At</th>
-                            <th class="text-end pe-4">Actions</th>
+                            <th class="ps-4">{{ _('Req. ID') }}</th>
+                            <th>{{ _('Patient details') }}</th>
+                            <th>{{ _('Doctor') }}</th>
+                            <th>{{ _('Test Description') }}</th>
+                            <th>{{ _('Requested At') }}</th>
+                            <th class="text-end pe-4">{{ _('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,7 +64,7 @@
                             <td class="text-end pe-4">
                                 <a href="{{ url_for('lab.process', id=req.id) }}"
                                     class="btn btn-sm btn-primary shadow-sm px-3 font-weight-bold">
-                                    <i class="fas fa-microscope me-1"></i> Start Test
+                                    <i class="fas fa-microscope me-1"></i> {{ _('Start Test') }}
                                 </a>
                             </td>
                         </tr>

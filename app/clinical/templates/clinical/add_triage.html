@@ -1,0 +1,144 @@
+{% extends "main/base.html" %}
+
+{% block title %}Emergency Triage - {{ patient.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 800px;">
+    <div class="mb-5 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold text-navy mb-1">
+                <i class="fa fa-stethoscope text-danger me-2"></i>Emergency Triage Assessment
+            </h2>
+            <p class="text-muted mb-0">Evaluate and prioritize patient care based on clinical urgency.</p>
+        </div>
+        <div class="badge bg-danger px-3 py-2 fw-bold text-uppercase" style="letter-spacing: 1px;">Immediate Action
+        </div>
+    </div>
+
+    <form method="POST">
+        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+            <div class="card-header bg-navy text-white py-3 px-4">
+                <h6 class="mb-0 fw-bold">1. Urgency Level Selection</h6>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <div class="row g-4 text-center">
+                    <div class="col-md-4">
+                        <input type="radio" class="btn-check" name="priority_level" id="red" value="Red" required>
+                        <label class="btn btn-outline-danger w-100 py-4 rounded-4" for="red">
+                            <i class="fa fa-radiation fa-2x mb-2 d-block"></i>
+                            <span class="fw-bold d-block">RED (EMERGENCY)</span>
+                            <small class="opacity-75">Resuscitation Needed</small>
+                        </label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="radio" class="btn-check" name="priority_level" id="yellow" value="Yellow">
+                        <label class="btn btn-outline-warning w-100 py-4 rounded-4" for="yellow">
+                            <i class="fa fa-exclamation-triangle fa-2x mb-2 d-block"></i>
+                            <span class="fw-bold d-block">YELLOW (URGENT)</span>
+                            <small class="opacity-75">Needs Monitoring</small>
+                        </label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="radio" class="btn-check" name="priority_level" id="green" value="Green">
+                        <label class="btn btn-outline-success w-100 py-4 rounded-4" for="green">
+                            <i class="fa fa-check-circle fa-2x mb-2 d-block"></i>
+                            <span class="fw-bold d-block">GREEN (ROUTINE)</span>
+                            <small class="opacity-75">Stable Condition</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-header bg-light py-3 px-4">
+                        <h6 class="mb-0 fw-bold text-navy">2. Triage Vital Signs</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Temperature (°C)</label>
+                            <input type="text" name="temp" class="form-control bg-light border-0"
+                                placeholder="e.g. 38.5">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Blood Pressure</label>
+                            <input type="text" name="bp" class="form-control bg-light border-0"
+                                placeholder="e.g. 140/90">
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label small fw-bold text-muted">Pulse Rate (bpm)</label>
+                            <input type="text" name="pulse" class="form-control bg-light border-0"
+                                placeholder="e.g. 105">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-header bg-light py-3 px-4">
+                        <h6 class="mb-0 fw-bold text-navy">3. Chief Complaint</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Presenting Symptoms</label>
+                            <textarea name="symptoms" class="form-control bg-light border-0" rows="2"
+                                placeholder="Primary reason for visit..." required></textarea>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label small fw-bold text-muted">Nurse's Initial Notes</label>
+                            <textarea name="triage_notes" class="form-control bg-light border-0" rows="2"
+                                placeholder="Additional observations..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5 d-grid gap-2 d-md-flex justify-content-md-end">
+            <a href="{{ url_for('patients.view', id=patient.id) }}" class="btn btn-light btn-lg px-5 fw-bold">Go
+                Back</a>
+            <button type="submit" class="btn btn-navy btn-lg px-5 fw-bold shadow-sm">
+                <i class="fa fa-save me-2"></i>Finalize Triage
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .text-navy {
+        color: #0047AB;
+    }
+
+    .bg-navy {
+        background-color: #0047AB;
+    }
+
+    .btn-navy {
+        background-color: #0047AB;
+        color: white;
+        border: none;
+    }
+
+    .btn-navy:hover {
+        background-color: #00378b;
+        color: white;
+    }
+
+    .btn-check:checked+.btn-outline-danger {
+        background-color: #dc2626;
+        color: white;
+    }
+
+    .btn-check:checked+.btn-outline-warning {
+        background-color: #f59e0b;
+        color: white;
+    }
+
+    .btn-check:checked+.btn-outline-success {
+        background-color: #16a34a;
+        color: white;
+    }
+</style>
+{% endblock %}

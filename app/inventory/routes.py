@@ -239,3 +239,34 @@ def import_inventory():
             return redirect(url_for('inventory.import_inventory'))
             
     return render_template('inventory/import.html', form=form)
+
+@bp.route('/alerts')
+@login_required
+def alerts():
+    from datetime import date, timedelta
+    
+    # Low Stock Items (Quantity <= 10)
+    low_stock = Inventory.query.join(Product).filter(
+        Inventory.quantity <= 10,
+        Inventory.is_deleted == False
+    ).all()
+    
+    # Expiring Soon (Next 90 days)
+    today = date.today()
+    ninety_days = today + timedelta(days=90)
+    expiring_batches = Batch.query.join(Product).filter(
+        Batch.expiry_date.between(today, ninety_days),
+        Batch.is_deleted == False
+    ).order_by(Batch.expiry_date.asc()).all()
+    
+    # Already Expired
+    expired_batches = Batch.query.join(Product).filter(
+        Batch.expiry_date < today,
+        Batch.is_deleted == False
+    ).order_by(Batch.expiry_date.desc()).all()
+    
+    return render_template('inventory/alerts.html', 
+                           low_stock=low_stock, 
+                           expiring=expiring_batches, 
+                           expired=expired_batches,
+                           today=today)

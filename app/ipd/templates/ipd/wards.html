@@ -1,0 +1,126 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ _('Ward Management') }} - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold text-navy mb-1">
+                <i class="fa fa-hospital text-primary me-2"></i>{{ _('Ward & Bed Management') }}
+            </h2>
+            <p class="text-muted mb-0">{{ _('Monitor hospital capacity, ward utilization, and real-time bed
+                availability.') }}</p>
+        </div>
+        <div>
+            <a href="{{ url_for('ipd.admissions') }}" class="btn btn-outline-primary shadow-sm px-4">
+                <i class="fa fa-user-check me-2"></i>{{ _('View Occupied Beds') }}
+            </a>
+            <button class="btn btn-primary shadow px-4 ms-2">
+                <i class="fa fa-plus me-2"></i>{{ _('Configure New Ward') }}
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for ward in wards %}
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                <div class="card-header bg-navy text-white py-3 px-4 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">{{ ward.name }}</h6>
+                    <span class="badge bg-white text-navy px-3">{{ ward.ward_type }}</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between mb-4">
+                        <div>
+                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 10px;">{{
+                                _('Total Capacity') }}</small>
+                            <h4 class="fw-bold mb-0">{{ ward.beds|length }} {{ _('Beds') }}</h4>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 10px;">{{
+                                _('Availability') }}</small>
+                            {% set available = ward.beds|selectattr('status', 'equalto', 'available')|list|length %}
+                            <h4 class="fw-bold mb-0 text-success">{{ available }} {{ _('Free') }}</h4>
+                        </div>
+                    </div>
+
+                    <!-- Bed Visualizer -->
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        {% for bed in ward.beds %}
+                        <div class="bed-icon {% if bed.status == 'occupied' %}occupied{% elif bed.status == 'maintenance' %}maintenance{% else %}available{% endif %}"
+                            data-bs-toggle="tooltip" title="{{ _('Bed') }} {{ bed.bed_number }}">
+                            <i class="fa fa-bed"></i>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid">
+                        <a href="{{ url_for('ipd.ward_details', id=ward.id) }}" class="btn btn-light fw-bold">{{
+                            _('Manage Ward & Staff') }}</a>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-0 py-2 px-4 text-center">
+                    <small class="text-muted">{{ _('Floor') }}: {{ ward.floor or 'G' }} | {{ _('Status: Active')
+                        }}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if not wards %}
+        <div class="col-12 text-center py-5">
+            <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-4"
+                style="width: 100px; height: 100px;">
+                <i class="fa fa-hospital-alt fa-3x text-muted opacity-50"></i>
+            </div>
+            <h4 class="text-muted">{{ _('No Wards Configured') }}</h4>
+            <p class="text-muted mb-4">{{ _('Please set up hospital wards to begin managing patient admissions.') }}</p>
+            <button class="btn btn-primary px-5 py-2 fw-bold shadow">{{ _('Configure First Ward') }}</button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .text-navy {
+        color: #0047AB;
+    }
+
+    .bg-navy {
+        background-color: #0047AB;
+    }
+
+    .bed-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .bed-icon.available {
+        background-color: #d1fae5;
+        color: #059669;
+    }
+
+    .bed-icon.occupied {
+        background-color: #fee2e2;
+        color: #dc2626;
+    }
+
+    .bed-icon.maintenance {
+        background-color: #fef3c7;
+        color: #d97706;
+    }
+
+    .bed-icon:hover {
+        transform: scale(1.1);
+        filter: brightness(0.95);
+    }
+</style>
+{% endblock %}

@@ -210,3 +210,39 @@ def profit_loss():
                            revenues=revenues, expenses=expenses,
                            total_revenue=total_revenue, total_expense=total_expense,
                            net_profit=net_profit)
+
+# ---------------------------------------------------------
+# Expense Management
+# ---------------------------------------------------------
+from app.models.accounting import Expense
+
+@bp.route('/expenses')
+@login_required
+def list_expenses():
+    expenses = Expense.query.filter_by(is_deleted=False).order_by(Expense.date.desc()).all()
+    categories = db.session.query(Expense.category).distinct().all()
+    return render_template('accounting/expenses.html', 
+                           expenses=expenses, 
+                           categories=[c[0] for c in categories],
+                           today_date=datetime.utcnow().date().isoformat())
+
+@bp.route('/expenses/add', methods=['POST'])
+@login_required
+def add_expense():
+    desc = request.form.get('description')
+    amount = float(request.form.get('amount'))
+    category = request.form.get('category')
+    date_str = request.form.get('date')
+    
+    expense = Expense(
+        description=desc,
+        amount=amount,
+        category=category,
+        date=datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else datetime.utcnow().date(),
+        recorded_by=current_user.id
+    )
+    
+    db.session.add(expense)
+    db.session.commit()
+    flash('Expense recorded successfully.', 'success')
+    return redirect(url_for('accounting.list_expenses'))

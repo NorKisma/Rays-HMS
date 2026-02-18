@@ -51,6 +51,8 @@ def create_app(config_name=None):
     from .api import bp as api_bp
     from .lab import bp as lab_bp
     from .settings import bp as settings_bp
+    from .clinical import bp as clinical_bp
+    from .ipd import bp as ipd_bp
 
     # REGISTER BLUEPRINTS
     app.register_blueprint(landing_bp, url_prefix="/")
@@ -68,6 +70,8 @@ def create_app(config_name=None):
 
     from .accounting import bp as accounting_bp
     app.register_blueprint(accounting_bp, url_prefix="/accounting")
+    app.register_blueprint(clinical_bp, url_prefix="/clinical")
+    app.register_blueprint(ipd_bp, url_prefix="/ipd")
 
     # Make instance folder
     os.makedirs(app.instance_path, exist_ok=True)

@@ -198,22 +198,40 @@
                                     <div>
                                         <div class="small opacity-75 text-uppercase"
                                             style="font-size: 0.65rem; letter-spacing: 1px;">{% if session.get('lang')
-                                            == 'so' %}Wadarta Adeegyada{% else %}Total Services Cost{% endif %}</div>
+                                            == 'so' %}Wadarta Adeegyada{% else %}Service Total{% endif %}</div>
                                         <div class="d-flex align-items-baseline mt-1">
-                                            <span class="fs-3 fw-bold me-1">$</span>
-                                            <span class="display-5 fw-bold" id="total-display">0.00</span>
+                                            <span class="fs-4 fw-bold me-1">$</span>
+                                            <span class="fs-3 fw-bold" id="total-display">0.00</span>
                                         </div>
                                     </div>
-                                    <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center"
-                                        style="width: 60px; height: 60px;">
-                                        <i class="fa fa-calculator fa-lg"></i>
+                                    <div class="text-end">
+                                        <div class="small opacity-75 text-uppercase"
+                                            style="font-size: 0.65rem; letter-spacing: 1px;">
+                                            TAX ({{ tax_percentage }}%)
+                                        </div>
+                                        <div class="d-flex align-items-baseline mt-1 justify-content-end">
+                                            <span class="fs-4 fw-bold me-1">$</span>
+                                            <span class="fs-3 fw-bold" id="tax-display">0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 pt-3 border-top border-white border-opacity-25">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="small opacity-75 text-uppercase"
+                                            style="font-size: 0.65rem; letter-spacing: 1px;">
+                                            NET TOTAL
+                                        </div>
+                                        <div class="d-flex align-items-baseline">
+                                            <span class="fs-3 fw-bold me-1">$</span>
+                                            <span class="display-6 fw-bold" id="net-display">0.00</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <input type="hidden" name="service_amount" id="service_amount" value="0.00">
                             </div>
                             <small class="text-muted mt-2 d-block"><i class="fa fa-info-circle me-1"></i>{% if
                                 session.get('lang') == 'so' %}Si toos ah ayaa loogu xisaabinayaa{% else %}Automatically
-                                calculated based on selected services{% endif %}</small>
+                                calculated including taxes and discounts{% endif %}</small>
                         </div>
 
                         <div class="row g-4 mb-4">
@@ -223,9 +241,9 @@
                                     Bixinta{%
                                     else %}Payment Method{% endif %}</label>
                                 {{ form.payment_method(
-                                    class="form-select bg-light border-0 py-2 searchable-select",
-                                    data_placeholder=_('Select payment method'),
-                                    data_allow_clear="true"
+                                class="form-select bg-light border-0 py-2 searchable-select",
+                                data_placeholder=_('Select payment method'),
+                                data_allow_clear="true"
                                 ) }}
                             </div>
                             <div class="col-md-6">
@@ -233,9 +251,9 @@
                                     style="font-size: 0.65rem;">{% if session.get('lang') == 'so' %}Xaaladda Lacagta{%
                                     else %}Payment Status{% endif %}</label>
                                 {{ form.payment_status(
-                                    class="form-select bg-light border-0 py-2 searchable-select",
-                                    data_placeholder=_('Select payment status'),
-                                    data_allow_clear="true"
+                                class="form-select bg-light border-0 py-2 searchable-select",
+                                data_placeholder=_('Select payment status'),
+                                data_allow_clear="true"
                                 ) }}
                             </div>
                         </div>
@@ -305,29 +323,41 @@
     function updateTotalCost() {
         // Standard Price List (from server-side settings)
         const prices = {
-            'Consultation': {{ '%.2f'|format(service_prices['Consultation']) }},
-            'Computer Service': {{ '%.2f'|format(service_prices['Computer Service']) }},
-            'Laboratory': {{ '%.2f'|format(service_prices['Laboratory']) }},
-            'Ultrasound': {{ '%.2f'|format(service_prices['Ultrasound']) }},
-            'Other': {{ '%.2f'|format(service_prices['Other']) }}
+            'Consultation': {{ '%.2f'| format(service_prices['Consultation'])
+    }},
+    'Computer Service': { { '%.2f' | format(service_prices['Computer Service']) } },
+    'Laboratory': { { '%.2f' | format(service_prices['Laboratory']) } },
+    'Ultrasound': { { '%.2f' | format(service_prices['Ultrasound']) } },
+    'Other': { { '%.2f' | format(service_prices['Other']) } }
         };
 
-        const checkboxes = document.querySelectorAll('input[name="service_types"]:checked');
-        const costInput = document.getElementById('service_amount');
-        const totalDisplay = document.getElementById('total-display');
+    const checkboxes = document.querySelectorAll('input[name="service_types"]:checked');
+    const costInput = document.getElementById('service_amount');
+    const totalDisplay = document.getElementById('total-display');
+    const taxDisplay = document.getElementById('tax-display');
+    const netDisplay = document.getElementById('net-display');
+    const discountInput = document.querySelector('input[name="discount"]');
 
-        let total = 0;
-        checkboxes.forEach(function (checkbox) {
-            if (prices.hasOwnProperty(checkbox.value)) {
-                total += prices[checkbox.value];
-            }
-        });
-
-        costInput.value = total.toFixed(2);
-        if (totalDisplay) {
-            totalDisplay.textContent = total.toFixed(2);
+    let total = 0;
+    checkboxes.forEach(function (checkbox) {
+        if (prices.hasOwnProperty(checkbox.value)) {
+            total += prices[checkbox.value];
         }
+    });
+
+    const taxPct = {{ tax_percentage }};
+    const taxAmt = total * (taxPct / 100);
+    const discount = parseFloat(discountInput.value) || 0;
+    const net = total + taxAmt - discount;
+
+    costInput.value = total.toFixed(2);
+    if (totalDisplay) totalDisplay.textContent = total.toFixed(2);
+    if (taxDisplay) taxDisplay.textContent = taxAmt.toFixed(2);
+    if (netDisplay) netDisplay.textContent = net.toFixed(2);
     }
+
+    // Add event listener to discount input to trigger update
+    document.querySelector('input[name="discount"]').addEventListener('input', updateTotalCost);
 
     // Initialize on load
     document.addEventListener('DOMContentLoaded', function () {
