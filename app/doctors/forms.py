@@ -28,4 +28,4 @@ class DoctorForm(FlaskForm):
         ('busy', 'Busy'),
         ('on_leave', 'On Leave')
     ], default='available')
-    submit = SubmitField('Save Doctor')
+    submit = SubmitField('Save Staff')

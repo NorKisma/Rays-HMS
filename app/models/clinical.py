@@ -1,5 +1,5 @@
 from app.extensions import db
-from .user import TimestampMixin, SoftDeleteMixin
+from .user import TimestampMixin, SoftDeleteMixin, MultiTenantMixin
 from datetime import datetime
 
 class PatientVital(db.Model, SoftDeleteMixin, TimestampMixin):
@@ -62,7 +62,7 @@ class PrescriptionItem(db.Model, SoftDeleteMixin, TimestampMixin):
     def __repr__(self):
         return f"<PrescriptionItem {self.medicine_name}>"
 
-class Triage(db.Model, SoftDeleteMixin, TimestampMixin):
+class Triage(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     __tablename__ = 'triage_records'
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'), nullable=False)

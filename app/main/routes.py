@@ -17,20 +17,23 @@ bp = Blueprint("main", __name__, template_folder='templates')
 def dashboard():
     from app.models import Patient, Doctor, Appointment, Inventory, Billing, Batch, Triage, Admission, LabRequest
     from datetime import date, timedelta
+    
+    hid = current_user.hospital_id
     today = date.today()
     ninety_days = today + timedelta(days=90)
     
+    # All queries MUST be filtered by hospital_id
     stats = {
-        'total_patients': Patient.query.count(),
-        'total_doctors': Doctor.query.count(),
-        'pending_appointments': Appointment.query.filter_by(status='scheduled').count(),
-        'low_stock': Inventory.query.filter(Inventory.quantity <= 10).count(),
-        'expiring_soon': Batch.query.filter(Batch.expiry_date.between(today, ninety_days), Batch.is_deleted == False).count(),
-        'unpaid_bills': Billing.query.filter_by(payment_status='unpaid').count(),
-        'lab_pending': LabRequest.query.filter_by(status='pending').count(),
-        'emergency_queue': Triage.query.filter_by(status='pending').count(),
-        'active_admissions': Admission.query.filter_by(status='admitted').count(),
-        'recent_patients': Patient.query.order_by(Patient.created_at.desc()).limit(5).all()
+        'total_patients': Patient.query.filter_by(hospital_id=hid).count(),
+        'total_doctors': Doctor.query.filter_by(hospital_id=hid).count(),
+        'pending_appointments': Appointment.query.filter_by(hospital_id=hid, status='scheduled').count(),
+        'low_stock': Inventory.query.filter_by(hospital_id=hid).filter(Inventory.quantity <= 10).count(),
+        'expiring_soon': Batch.query.filter(Batch.hospital_id == hid, Batch.expiry_date.between(today, ninety_days), Batch.is_deleted == False).count(),
+        'unpaid_bills': Billing.query.filter_by(hospital_id=hid, payment_status='unpaid').count(),
+        'lab_pending': LabRequest.query.filter_by(hospital_id=hid, status='pending').count(),
+        'emergency_queue': Triage.query.filter_by(hospital_id=hid, status='pending').count(),
+        'active_admissions': Admission.query.filter_by(hospital_id=hid, status='admitted').count(),
+        'recent_patients': Patient.query.filter_by(hospital_id=hid).order_by(Patient.created_at.desc()).limit(5).all()
     }
     
     return render_template('main/dashboard.html', user=current_user, **stats)

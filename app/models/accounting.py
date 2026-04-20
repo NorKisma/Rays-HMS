@@ -1,9 +1,9 @@
 
 from datetime import datetime
 from app.extensions import db
-from app.models.user import TimestampMixin, SoftDeleteMixin
+from app.models.user import TimestampMixin, SoftDeleteMixin, MultiTenantMixin
 
-class Account(db.Model, TimestampMixin, SoftDeleteMixin):
+class Account(db.Model, TimestampMixin, SoftDeleteMixin, MultiTenantMixin):
     """
     Chart of Accounts
     Types: Asset, Liability, Equity, Revenue, Expense
@@ -19,7 +19,7 @@ class Account(db.Model, TimestampMixin, SoftDeleteMixin):
     ]
 
     id = db.Column(db.Integer, primary_key=True)
-    code = db.Column(db.String(20), unique=True, nullable=False)
+    code = db.Column(db.String(20), nullable=False) # Removed unique=True to allow same codes across hospitals
     name = db.Column(db.String(100), nullable=False)
     type = db.Column(db.String(20), nullable=False)
     description = db.Column(db.String(255))
@@ -28,10 +28,7 @@ class Account(db.Model, TimestampMixin, SoftDeleteMixin):
     # Relationship
     journal_items = db.relationship('JournalItem', backref='account', lazy=True)
 
-    def __repr__(self):
-        return f"<Account {self.code} - {self.name}>"
-
-class JournalEntry(db.Model, TimestampMixin, SoftDeleteMixin):
+class JournalEntry(db.Model, TimestampMixin, SoftDeleteMixin, MultiTenantMixin):
     """
     Header for a financial transaction (Double Entry)
     """
@@ -51,16 +48,13 @@ class JournalEntry(db.Model, TimestampMixin, SoftDeleteMixin):
 
     @property
     def total_debit(self):
-        return sum(item.debit for item in self.items)
-    
+        return sum((item.debit or 0) for item in self.items)
+
     @property
     def total_credit(self):
-        return sum(item.credit for item in self.items)
+        return sum((item.credit or 0) for item in self.items)
 
-    def __repr__(self):
-        return f"<JournalEntry {self.id} - {self.date}>"
-
-class JournalItem(db.Model):
+class JournalItem(db.Model, MultiTenantMixin):
     """
     Line items for a journal entry (Debits and Credits)
     """
@@ -73,11 +67,8 @@ class JournalItem(db.Model):
     
     debit = db.Column(db.Numeric(12, 2), default=0.00)
     credit = db.Column(db.Numeric(12, 2), default=0.00)
-    
-    def __repr__(self):
-        return f"<JournalItem {self.account.name} Dr:{self.debit} Cr:{self.credit}>"
 
-class Expense(db.Model, TimestampMixin, SoftDeleteMixin):
+class Expense(db.Model, TimestampMixin, SoftDeleteMixin, MultiTenantMixin):
     __tablename__ = 'expenses'
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(255), nullable=False)
@@ -90,6 +81,3 @@ class Expense(db.Model, TimestampMixin, SoftDeleteMixin):
     
     staff = db.relationship('User')
     account = db.relationship('Account')
-
-    def __repr__(self):
-        return f"<Expense {self.category} - {self.amount}>"

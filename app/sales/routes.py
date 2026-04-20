@@ -1,10 +1,11 @@
 import os
 from datetime import datetime
+from sqlalchemy import or_
 from flask import render_template, redirect, url_for, flash, request, jsonify, current_app
 from flask_login import login_required, current_user
 from app.extensions import db
 from . import bp
-from app.models import Product, Batch, Inventory, Sale, SaleItem, Patient, StockLog, Account, JournalEntry, JournalItem
+from app.models import Category, Product, Batch, Inventory, Sale, SaleItem, Patient, StockLog, Account, JournalEntry, JournalItem
 from app.decorators import permission_required
 
 @bp.route('/pos')
@@ -12,7 +13,31 @@ from app.decorators import permission_required
 @permission_required('view_sales') # Or specific POS permission
 def pos():
     """Main POS Interface."""
-    return render_template('sales/pos.html', title="Point of Sale")
+    pos_items = []
+    try:
+        results = db.session.query(Product, Inventory, Batch, Category)\
+            .join(Inventory, Product.id == Inventory.product_id)\
+            .join(Batch, Inventory.batch_id == Batch.id)\
+            .outerjoin(Category, Product.category_id == Category.id)\
+            .filter(Inventory.quantity > 0, Inventory.is_deleted == False)\
+            .order_by(Inventory.quantity.desc()).limit(5).all()
+
+        for product, inv, batch, category in results:
+            pos_items.append({
+                'id': product.id,
+                'name': product.name,
+                'batch_id': batch.id,
+                'batch_number': batch.batch_number,
+                'expiry': batch.expiry_date.strftime('%Y-%m-%d') if batch.expiry_date else 'No Expiry',
+                'price': batch.selling_price,
+                'stock': inv.quantity,
+                'unit': inv.unit or product.base_unit or 'unit',
+                'category': category.name if category else 'Uncategorized'
+            })
+    except Exception as e:
+        current_app.logger.error(f"POS load error: {e}")
+
+    return render_template('sales/pos.html', title="Point of Sale", pos_items=pos_items)
 
 @bp.route('/search-products')
 @login_required
@@ -27,7 +52,13 @@ def search_products():
     results = db.session.query(Product, Inventory, Batch)\
         .join(Inventory, Product.id == Inventory.product_id)\
         .join(Batch, Inventory.batch_id == Batch.id)\
-        .filter(Product.name.ilike(f'%{query}%'))\
+        .filter(
+            or_(
+                Product.name.ilike(f'%{query}%'),
+                Product.barcode.ilike(f'%{query}%'),
+                Batch.batch_number.ilike(f'%{query}%')
+            )
+        )\
         .filter(Inventory.quantity > 0)\
         .filter(Inventory.is_deleted == False).all()
 
@@ -58,6 +89,9 @@ def checkout():
         customer_name = data.get('customer_name', 'Walk-in Customer')
         payment_method = data.get('payment_method', 'Cash')
         discount = float(data.get('discount', 0))
+        sale_source = data.get('sale_source', 'Pharmacy')
+
+        paid_amount = float(data.get('paid_amount', 0))
 
         # 1. Generate Invoice Number
         # Simplified: INV-YYYYMMDD-ID
@@ -76,6 +110,8 @@ def checkout():
             customer_name=customer_name,
             payment_method=payment_method,
             discount=discount,
+            sale_source=sale_source,
+            paid_amount=paid_amount,
             user_id=current_user.id,
             status='completed'
         )
@@ -130,40 +166,36 @@ def checkout():
         # 4. Final Updates
         new_sale.total_amount = total_amount
         new_sale.net_total = total_amount - discount
-        new_sale.paid_amount = new_sale.net_total # Assuming full payment for now
+        new_sale.change_amount = max(new_sale.paid_amount - new_sale.net_total, 0)
         
         # ---------------------------------------------------
         # INTEGRATION: Auto-create Journal Entry (POS)
         # ---------------------------------------------------
         try:
-             # Accounts
-            revenue_acc = Account.query.filter_by(code='4000').first() # Sales Revenue
-            cash_acc = Account.query.filter_by(code='1000').first()    # Cash (Petty/Main)
-            
-            # For COGS (Cost of Goods Sold) - Advanced
-            cogs_acc = Account.query.filter_by(code='5000').first()      # COGS
-            inventory_acc = Account.query.filter_by(code='1300').first() # Inventory Asset
+            hid = current_user.hospital_id
+            # Resolve accounts for this specific hospital
+            # 1000: Cash, 4000: Sales Revenue, 5000: COGS, 1300: Inventory
+            revenue_acc = Account.query.filter_by(code='4000', hospital_id=hid).first()
+            cash_acc = Account.query.filter_by(code='1000', hospital_id=hid).first()
+            cogs_acc = Account.query.filter_by(code='5000', hospital_id=hid).first()
+            inventory_acc = Account.query.filter_by(code='1300', hospital_id=hid).first()
             
             if revenue_acc and cash_acc:
                 je = JournalEntry(
                     date=datetime.utcnow(),
                     reference=invoice_num,
                     description=f"POS Sale - {customer_name}",
-                    user_id=current_user.id
+                    user_id=current_user.id,
+                    hospital_id=hid
                 )
                 
                 # 1. Revenue Entry
                 # Dr Cash (Total Paid)
-                je.items.append(JournalItem(account_id=cash_acc.id, debit=new_sale.paid_amount, credit=0))
-                
+                je.items.append(JournalItem(account_id=cash_acc.id, debit=new_sale.paid_amount, credit=0, hospital_id=hid))
                 # Cr Revenue (Net Total)
-                je.items.append(JournalItem(account_id=revenue_acc.id, credit=new_sale.net_total, debit=0))
+                je.items.append(JournalItem(account_id=revenue_acc.id, credit=new_sale.net_total, debit=0, hospital_id=hid))
                 
-                # Cr Discount (if any)? Usually tracked as separate expense or contra-revenue
-                # For simplicity, we just booked net revenue above.
-                
-                # 2. COGS Entry (Perpetual Inventory System)
-                # We need to calculate total cost of items sold
+                # 2. COGS Entry (Perpetual Inventory)
                 total_cost = 0
                 for item in cart_items:
                     batch = Batch.query.get(item['batch_id'])
@@ -171,16 +203,14 @@ def checkout():
                         total_cost += (batch.unit_cost * float(item['quantity']))
                 
                 if cogs_acc and inventory_acc and total_cost > 0:
-                    # Dr COGS
-                    je.items.append(JournalItem(account_id=cogs_acc.id, debit=total_cost, credit=0))
-                    # Cr Inventory Asset
-                    je.items.append(JournalItem(account_id=inventory_acc.id, credit=total_cost, debit=0))
+                    je.items.append(JournalItem(account_id=cogs_acc.id, debit=total_cost, credit=0, hospital_id=hid))
+                    je.items.append(JournalItem(account_id=inventory_acc.id, credit=total_cost, debit=0, hospital_id=hid))
                 
                 db.session.add(je)
                 
         except Exception as e:
             current_app.logger.error(f"POS Accounting Integration Error: {e}")
-            # Non-blocking error
+            # Non-blocking for the user
 
         
         db.session.commit()
@@ -196,6 +226,12 @@ def checkout():
         db.session.rollback()
         current_app.logger.error(f"POS checkout error: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@bp.route('/receipt/<int:id>/print')
+@login_required
+def print_receipt(id):
+    sale = Sale.query.get_or_404(id)
+    return render_template('sales/receipt.html', sale=sale)
 
 @bp.route('/list')
 @login_required

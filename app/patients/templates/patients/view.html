@@ -27,13 +27,13 @@
                     </div>
                 </div>
             </div>
-            <div class="d-flex gap-2">
-                <button onclick="window.print()" class="btn btn-white shadow">
-                    <i class="fa fa-print me-2"></i> {% if session.get('lang') == 'so' %}Daabac{% else %}Print Chart{%
+            <div class="d-flex gap-2 no-print">
+                <a href="{{ url_for('patients.print_chart', id=patient.id) }}" target="_blank" class="btn btn-white shadow">
+                    <i class="fa fa-print me-2 text-primary"></i> {% if session.get('lang') == 'so' %}Daabac{% else %}Print Chart{%
                     endif %}
-                </button>
+                </a>
                 <a href="{{ url_for('patients.edit', id=patient.id) }}" class="btn btn-warning shadow">
-                    <i class="fa fa-edit me-2"></i> {% if session.get('lang') == 'so' %}Bedel{% else %}Edit Profile{%
+                    <i class="fa fa-edit me-2 text-dark"></i> {% if session.get('lang') == 'so' %}Bedel{% else %}Edit Profile{%
                     endif %}
                 </a>
             </div>

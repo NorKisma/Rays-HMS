@@ -1,5 +1,5 @@
 from app.extensions import db
-from .user import TimestampMixin, SoftDeleteMixin
+from .user import TimestampMixin, SoftDeleteMixin, MultiTenantMixin
 from datetime import datetime
 
 class Ward(db.Model, SoftDeleteMixin, TimestampMixin):
@@ -26,7 +26,7 @@ class Bed(db.Model, SoftDeleteMixin, TimestampMixin):
     def __repr__(self):
         return f"<Bed {self.bed_number} - {self.status}>"
 
-class Admission(db.Model, SoftDeleteMixin, TimestampMixin):
+class Admission(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     __tablename__ = 'admissions'
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'), nullable=False)

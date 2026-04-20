@@ -87,6 +87,7 @@
                     <thead class="table-header-slate">
                         <tr>
                             <th class="ps-4">{{ _('Invoice') }}</th>
+                            <th>{{ _('Source') }}</th>
                             <th>{{ _('Customer') }}</th>
                             <th>{{ _('Items') }}</th>
                             <th>{{ _('Subtotal') }}</th>
@@ -104,6 +105,17 @@
                         <tr>
                             <td class="ps-4 py-3">
                                 <span class="fw-bold text-primary">{{ sale.invoice_number }}</span>
+                            </td>
+                            <td>
+                                {% if sale.sale_source == 'Pharmacy' %}
+                                <span class="badge bg-secondary-soft text-secondary x-small">
+                                    <i class="fa fa-clinic-medical me-1"></i> Pharmacy
+                                </span>
+                                {% else %}
+                                <span class="badge bg-primary-soft text-primary x-small">
+                                    <i class="fa fa-user-tag me-1"></i> Customer
+                                </span>
+                                {% endif %}
                             </td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">

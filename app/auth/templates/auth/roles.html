@@ -52,7 +52,7 @@
                                         class="btn btn-sm btn-white border shadow-sm">
                                         <i class="fas fa-edit text-muted"></i>
                                     </a>
-                                    {% if role.name.lower() not in ['admin', 'manager', 'staff'] %}
+                                    {% if role.name.lower() not in ['admin', 'manager', 'staff', 'developer'] %}
                                     <form action="{{ url_for('auth.delete_role', id=role.id) }}" method="POST"
                                         onsubmit="return confirm('Delete this role?');" class="d-inline">
                                         <button type="submit"

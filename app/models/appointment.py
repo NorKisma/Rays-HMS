@@ -1,7 +1,8 @@
 from app.extensions import db
-from .user import TimestampMixin, SoftDeleteMixin
+from .user import TimestampMixin, SoftDeleteMixin, MultiTenantMixin
 
-class Appointment(db.Model, SoftDeleteMixin, TimestampMixin):
+class Appointment(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
+
     __tablename__ = "appointments"
     id = db.Column(db.Integer, primary_key=True)
     appointment_number = db.Column(db.String(20), unique=True, nullable=False) # e.g. APT-0001

@@ -28,6 +28,14 @@ class SoftDeleteMixin:
         self.deleted_at = None
         db.session.add(self)
 
+class MultiTenantMixin:
+    """Adds tenant (hospital) isolation to models."""
+    hospital_id = db.Column(db.Integer, db.ForeignKey('hospitals.id'), nullable=True)
+    
+    @property
+    def hospital_context(self):
+        return self.hospital
+
 #===============================
 # Association Table
 #===============================
@@ -76,9 +84,11 @@ class User(db.Model, UserMixin, SoftDeleteMixin, TimestampMixin):
     is_active = db.Column(db.Boolean, default=True, nullable=False)
 
     role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=True)
+    hospital_id = db.Column(db.Integer, db.ForeignKey("hospitals.id"), nullable=True) # Tenant ID
     created_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
 
     role = db.relationship("Role", backref=db.backref("users", lazy=True))
+    hospital = db.relationship("Hospital", backref=db.backref("users", lazy=True))
     creator = db.relationship("User", remote_side=[id], backref=db.backref("created_users", lazy=True))
 
     def set_password(self, password):
@@ -101,8 +111,8 @@ class User(db.Model, UserMixin, SoftDeleteMixin, TimestampMixin):
         """Check if user has a specific permission via their role."""
         if not self.role:
             return False
-        # Grant all permissions to admin
-        if self.role.name.lower() == 'admin':
+        # Grant all permissions to admin and developer
+        if self.role.name.lower() in ['admin', 'developer']:
             return True
         return any(p.name == permission_name for p in self.role.permissions)
 

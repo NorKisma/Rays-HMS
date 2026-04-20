@@ -11,16 +11,35 @@ from datetime import datetime
 @bp.route('/')
 @login_required
 def dashboard():
-    """Accounting Dashboard"""
-    # Quick Stats
+    """ERP Financial Intelligence Center"""
+    # 1. Base Counts
     accounts_count = Account.query.count()
     entries_count = JournalEntry.query.count()
     
-    recent_entries = JournalEntry.query.order_by(JournalEntry.date.desc()).limit(5).all()
+    # 2. Financial Metrics (Aggregate)
+    # Revenue (Cr - Dr)
+    revenue_total = db.session.query(func.sum(JournalItem.credit - JournalItem.debit))\
+        .join(Account).filter(Account.type == 'Revenue').scalar() or 0
+        
+    # Expense (Dr - Cr)
+    expense_total = db.session.query(func.sum(JournalItem.debit - JournalItem.credit))\
+        .join(Account).filter(Account.type == 'Expense').scalar() or 0
+        
+    # Cash on Hand (Assets type 'Cash' or all Assets for simplicity now)
+    cash_total = db.session.query(func.sum(JournalItem.debit - JournalItem.credit))\
+        .join(Account).filter(Account.type == 'Asset').scalar() or 0
+
+    net_profit = revenue_total - expense_total
+    
+    recent_entries = JournalEntry.query.order_by(JournalEntry.date.desc()).limit(8).all()
     
     return render_template('accounting/dashboard.html', 
                            accounts_count=accounts_count,
                            entries_count=entries_count,
+                           revenue=revenue_total,
+                           expenses=expense_total,
+                           cash=cash_total,
+                           profit=net_profit,
                            recent_entries=recent_entries)
 
 # ---------------------------------------------------------
@@ -246,3 +265,9 @@ def add_expense():
     db.session.commit()
     flash('Expense recorded successfully.', 'success')
     return redirect(url_for('accounting.list_expenses'))
+
+@bp.route('/expenses/print/<int:id>')
+@login_required
+def print_expense(id):
+    expense = Expense.query.get_or_404(id)
+    return render_template('accounting/print_expense.html', exp=expense)

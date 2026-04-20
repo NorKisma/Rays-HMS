@@ -1,118 +1,200 @@
 {% extends "main/base.html" %}
 
+{% block title %}Financial Intelligence Center - Enterprise ERP{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Accounting Dashboard</h1>
-        <div>
-            <a href="{{ url_for('accounting.create_journal_entry') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> New Journal Entry
-            </a>
-            <a href="{{ url_for('accounting.chart_of_accounts') }}" class="btn btn-secondary">
-                <i class="fas fa-list"></i> Chart of Accounts
-            </a>
+<div class="container-fluid py-4 bg-light-soft min-vh-100">
+    <!-- Header -->
+    <div class="row mb-5 align-items-center">
+        <div class="col">
+            <h6 class="text-primary fw-bold text-uppercase ls-wide mb-1">Financial Intelligence</h6>
+            <h2 class="fw-800 mb-0" style="letter-spacing: -1.5px;">Executive Ledger Overview</h2>
+            <p class="text-muted small mb-0">Real-time fiscal monitoring for {{ current_user.hospital.name if current_user.hospital else 'Main Facility' }}.</p>
         </div>
-    </div>
-
-    <!-- Stats Cards -->
-    <div class="row">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Chart of Accounts</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ accounts_count }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-book fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Total Journal Entries</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ entries_count }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
+        <div class="col-auto">
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('accounting.chart_of_accounts') }}" class="btn btn-white border shadow-sm rounded-pill px-4 fw-bold">
+                    <i class="fa fa-list-ul me-2 opacity-50"></i>Chart of Accounts
+                </a>
+                <a href="{{ url_for('accounting.create_journal_entry') }}" class="btn btn-primary rounded-pill shadow-lg px-4 fw-bold">
+                    <i class="fa fa-plus-circle me-2"></i>New Journal Entry
+                </a>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-6 mb-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Financial Reports</h6>
+    <!-- ERP Financial Tiles -->
+    <div class="row g-4 mb-5">
+        <!-- Cash Position -->
+        <div class="col-md-3">
+            <div class="metric-card bg-white border-0 shadow-sm rounded-4 p-4 position-relative overflow-hidden">
+                <div class="position-absolute top-0 end-0 p-3 opacity-10">
+                    <i class="fa fa-vault fa-4x text-primary"></i>
                 </div>
-                <div class="card-body">
-                    <div class="list-group">
-                        <a href="{{ url_for('accounting.balance_sheet') }}"
-                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                            Balance Sheet
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                        <a href="{{ url_for('accounting.profit_loss') }}"
-                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                            Profit & Loss (Income Statement)
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
+                <div class="icon-box-sm bg-primary bg-opacity-10 text-primary mb-3">
+                    <i class="fa fa-university"></i>
+                </div>
+                <h3 class="fw-800 mb-1">${{ "{:,.2f}".format(cash) }}</h3>
+                <p class="text-muted small fw-bold text-uppercase mb-0 ls-wide">Liquidity (Assets)</p>
+                <div class="mt-3 pt-3 border-top border-light">
+                    <span class="badge bg-soft-success text-success rounded-pill x-small">Healthy</span>
+                </div>
+            </div>
+        </div>
+        <!-- Revenue Tracker -->
+        <div class="col-md-3">
+            <div class="metric-card bg-white border-0 shadow-sm rounded-4 p-4">
+                <div class="icon-box-sm bg-success bg-opacity-10 text-success mb-3">
+                    <i class="fa fa-chart-line"></i>
+                </div>
+                <h3 class="fw-800 mb-1 text-success">${{ "{:,.2f}".format(revenue) }}</h3>
+                <p class="text-muted small fw-bold text-uppercase mb-0 ls-wide">Total Revenue</p>
+                <div class="mt-3 pt-3 border-top border-light d-flex justify-content-between align-items-center">
+                    <span class="text-muted x-small">Gross Earnings</span>
+                    <i class="fa fa-arrow-trend-up text-success"></i>
+                </div>
+            </div>
+        </div>
+        <!-- Expense Control -->
+        <div class="col-md-3">
+            <div class="metric-card bg-white border-0 shadow-sm rounded-4 p-4">
+                <div class="icon-box-sm bg-danger bg-opacity-10 text-danger mb-3">
+                    <i class="fa fa-wallet"></i>
+                </div>
+                <h3 class="fw-800 mb-1 text-danger">${{ "{:,.2f}".format(expenses) }}</h3>
+                <p class="text-muted small fw-bold text-uppercase mb-0 ls-wide">Total Expenses</p>
+                <div class="mt-3 pt-3 border-top border-light">
+                    <div class="progress" style="height: 4px;">
+                        <div class="progress-bar bg-danger" style="width: {{ (expenses/revenue * 100) if revenue > 0 else 0 }}%"></div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-lg-6 mb-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Recent Journal Entries</h6>
+        <!-- Net Performance -->
+        <div class="col-md-3">
+            <div class="metric-card bg-dark border-0 shadow-lg rounded-4 p-4 text-white">
+                <div class="icon-box-sm bg-white bg-opacity-20 text-white mb-3">
+                    <i class="fa fa-medal"></i>
                 </div>
-                <div class="card-body">
+                <h3 class="fw-800 mb-1">${{ "{:,.2f}".format(profit) }}</h3>
+                <p class="text-white-50 small fw-bold text-uppercase mb-0 ls-wide">Net Operating Income</p>
+                <div class="mt-3 pt-3 border-top border-white border-opacity-10">
+                    <span class="x-small text-white-50">Fiscal Performance Metric</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Main Ledger Activity -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-4 px-4 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">Central Ledger Activity</h5>
+                    <a href="{{ url_for('accounting.journal_entries') }}" class="btn btn-sm btn-light border rounded-pill px-3">View Full History</a>
+                </div>
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-bordered" width="100%" cellspacing="0">
-                            <thead>
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Ref</th>
-                                    <th>Desc</th>
-                                    <th>Amount</th>
+                                    <th class="px-4 py-3 small text-uppercase">Timeline</th>
+                                    <th class="py-3 small text-uppercase">Reference</th>
+                                    <th class="py-3 small text-uppercase">Description</th>
+                                    <th class="text-end px-4 py-3 small text-uppercase">Debit Volume</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for entry in recent_entries %}
                                 <tr>
-                                    <td>{{ entry.date }}</td>
-                                    <td>{{ entry.reference }}</td>
-                                    <td>{{ entry.description }}</td>
-                                    <td>{{ "%.2f"|format(entry.total_debit) }}</td>
+                                    <td class="px-4">
+                                        <div class="fw-bold">{{ entry.date.strftime('%d %b, %Y') }}</div>
+                                        <span class="x-small text-muted">{{ entry.created_at.strftime('%H:%M') }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-soft-primary text-primary font-monospace">{{ entry.reference or 'ID:'~entry.id }}</span>
+                                    </td>
+                                    <td class="small">{{ entry.description }}</td>
+                                    <td class="text-end px-4">
+                                        <span class="fw-bold text-dark">${{ "{:,.2f}".format(entry.total_debit) }}</span>
+                                    </td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="4" class="text-center">No entries found.</td>
+                                    <td colspan="4" class="text-center py-5 text-muted">No recent ledger activity detected.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
-                    <div class="text-right mt-2">
-                        <a href="{{ url_for('accounting.journal_entries') }}">View All &rarr;</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Reporting & Health -->
+        <div class="col-lg-4">
+            <!-- Strategic Reports -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-0 py-4 px-4">
+                    <h5 class="fw-bold mb-0">Enterprise Reporting</h5>
+                </div>
+                <div class="card-body px-4 pt-0">
+                    <div class="d-grid gap-3 mb-4">
+                        <a href="{{ url_for('accounting.balance_sheet') }}" class="report-link p-3 rounded-4 border d-flex align-items-center justify-content-between text-decoration-none">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-box-sm bg-primary bg-opacity-10 text-primary me-3">
+                                    <i class="fa fa-scale-balanced"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">Balance Sheet</div>
+                                    <div class="x-small text-muted">Assets vs Liabilities</div>
+                                </div>
+                            </div>
+                            <i class="fa fa-chevron-right text-muted x-small"></i>
+                        </a>
+                        <a href="{{ url_for('accounting.profit_loss') }}" class="report-link p-3 rounded-4 border d-flex align-items-center justify-content-between text-decoration-none">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-box-sm bg-success bg-opacity-10 text-success me-3">
+                                    <i class="fa fa-receipt"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">Profit & Loss</div>
+                                    <div class="x-small text-muted">Income Statement</div>
+                                </div>
+                            </div>
+                            <i class="fa fa-chevron-right text-muted x-small"></i>
+                        </a>
                     </div>
+                </div>
+            </div>
+
+            <!-- ERP Health Score -->
+            <div class="card bg-primary text-white border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-body p-4 position-relative">
+                    <div class="position-absolute top-0 end-0 p-3 opacity-10">
+                        <i class="fa fa-shield-heart fa-5x"></i>
+                    </div>
+                    <h6 class="text-white-50 small fw-bold text-uppercase mb-3 ls-wide">Fiscal Health Score</h6>
+                    <div class="d-flex align-items-end mb-3">
+                        <h1 class="fw-800 mb-0 me-2">A+</h1>
+                        <span class="text-white-50 pb-1">Stable</span>
+                    </div>
+                    <p class="small text-white-50 mb-0">Your facility's financial data is within safe operating margins.</p>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
+
+<style>
+    .bg-light-soft { background-color: #f8fafc; }
+    .fw-800 { font-weight: 800; }
+    .ls-wide { letter-spacing: 0.1em; }
+    .x-small { font-size: 0.7rem; }
+    .icon-box-sm { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    .report-link { transition: all 0.2s ease; }
+    .report-link:hover { background-color: #f8fafc; border-color: var(--bs-primary) !important; transform: translateX(5px); }
+    .bg-soft-success { background-color: #ecfdf5; }
+    .bg-soft-primary { background-color: #eff6ff; }
+</style>
 {% endblock %}

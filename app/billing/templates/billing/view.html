@@ -1,153 +1,194 @@
 {% extends "main/base.html" %}
 
-{% block title %}Invoice Detail - Rays HMS{% endblock %}
+{% block title %}Official Invoice - {{ billing.invoice_number }} - Rays HMS{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-0 printable-content">
-    <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
+<div class="container-fluid py-4 d-print-none">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <a href="{{ url_for('billing.index') }}" class="btn btn-white border shadow-sm btn-sm px-3">
-                <i class="fa fa-arrow-left me-2 text-muted"></i>
-                {% if session.get('lang') == 'so' %}Ku laabo Qaansheegyada{% else %}Back to Finances{% endif %}
-            </a>
-            <h2 class="fw-bold mt-3 mb-1">
-                {% if session.get('lang') == 'so' %}Faahfaahinta Qaansheegta{% else %}Invoice Details{% endif %}
-            </h2>
-            <p class="text-muted small mb-0">
-                {% if session.get('lang') == 'so' %}
-                Eeg, xaqiiji oo daabac qaansheegtan rasmi ah ee bukaanka.
-                {% else %}
-                Review, verify and print the official patient invoice.
-                {% endif %}
-            </p>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="{{ url_for('billing.index') }}" class="text-decoration-none">Finances</a></li>
+                    <li class="breadcrumb-item active">Invoice Detail</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0 fw-bold text-dark">Invoice: <span class="text-primary">{{ billing.invoice_number }}</span></h1>
         </div>
-        <button class="btn btn-primary btn-sm px-4 shadow" onclick="window.print()">
-            <i class="fa fa-print me-2"></i>
-            {% if session.get('lang') == 'so' %}Daabac Qaansheegta{% else %}Print Official Invoice{% endif %}
-        </button>
+        <div class="d-flex gap-2">
+            <button class="btn btn-white border shadow-sm rounded-pill px-4" onclick="window.print()">
+                <i class="fa fa-print me-2 text-primary"></i>Daabac (Print)
+            </button>
+            <form method="POST" action="{{ url_for('billing.pay', id=billing.id) }}">
+                <button type="submit" class="btn btn-success shadow-sm rounded-pill px-4">
+                    <i class="fa fa-money-bill-wave me-2"></i>Pay Now (Bixi)
+                </button>
+            </form>
+        </div>
     </div>
+</div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-5">
-            <!-- Invoice Header -->
-            <div class="row mb-5">
-                <div class="col-8">
-                    <h2 class="fw-bold text-primary mb-0">RAYS HMS</h2>
-                    <p class="text-muted small">Quality Healthcare Management<br>
-                        123 Medical Avenue, Healthcare City<br>
-                        support@rayshms.com | +1 234 567 890</p>
-                </div>
-                <div class="col-4 text-end">
-                    <h4 class="fw-bold text-muted">INVOICE</h4>
-                    <div class="h5 mb-0 fw-bold">{{ billing.invoice_number }}</div>
-                    <div class="small text-muted">Generated: {{ billing.created_at.strftime('%d %b %Y %H:%M') }}</div>
-                </div>
-            </div>
-
-            <!-- Billing Info -->
-            <div class="row mb-5">
-                <div class="col-6">
-                    <small class="text-muted text-uppercase fw-bold d-block mb-2">Billed To</small>
-                    <h5 class="fw-bold mb-1">{{ billing.patient.first_name }} {{ billing.patient.last_name }}</h5>
-                    <p class="text-muted small">Patient ID: {{ billing.patient.patient_id }}<br>
-                        {{ billing.patient.address or 'No address provided' }}<br>
-                        {{ billing.patient.phone or 'No phone number' }}</p>
-                </div>
-                <div class="col-6 text-end">
-                    <small class="text-muted text-uppercase fw-bold d-block mb-2">Payment Details</small>
-                    <p class="small mb-1"><strong>Method:</strong> {{ billing.payment_method or 'N/A' }}</p>
-                    <p class="small mb-0">
-                        <strong>Status:</strong>
-                        <span
-                            class="text-{{ 'success' if billing.payment_status == 'paid' else 'warning' if billing.payment_status == 'partially_paid' else 'danger' }} fw-bold">
-                            {{ billing.payment_status.upper() }}
-                        </span>
-                    </p>
-                </div>
-            </div>
-
-            <!-- Line Items -->
-            <div class="table-responsive mb-5">
-                <table class="table table-borderless">
-                    <thead class="border-bottom border-2">
-                        <tr>
-                            <th class="ps-0">Description</th>
-                            <th class="text-center">Qty</th>
-                            <th class="text-end">Unit Price</th>
-                            <th class="text-end pe-0">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in billing.items %}
-                        <tr class="border-bottom">
-                            <td class="ps-0 py-3">
-                                <span class="fw-bold d-block">{{ item.description }}</span>
-                            </td>
-                            <td class="text-center py-3">{{ item.quantity }}</td>
-                            <td class="text-end py-3">${{ item.unit_price }}</td>
-                            <td class="text-end py-3 pe-0 fw-bold">${{ item.subtotal }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Totals -->
-            <div class="row justify-content-end">
-                <div class="col-md-5">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Total Amount</span>
-                        <span class="fw-bold">${{ billing.total_amount }}</span>
+<!-- Invoice Document Sheet -->
+<div class="container-fluid pb-5">
+    <div class="card border-0 shadow-sm mx-auto invoice-sheet overflow-hidden" style="max-width: 900px; border-radius: 0;">
+        <!-- Top bar aesthetic -->
+        <div class="bg-primary p-1"></div>
+        
+        <div class="card-body p-4 position-relative">
+            <div class="position-relative" style="z-index: 1;">
+                <!-- Header: Hospital Info -->
+                <div class="row align-items-start mb-4">
+                    <div class="col-7">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="p-0 me-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                                {% if current_user.hospital and current_user.hospital.logo %}
+                                    <img src="{{ url_for('static', filename=current_user.hospital.logo) }}" alt="Logo" class="img-fluid" style="max-height: 60px; object-fit: contain;">
+                                {% else %}
+                                    <div class="bg-primary text-white rounded-3 w-100 h-100 d-flex align-items-center justify-content-center" style="font-size: 1.5rem;">
+                                        <i class="fa fa-notes-medical"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <h3 class="fw-bold text-dark mb-0">{{ current_user.hospital.name if current_user.hospital else 'RTC Hospital' }}</h3>
+                        </div>
+                        <div class="text-muted small">
+                            <h6 class="text-dark fw-bold mb-1 x-small">{{ current_user.hospital.slug|upper if current_user.hospital else 'Professional Healthcare' }}</h6>
+                            <p class="mb-0 x-small">{{ current_user.hospital.address if (current_user.hospital and current_user.hospital.address) else 'Mogadishu, Somalia' }}<br>
+                            <strong>Tel:</strong> {{ current_user.hospital.phone if (current_user.hospital and current_user.hospital.phone) else '+252 61 XXX' }} | 
+                            <strong>Web:</strong> {{ current_user.hospital.website if (current_user.hospital and current_user.hospital.website) else 'rayshms.com' }}</p>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Discount Allowed</span>
-                        <span class="text-danger">-${{ billing.discount or '0.00' }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-3 pb-3 border-bottom border-2">
-                        <span class="text-muted">Net Payable</span>
-                        <span class="h5 fw-bold mb-0">${{ billing.net_amount }}</span>
-                    </div>
-
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Amount Received</span>
-                        <span class="text-success fw-bold">${{ billing.paid_amount or '0.00' }}</span>
-                    </div>
-
-                    <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
-                        <span class="fw-bold text-uppercase small">Balance Due</span>
-                        <span class="h4 fw-bold text-danger mb-0">${{ billing.balance_amount }}</span>
+                    <div class="col-5 text-end">
+                        <h4 class="fw-bold text-primary opacity-50 mb-1">INVOICE</h4>
+                        <h6 class="fw-bold text-dark mb-0">{{ billing.invoice_number }}</h6>
+                        <div class="x-small text-muted mb-2">Date: {{ billing.created_at.strftime('%d %b, %Y') }}</div>
+                        
+                        <div class="badge px-3 py-1 rounded-pill {% if billing.payment_status == 'paid' %}bg-success{% elif billing.payment_status == 'unpaid' %}bg-danger{% else %}bg-warning text-dark{% endif %}" style="font-size: 0.7rem;">
+                            {{ (billing.payment_status|upper) }}
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Footer -->
-            <div class="mt-5 pt-5 border-top text-center text-muted small">
-                <p class="mb-0">This is a computer-generated invoice and does not require a physical signature.</p>
-                <p>Thank you for choosing Rays HMS for your healthcare needs.</p>
+                <hr class="opacity-10 my-3">
+
+                <!-- Client & Billing Info -->
+                <div class="row mb-3">
+                    <div class="col-8">
+                        <h6 class="text-muted small uppercase fw-bold mb-2" style="font-size: 0.6rem;">
+                            {% if session.get('lang') == 'so' %}KU SOCOTA{% else %}BILLED TO{% endif %}
+                        </h6>
+                        <h6 class="fw-bold mb-0 text-dark">{{ billing.patient.full_name }}</h6>
+                        <div class="text-muted x-small">
+                            ID: <strong>{{ billing.patient.patient_id }}</strong> | {{ billing.patient.phone or 'N/A' }}
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <h6 class="text-muted small uppercase fw-bold mb-2" style="font-size: 0.6rem;">
+                            {% if session.get('lang') == 'so' %}NOOCA BOOQASHADA{% else %}VISIT TYPE{% endif %}
+                        </h6>
+                        <h6 class="fw-bold mb-0 small">{{ billing.appointment.reason or 'Consultation' }}</h6>
+                        <div class="text-muted x-small">Dr. {{ billing.appointment.doctor.last_name if billing.appointment else 'N/A' }}</div>
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <div class="table-responsive mb-4">
+                    <table class="table table-sm table-borderless align-middle">
+                        <thead class="bg-light border-top border-bottom">
+                            <tr class="text-muted x-small uppercase fw-bold">
+                                <th class="ps-2 py-2">{% if session.get('lang') == 'so' %}Adeegga{% else %}Service Description{% endif %}</th>
+                                <th class="text-center py-2">Qty</th>
+                                <th class="text-end py-2">Price</th>
+                                <th class="text-end pe-2 py-2">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in billing.items %}
+                            <tr class="border-bottom">
+                                <td class="ps-2 py-2">
+                                    <div class="fw-bold text-dark small">{{ item.description }}</div>
+                                </td>
+                                <td class="text-center small">{{ item.quantity }}</td>
+                                <td class="text-end small">${{ "%.2f"|format(item.unit_price) }}</td>
+                                <td class="text-end pe-2 fw-bold small">${{ "%.2f"|format(item.subtotal) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Calculations -->
+                <div class="row justify-content-end">
+                    <div class="col-md-5">
+                        <div class="d-flex justify-content-between mb-2 x-small">
+                            <span class="text-muted fw-bold">Subtotal</span>
+                            <span class="fw-bold text-dark">${{ "%.2f"|format(billing.total_amount) }}</span>
+                        </div>
+                        {% if billing.discount %}
+                        <div class="d-flex justify-content-between mb-2 text-danger x-small">
+                            <span class="fw-bold">Discount</span>
+                            <span class="fw-bold">-${{ "%.2f"|format(billing.discount) }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="d-flex justify-content-between mb-2 border-top border-bottom py-2">
+                            <span class="fw-bold text-dark mb-0 small">NET PAYABLE</span>
+                            <span class="fw-bold text-primary mb-0 small">${{ "%.2f"|format(billing.net_amount) }}</span>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <div class="p-2 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-uppercase x-small text-muted">Balance Due</span>
+                                <span class="fw-bold text-danger mb-0">${{ "%.2f"|format(billing.balance_amount) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Receipt Signature / Stamp -->
+                <div class="row mt-4 pt-3 text-center">
+                    <div class="col-4">
+                        <div class="border-top mx-3 mt-3 pt-1 x-small text-muted">Issued By (Accounting)</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="mx-auto bg-light d-flex align-items-center justify-content-center rounded" style="width: 60px; height: 60px; border: 1px dashed #ccc;">
+                            <i class="fa fa-qrcode fa-2x opacity-10"></i>
+                        </div>
+                        <div class="x-small text-muted mt-1" style="font-size: 0.6rem;">Scan for Verification</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border-top mx-3 mt-3 pt-1 x-small text-muted">Patient Signature</div>
+                    </div>
+                </div>
+
+                <!-- Official Footer -->
+                <div class="mt-4 pt-3 text-center">
+                    <div class="alert alert-secondary border-0 bg-light py-2 x-small text-muted opacity-75" style="border-radius: 0.5rem; font-size: 0.65rem;">
+                        Note: Official medical invoice from Rays HMS. Payments are non-refundable. 
+                    </div>
+                    <div class="fw-bold text-primary mt-2 small">Thank you for trusting Rays HMS.</div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <style>
+    .invoice-sheet {
+        background: white;
+        min-height: 842px; /* A4 Ratio */
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.05);
+    }
+    .uppercase { text-transform: uppercase; letter-spacing: 1px; }
+    .x-small { font-size: 0.75rem; }
+    .italic { font-style: italic; }
+    .pointer-events-none { pointer-events: none; }
+    
     @media print {
-        .d-print-none {
-            display: none !important;
-        }
-
-        .printable-content {
-            padding: 0 !important;
-        }
-
-        .card {
-            box-shadow: none !important;
-            border: none !important;
-        }
-
-        body {
-            background: white !important;
-        }
+        body { background: white !important; margin: 0; padding: 0; }
+        .main-content { margin: 0 !important; padding: 0 !important; }
+        .invoice-sheet { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; min-height: auto; }
+        .navbar-custom, .sidebar, .d-print-none { display: none !important; }
+        .card { border: none !important; }
+        @page { size: A4; margin: 1cm; }
     }
 </style>
 {% endblock %}

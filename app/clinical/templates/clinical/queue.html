@@ -1,0 +1,214 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Patient Flow Queue - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1 fw-bold text-dark">Patient Flow Queue</h1>
+            <p class="text-muted mb-0">Monitor and manage the patient journey from arrival to discharge.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-white border shadow-sm" onclick="window.location.reload()">
+                <i class="fa fa-sync-alt me-2 text-primary"></i>Refresh Queue
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="card-body p-3 d-flex align-items-center">
+                    <div class="rounded-3 bg-info-subtle text-info p-3 me-3">
+                        <i class="fa fa-door-open fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0 small uppercase">Reception</h6>
+                        <h4 class="mb-0 fw-bold">{{ waiting_triage|length }} <small class="fw-normal text-muted fs-6">Wait</small></h4>
+                    </div>
+                </div>
+                <div class="progress rounded-0" style="height: 4px;">
+                    <div class="progress-bar bg-info" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="card-body p-3 d-flex align-items-center">
+                    <div class="rounded-3 bg-warning-subtle text-warning p-3 me-3">
+                        <i class="fa fa-heartbeat fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0 small uppercase">Triage Wait</h6>
+                        <h4 class="mb-0 fw-bold">{{ waiting_doctor|length }} <small class="fw-normal text-muted fs-6">Wait</small></h4>
+                    </div>
+                </div>
+                <div class="progress rounded-0" style="height: 4px;">
+                    <div class="progress-bar bg-warning" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="card-body p-3 d-flex align-items-center">
+                    <div class="rounded-3 bg-primary-subtle text-primary p-3 me-3">
+                        <i class="fa fa-user-md fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0 small uppercase">Consulting</h6>
+                        <h4 class="mb-0 fw-bold">{{ with_doctor|length }} <small class="fw-normal text-muted fs-6">Active</small></h4>
+                    </div>
+                </div>
+                <div class="progress rounded-0" style="height: 4px;">
+                    <div class="progress-bar bg-primary" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="card-body p-3 d-flex align-items-center">
+                    <div class="rounded-3 bg-success-subtle text-success p-3 me-3">
+                        <i class="fa fa-check-circle fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0 small uppercase">Completed</h6>
+                        <h4 class="mb-0 fw-bold">{{ completed|length }} <small class="fw-normal text-muted fs-6">Today</small></h4>
+                    </div>
+                </div>
+                <div class="progress rounded-0" style="height: 4px;">
+                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Queue Grid -->
+    <div class="row g-4">
+        <!-- Waiting for Triage -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fa fa-clock text-info me-2"></i>
+                        {% if session.get('lang') == 'so' %}Saf Sugidda Kalkaalisada{% else %}Waiting for Triage (Nurse){% endif %}
+                    </h6>
+                    <span class="badge bg-info-subtle text-info rounded-pill">{{ waiting_triage|length }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for apt in waiting_triage %}
+                        <div class="list-group-item border-0 p-3 mb-2 mx-3 rounded-3 shadow-sm-hover" style="background: var(--bg-surface-2);">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h6 class="mb-0 fw-bold text-dark">{{ apt.patient.full_name }}</h6>
+                                <small class="text-muted"><i class="fa fa-history me-1"></i>{{ apt.created_at.strftime('%H:%M') }}</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-light text-dark border me-2">{{ apt.patient.patient_id }}</span>
+                                <span class="text-muted small">{% if session.get('lang') == 'so' %}Takhtar{% else %}Doctor{% endif %}: {{ apt.doctor.first_name }}</span>
+                            </div>
+                            <a href="{{ url_for('clinical.encounter', appointment_id=apt.id) }}" class="btn btn-info btn-sm w-100 rounded-pill text-white">
+                                {% if session.get('lang') == 'so' %}Bilow Baaritaanka{% else %}Start Triage{% endif %}
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="p-5 text-center text-muted">
+                            <i class="fa fa-inbox fa-3x mb-3 opacity-25"></i>
+                            <p>{% if session.get('lang') == 'so' %}Ma jiraan bukaano sugaya kalkaalisada{% else %}No patients waiting for triage{% endif %}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Waiting for Doctor -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fa fa-user-md text-warning me-2"></i>
+                        {% if session.get('lang') == 'so' %}Saf Sugidda Takhtarka{% else %}Waiting for Consultation{% endif %}
+                    </h6>
+                    <span class="badge bg-warning-subtle text-warning rounded-pill">{{ waiting_doctor|length }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for apt in waiting_doctor %}
+                        <div class="list-group-item border-0 p-3 mb-2 mx-3 rounded-3" style="background: var(--bg-surface-2);">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h6 class="mb-0 fw-bold text-dark">{{ apt.patient.full_name }}</h6>
+                                <small class="text-muted"><i class="fa fa-history me-1"></i>{{ apt.updated_at.strftime('%H:%M') }}</small>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <span class="badge bg-white text-dark border small"><i class="fa fa-thermometer-half me-1 text-danger"></i>{{ apt.vitals_temperature or '--' }}°C</span>
+                                    <span class="badge bg-white text-dark border small"><i class="fa fa-tint me-1 text-primary"></i>{{ apt.vitals_blood_pressure or '--' }}</span>
+                                    <span class="badge bg-white text-dark border small"><i class="fa fa-weight me-1 text-success"></i>{{ apt.vitals_weight or '--' }}kg</span>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('clinical.encounter', appointment_id=apt.id) }}" class="btn btn-warning btn-sm flex-grow-1 rounded-pill">
+                                    {% if session.get('lang') == 'so' %}U yeer Bukaanka{% else %}Call Patient{% endif %}
+                                </a>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="p-5 text-center text-muted">
+                            <i class="fa fa-user-md fa-3x mb-3 opacity-25"></i>
+                            <p>{% if session.get('lang') == 'so' %}Ma jiraan bukaano sugaya takhtarka{% else %}No patients waiting for doctor{% endif %}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active/Completed -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold"><i class="fa fa-check-double text-success me-2"></i>Recent Completions</h6>
+                    <span class="badge bg-success-subtle text-success rounded-pill">{{ completed|length }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for apt in completed %}
+                        <div class="list-group-item border-0 p-3 mb-2 mx-3 border-start border-4 border-success rounded-3 bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ apt.patient.full_name }}</h6>
+                                    <small class="text-muted">Seen by {{ apt.doctor.first_name }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-success small mb-1">Discharged</span>
+                                    <div class="small text-muted">{{ apt.updated_at.strftime('%H:%M') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 text-center py-3">
+                    <a href="{{ url_for('patients.index') }}" class="small text-decoration-none">View All Patient Histories</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .shadow-sm-hover:hover {
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.05)!important;
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+    }
+    .uppercase {
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+    }
+</style>
+{% endblock %}

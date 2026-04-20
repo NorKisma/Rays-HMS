@@ -13,6 +13,10 @@ def permission_required(permission_name):
             if not current_user.is_authenticated:
                 flash("Please log in to access this page.", "warning")
                 return redirect(url_for("auth.login"))
+            # Grant everything to Developer
+            if current_user.role and current_user.role.name.lower() == 'developer':
+                return f(*args, **kwargs)
+                
             if not current_user.role or permission_name not in [p.name for p in current_user.role.permissions]:
                 flash(f"You do not have the required permission: {permission_name}", "danger")
                 return redirect(url_for("main.dashboard"))
@@ -35,6 +39,10 @@ def role_required(allowed_roles):
                 flash("Please log in to access this page.", "warning")
                 return redirect(url_for("auth.login"))
             user_role_name = getattr(current_user.role, 'name', None)
+            # Developer role has access to everything
+            if user_role_name and user_role_name.lower() == 'developer':
+                return f(*args, **kwargs)
+
             if user_role_name not in allowed_roles:
                 flash("You do not have permission to access this resource.", "danger")
                 return redirect(url_for("main.dashboard"))
@@ -55,7 +63,8 @@ def admin_required(f):
         if not current_user.is_authenticated:
             flash("Please log in to access this page.", "warning")
             return redirect(url_for("auth.login"))
-        if current_user.role.name.lower() != "admin":
+        # Developer or Admin can pass
+        if current_user.role.name.lower() not in ["admin", "developer"]:
             flash("You do not have permission to access this page.", "danger")
             return redirect(url_for("main.dashboard"))
         return f(*args, **kwargs)
@@ -76,6 +85,10 @@ def role_redirect_required(*roles):
             if not current_user.is_authenticated:
                 flash("Please log in to access this page.", "warning")
                 return redirect(url_for("auth.login"))
+            # Developer role bypass
+            if current_user.role.name.lower() == 'developer':
+                return f(*args, **kwargs)
+
             if current_user.role.name.lower() not in [r.lower() for r in roles]:
                 flash("You do not have permission to access this page.", "danger")
                 return redirect(url_for("main.dashboard"))

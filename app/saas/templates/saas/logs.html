@@ -1,0 +1,106 @@
+{% extends "main/base.html" %}
+
+{% block title %}System Diagnostics & Console Stream{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 min-vh-100 bg-dark-deep">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h6 class="text-warning fw-bold text-uppercase ls-wide mb-1">Infrastructure Monitor</h6>
+            <h2 class="fw-800 text-white mb-0" style="letter-spacing: -1px;">Live System Diagnostics</h2>
+        </div>
+        <div class="d-flex gap-2">
+            <div class="input-group input-group-sm" style="width: 250px;">
+                <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa fa-filter"></i></span>
+                <input type="text" id="logFilter" class="form-control bg-dark border-secondary text-light shadow-none" 
+                       placeholder="Filter by ERROR, WARNING...">
+            </div>
+            <button onclick="window.location.reload()" class="btn btn-warning shadow-sm rounded-pill px-4 fw-bold">
+                <i class="fa fa-sync-alt me-2"></i>Refresh Feed
+            </button>
+        </div>
+    </div>
+
+    <!-- Terminal Container -->
+    <div class="terminal-window shadow-2xl rounded-4 overflow-hidden border border-secondary border-opacity-25">
+        <!-- Title Bar -->
+        <div class="terminal-header px-4 py-3 bg-black bg-opacity-50 d-flex align-items-center border-bottom border-secondary border-opacity-10">
+            <div class="d-flex gap-2 me-4">
+                <div class="dot bg-danger"></div>
+                <div class="dot bg-warning"></div>
+                <div class="dot bg-success"></div>
+            </div>
+            <div class="small font-monospace text-muted opacity-75 flex-grow-1 text-center">
+                <i class="fa fa-server me-2"></i>rays-hms-core-01 -- logcat: app_start.log
+            </div>
+            <div class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 x-small px-3 py-2 ms-auto">
+                <span class="pulse-green me-2">●</span>CONNECTED
+            </div>
+        </div>
+
+        <!-- Log Body -->
+        <div class="terminal-body p-4 bg-black" id="terminalBody" style="height: 70vh; overflow-y: auto;">
+            <div class="log-container font-monospace" id="logContainer">
+                {% for line in logs.split('\n') %}
+                {% if line.strip() %}
+                <div class="log-line mb-1" data-level="{{ 'error' if 'ERROR' in line.upper() else 'warning' if 'WARNING' in line.upper() else 'info' if 'INFO' in line.upper() else 'none' }}">
+                    <span class="line-num text-muted pe-3">{{ loop.index }}</span>
+                    <span class="line-content">{{ line }}</span>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-dark-deep { background-color: #0c0c0c; }
+    .ls-wide { letter-spacing: 0.15em; }
+    .fw-800 { font-weight: 800; }
+    
+    .terminal-window {
+        background: #000;
+        backdrop-filter: blur(10px);
+    }
+    
+    .dot { width: 10px; height: 10px; border-radius: 50%; opacity: 0.7; }
+    
+    .log-line { font-size: 0.8rem; line-height: 1.5; color: #d1d5db; display: flex; }
+    .line-num { width: 45px; text-align: right; border-right: 1px solid rgba(255,255,255,0.1); margin-right: 15px; user-select: none; }
+    
+    .log-line[data-level="error"] .line-content { color: #f87171; background: rgba(239, 68, 68, 0.05); }
+    .log-line[data-level="warning"] .line-content { color: #fbbf24; }
+    .log-line[data-level="info"] .line-content { color: #60a5fa; }
+    
+    .pulse-green {
+        display: inline-block;
+        animation: pulse-green 1.5s infinite;
+    }
+    @keyframes pulse-green {
+        0% { opacity: 1; }
+        50% { opacity: 0.3; }
+        100% { opacity: 1; }
+    }
+
+    #terminalBody::-webkit-scrollbar { width: 8px; }
+    #terminalBody::-webkit-scrollbar-track { background: #000; }
+    #terminalBody::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+</style>
+
+<script>
+    // Auto-scroll to bottom
+    const terminal = document.getElementById('terminalBody');
+    terminal.scrollTop = terminal.scrollHeight;
+
+    // Live Filtering
+    document.getElementById('logFilter').addEventListener('input', function(e) {
+        let term = e.target.value.toLowerCase();
+        document.querySelectorAll('.log-line').forEach(line => {
+             let txt = line.textContent.toLowerCase();
+             line.style.display = txt.includes(term) ? 'flex' : 'none';
+        });
+    });
+</script>
+{% endblock %}

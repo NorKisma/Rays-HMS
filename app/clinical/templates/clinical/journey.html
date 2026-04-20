@@ -1,0 +1,503 @@
+{% extends "main/base.html" %}
+
+{% block title %}Clinical Encounter - {{ patient.full_name }}{% endblock %}
+
+{% block head %}
+<style>
+    /* ==========================================
+       CLINICAL JOURNEY — Premium Medical UI
+       ========================================== */
+    .clinical-wrapper {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 24px;
+        min-height: calc(100vh - 120px);
+    }
+
+    /* -- Left Sidebar: Patient Profile -- */
+    .patient-sidebar {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        padding: 24px;
+        position: sticky;
+        top: 24px;
+        height: fit-content;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    }
+
+    .patient-avatar {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+    }
+
+    .info-group {
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px dashed #e2e8f0;
+    }
+
+    .info-group:last-child { border-bottom: none; }
+
+    .info-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 0.9rem;
+    }
+
+    /* -- Right Content: Encounter -- */
+    .encounter-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    /* Progress Stepper */
+    .encounter-stepper {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        padding: 10px;
+        display: flex;
+        gap: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    }
+
+    .step-item {
+        flex: 1;
+        padding: 12px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.88rem;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: 1px solid transparent;
+    }
+
+    .step-item i {
+        font-size: 1rem;
+        transition: transform 0.2s;
+    }
+
+    .step-item.active {
+        background: #f1f5f9;
+        color: #3b82f6;
+        border-color: #e2e8f0;
+    }
+
+    .step-item.active i { transform: scale(1.1); }
+
+    /* Vitals Biometric Cards */
+    .biometric-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .biometric-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .biometric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .bio-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+        font-size: 1.2rem;
+    }
+
+    .bio-temp { background: #fef2f2; color: #ef4444; }
+    .bio-bp { background: #eff6ff; color: #3b82f6; }
+    .bio-weight { background: #f0fdf4; color: #10b981; }
+    .bio-heart { background: #faf5ff; color: #a855f7; }
+
+    .bio-input {
+        border: none;
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 10px;
+        width: 100%;
+        text-align: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #1e293b;
+        outline: none;
+        transition: border-color 0.2s;
+        border: 2px solid transparent;
+    }
+
+    .bio-input:focus { border-color: #3b82f6; background: white; }
+
+    /* Prescription Table */
+    .presc-table th {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #94a3b8;
+        border: none;
+        padding: 12px;
+    }
+
+    .presc-row td {
+        background: #f8fafc;
+        border: none;
+        padding: 8px;
+    }
+
+    .presc-row td:first-child { border-radius: 12px 0 0 12px; }
+    .presc-row td:last-child { border-radius: 0 12px 12px 0; }
+
+    .presc-input {
+        background: transparent;
+        border: none;
+        font-weight: 600;
+        font-size: 0.88rem;
+        color: #1e293b;
+        width: 100%;
+        outline: none;
+    }
+
+    /* Action Bar */
+    .action-bar {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.02);
+        margin-top: auto;
+    }
+
+    /* Dark Mode Helper */
+    [data-theme="dark"] .patient-sidebar, 
+    [data-theme="dark"] .encounter-stepper,
+    [data-theme="dark"] .biometric-card,
+    [data-theme="dark"] .action-bar {
+        background: #1e293b;
+        border-color: #334155;
+    }
+    [data-theme="dark"] .bio-input { background: #0f172a; color: white; }
+    [data-theme="dark"] .info-value { color: #e2e8f0; }
+    [data-theme="dark"] .step-item.active { background: #334155; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="clinical-wrapper">
+        <!-- Sidebar -->
+        <aside class="patient-sidebar">
+            <div class="patient-avatar">
+                {{ patient.first_name[0] }}{{ patient.last_name[0] }}
+            </div>
+            <h5 class="fw-bold mb-1">{{ patient.full_name }}</h5>
+            <p class="text-muted small mb-4">{{ patient.patient_id }}</p>
+
+            <div class="info-group">
+                <span class="info-label">Basic Metrics</span>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted small">Age</span>
+                    <span class="info-value">{{ patient.age }}Y / {{ patient.gender }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted small">Blood</span>
+                    <span class="info-value text-danger">{{ patient.blood_group or 'N/A' }}</span>
+                </div>
+            </div>
+
+            <div class="info-group">
+                <span class="info-label text-danger">Medical Alerts</span>
+                <div class="p-2 bg-danger bg-opacity-10 rounded-3 border border-danger border-opacity-10">
+                    <p class="mb-0 x-small fw-bold text-danger">
+                        <i class="fa fa-exclamation-triangle me-1"></i>
+                        {{ patient.allergies or 'No allergies reported.' }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-group">
+                <span class="info-label">Recent History</span>
+                <div class="timeline-small ps-2">
+                    {% for apt in patient.appointments[:2] %}
+                    <div class="mb-2 border-start border-2 border-primary-subtle ps-2 py-1">
+                        <div class="x-small fw-bold">{{ apt.appointment_date.strftime('%b %d') }}</div>
+                        <div class="text-muted x-small text-truncate">{{ apt.reason or 'Checkup' }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Panel -->
+        <main class="encounter-panel">
+            <div class="encounter-stepper" id="workflowSteps">
+                <div class="step-item active" data-target="vitals-pane">
+                    <i class="fa fa-heartbeat"></i> 1. Vitals Entry
+                </div>
+                <div class="step-item" data-target="clinical-pane">
+                    <i class="fa fa-stethoscope"></i> 2. Diagnosis
+                </div>
+                <div class="step-item" data-target="prescription-pane">
+                    <i class="fa fa-capsules"></i> 3. Prescription
+                </div>
+                <div class="step-item" data-target="summary-pane">
+                    <i class="fa fa-file-invoice-dollar"></i> 4. Discharge
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 flex-grow-1 overflow-hidden" style="min-height: 500px;">
+                <div class="card-body p-4">
+                    <form id="encounterMainForm" method="POST" action="{{ url_for('clinical.complete_encounter', appointment_id=appointment.id) }}">
+                        <!-- Pane 1: Vitals -->
+                        <div class="workflow-pane fade show active" id="vitals-pane">
+                            <h6 class="fw-bold mb-4 text-primary"><i class="fa fa-biohazard me-2"></i>Biometric Vitals</h6>
+                            <div class="biometric-grid">
+                                <div class="biometric-card">
+                                    <div class="bio-icon bio-temp"><i class="fa fa-thermometer-half"></i></div>
+                                    <span class="info-label">Temp (°C)</span>
+                                    <input type="text" name="temperature" class="bio-input" placeholder="36.5" value="{{ vitals.temperature if vitals else '' }}">
+                                </div>
+                                <div class="biometric-card">
+                                    <div class="bio-icon bio-bp"><i class="fa fa-heart"></i></div>
+                                    <span class="info-label">BP (mmHg)</span>
+                                    <input type="text" name="blood_pressure" class="bio-input" placeholder="120/80" value="{{ vitals.blood_pressure if vitals else '' }}">
+                                </div>
+                                <div class="biometric-card">
+                                    <div class="bio-icon bio-weight"><i class="fa fa-weight"></i></div>
+                                    <span class="info-label">Weight (kg)</span>
+                                    <input type="text" name="weight" class="bio-input" placeholder="70.0" value="{{ vitals.weight if vitals else '' }}">
+                                </div>
+                                <div class="biometric-card">
+                                    <div class="bio-icon bio-heart"><i class="fa fa-wave-square"></i></div>
+                                    <span class="info-label">HR (bpm)</span>
+                                    <input type="text" name="heart_rate" class="bio-input" placeholder="72" value="{{ vitals.heart_rate if vitals else '' }}">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="info-label">Nursing/Triage Notes</label>
+                                <textarea name="vitals_note" class="form-control rounded-3 border-0 bg-light-subtle" rows="3" placeholder="Additional observations...">{{ vitals.note if vitals else '' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Pane 2: Clinical Note -->
+                        <div class="workflow-pane fade d-none" id="clinical-pane">
+                            <h6 class="fw-bold mb-4 text-primary"><i class="fa fa-file-medical me-2"></i>Clinical Assessment</h6>
+                            <div class="mb-4">
+                                <label class="info-label">Chief Complaint & History</label>
+                                <textarea name="symptoms" class="form-control rounded-3 border-0 bg-light p-3" rows="5" placeholder="Document patient complaints and clinical history here..."></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="info-label">Final Diagnosis</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-0 ps-0"><i class="fa fa-search text-muted"></i></span>
+                                    <input type="text" name="diagnosis" class="form-control border-bottom border-0 rounded-0 ps-0" placeholder="Type diagnosis code or name..." value="{{ appointment.diagnosis or '' }}">
+                                </div>
+                            </div>
+                            
+                            <label class="info-label text-info"><i class="fa fa-vials me-1"></i> Recommended Lab Tests</label>
+                            <div class="row g-2">
+                                {% for test in all_lab_tests %}
+                                <div class="col-md-4">
+                                    <div class="form-check p-2 border rounded-3 bg-light-subtle">
+                                        <input class="form-check-input ms-0 me-2" type="checkbox" name="lab_tests[]" value="{{ test.id }}" id="lb{{ test.id }}">
+                                        <label class="form-check-label x-small fw-bold" for="lb{{ test.id }}">{{ test.name }}</label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Pane 3: Prescription -->
+                        <div class="workflow-pane fade d-none" id="prescription-pane">
+                            <h6 class="fw-bold mb-4 text-primary"><i class="fa fa-pills me-2"></i>Medication Order</h6>
+                            <div class="table-responsive">
+                                <table class="table presc-table" id="posPrescriptionTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Medicine</th>
+                                            <th>Dose</th>
+                                            <th>Freq</th>
+                                            <th>Duration</th>
+                                            <th width="40px"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="prescriptionGridBody">
+                                        <tr class="presc-row">
+                                            <td><input type="text" name="drug_name[]" class="presc-input" placeholder="e.g. Amoxicillin"></td>
+                                            <td><input type="text" name="drug_dose[]" class="presc-input" placeholder="500mg"></td>
+                                            <td>
+                                                <select name="drug_freq[]" class="presc-input border-0">
+                                                    <option>1x1</option>
+                                                    <option>1x2</option>
+                                                    <option selected>1x3</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="text" name="drug_dur[]" class="presc-input" placeholder="7 days"></td>
+                                            <td><button type="button" class="btn btn-link text-danger p-0" onclick="removePrescRow(this)"><i class="fa fa-times-circle"></i></button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="button" class="btn btn-primary-soft btn-sm rounded-pill mt-2" onclick="addMedicationRow()">
+                                <i class="fa fa-plus-circle me-1"></i> Add Medication
+                            </button>
+                        </div>
+
+                        <!-- Pane 4: Summary -->
+                        <div class="workflow-pane fade d-none" id="summary-pane">
+                            <div class="text-center py-5">
+                                <div class="mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background: #f0fdf4; border-radius: 50%; color: #10b981;">
+                                    <i class="fa fa-check-double fa-2x"></i>
+                                </div>
+                                <h4 class="fw-bold mb-2">Ready for Discharge?</h4>
+                                <p class="text-muted px-lg-5">You have completed the vitals, clinical notes, and prescription. By confirming, the patient will be marked as treated and sent to billing.</p>
+                                
+                                <div class="bg-light p-4 rounded-4 text-start mt-4 mb-4 mx-auto" style="max-width: 400px;">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted x-small">Consultation</span>
+                                        <span class="fw-bold">$10.00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2 border-top pt-2">
+                                        <span class="fw-bold">Payable to Reception</span>
+                                        <span class="h5 fw-bold text-success" id="finalTotal">$10.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-bar mt-5">
+                            <button type="button" class="btn btn-outline-secondary px-4 rounded-pill d-none" id="prevBtn" onclick="navigateStep(-1)">
+                                <i class="fa fa-chevron-left me-2"></i> Previous
+                            </button>
+                            <div class="ms-auto d-flex gap-2">
+                                <button type="button" class="btn btn-primary px-5 rounded-pill shadow" id="nextBtn" onclick="navigateStep(1)">
+                                    Next Phase <i class="fa fa-chevron-right ms-2 x-small opacity-50"></i>
+                                </button>
+                                <button type="submit" class="btn btn-success px-5 rounded-pill shadow d-none" id="finishBtn">
+                                    <i class="fa fa-check-circle me-2"></i> Finish Encounter
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    let currentStep = 0;
+    const steps = document.querySelectorAll('.step-item');
+    const panes = document.querySelectorAll('.workflow-pane');
+    const nextBtn = document.getElementById('nextBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const finishBtn = document.getElementById('finishBtn');
+
+    function navigateStep(direction) {
+        // Hide current
+        panes[currentStep].classList.add('d-none');
+        panes[currentStep].classList.remove('show', 'active');
+        steps[currentStep].classList.remove('active');
+
+        // Update index
+        currentStep += direction;
+
+        // Show new
+        panes[currentStep].classList.remove('d-none');
+        setTimeout(() => {
+            panes[currentStep].classList.add('show', 'active');
+        }, 50);
+        steps[currentStep].classList.add('active');
+
+        // Logic for buttons
+        prevBtn.classList.toggle('d-none', currentStep === 0);
+        
+        if (currentStep === steps.length - 1) {
+            nextBtn.classList.add('d-none');
+            finishBtn.classList.remove('d-none');
+        } else {
+            nextBtn.classList.remove('d-none');
+            finishBtn.classList.add('d-none');
+        }
+
+        // Add smooth scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Step item navigation
+    steps.forEach((step, idx) => {
+        step.addEventListener('click', () => {
+             const diff = idx - currentStep;
+             if (diff !== 0) navigateStep(diff);
+        });
+    });
+
+    function addMedicationRow() {
+        const body = document.getElementById('prescriptionGridBody');
+        const row = document.createElement('tr');
+        row.className = 'presc-row';
+        row.style.animation = 'slideInRight 0.3s ease';
+        row.innerHTML = `
+            <td><input type="text" name="drug_name[]" class="presc-input" placeholder="Medicine Name"></td>
+            <td><input type="text" name="drug_dose[]" class="presc-input" placeholder="Dose"></td>
+            <td>
+                <select name="drug_freq[]" class="presc-input border-0">
+                    <option>1x1</option>
+                    <option>1x2</option>
+                    <option selected>1x3</option>
+                </select>
+            </td>
+            <td><input type="text" name="drug_dur[]" class="presc-input" placeholder="Duration"></td>
+            <td><button type="button" class="btn btn-link text-danger p-0" onclick="removePrescRow(this)"><i class="fa fa-times-circle"></i></button></td>
+        `;
+        body.appendChild(row);
+    }
+
+    function removePrescRow(btn) {
+        btn.closest('tr').remove();
+    }
+</script>
+{% endblock %}

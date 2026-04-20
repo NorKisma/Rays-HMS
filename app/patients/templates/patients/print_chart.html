@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="{{ session.get('lang', 'en') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Medical Chart - {{ patient.full_name }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        
+        body { background: #fff; font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
+        .chart-paper { width: 210mm; margin: auto; padding: 40px; border: 1px solid #eee; min-height: 297mm; position: relative; }
+        .h-header { border-bottom: 3px solid #0047AB; padding-bottom: 20px; margin-bottom: 30px; }
+        .section-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #64748b; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 15px; margin-top: 30px; }
+        .p-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; background: #f8fafc; border-radius: 12px; padding: 20px; }
+        
+        @media print {
+            body { margin: 0; padding: 0; }
+            .chart-paper { border: none; width: 100%; margin: 0; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container text-center py-4 no-print">
+        <button onclick="window.print()" class="btn btn-primary px-5 rounded-pill shadow fw-bold"><i class="fa fa-print me-2"></i> Print Medical Chart</button>
+    </div>
+
+    <div class="chart-paper">
+        <div class="h-header d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-800 text-primary mb-0">RAYS HOSPITAL</h1>
+                <div class="small text-muted fw-bold">Official Patient Medical Record</div>
+            </div>
+            <div class="text-end">
+                <div class="h5 fw-bold mb-0">{{ patient.patient_id }}</div>
+                <div class="small text-muted">Generated: {{ now.strftime('%d %b %Y') if now else '' }}</div>
+            </div>
+        </div>
+
+        <div class="section-title">Personal Information</div>
+        <div class="p-info-grid">
+            <div>
+                <small class="text-muted d-block">Full Name</small>
+                <div class="fw-bold">{{ patient.full_name }}</div>
+            </div>
+            <div>
+                <small class="text-muted d-block">Age / Gender</small>
+                <div class="fw-bold">{{ patient.age }} Yrs / {{ patient.gender }}</div>
+            </div>
+            <div>
+                <small class="text-muted d-block">Contact</small>
+                <div class="fw-bold">{{ patient.phone or 'N/A' }}</div>
+            </div>
+        </div>
+
+        <div class="section-title">Medical History & Information</div>
+        <div class="row">
+            <div class="col-8">
+                <div class="mb-3">
+                    <small class="text-muted d-block">Known Conditions</small>
+                    <div class="p-3 bg-light rounded-3 text-dark small">
+                        {{ patient.medical_history or 'No history on record.' }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="mb-3">
+                    <small class="text-muted d-block">Allergies</small>
+                    <div class="p-3 bg-danger-soft text-danger border border-danger rounded-3 small fw-bold">
+                        <i class="fa fa-exclamation-triangle me-1"></i> {{ patient.allergies or 'None Known' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">Vital Signs History (Last 5 Records)</div>
+        <table class="table table-sm table-bordered">
+            <thead class="bg-light">
+                <tr class="small fw-bold">
+                    <th>Date</th>
+                    <th>Weight</th>
+                    <th>BP</th>
+                    <th>Temp</th>
+                    <th>Pulse</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in patient.vitals[:5] %}
+                <tr>
+                    <td class="small">{{ v.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td class="small">{{ v.weight or '-' }} kg</td>
+                    <td class="small fw-bold">{{ v.blood_pressure or '-' }}</td>
+                    <td class="small">{{ v.temperature or '-' }}°C</td>
+                    <td class="small">{{ v.heart_rate or '-' }} bpm</td>
+                    <td class="small text-muted">{{ v.note or '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="section-title">Active Prescriptions</div>
+        {% for p in patient.prescriptions[:3] %}
+        <div class="mb-3 p-3 border rounded-3 bg-light">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-bold text-primary">{{ p.diagnosis or 'Treatment Plan' }}</span>
+                <span class="small text-muted">{{ p.created_at.strftime('%d %b %Y') }}</span>
+            </div>
+            <div class="small">
+                {% for item in p.items %}
+                <span class="me-3">• <strong>{{ item.medicine_name }}</strong> ({{ item.dosage }})</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="mt-5 pt-5 text-center opacity-50 x-small">
+            <p class="mb-0">This document is for internal clinical use. Confidential Patient Data.</p>
+            <p>Rays Hospital HMS | Secure Record Audit: {{ patient.id }}-CHART</p>
+        </div>
+    </div>
+</body>
+</html>

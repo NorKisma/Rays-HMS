@@ -201,7 +201,7 @@ body {
     transition: all 0.2s ease;
     position: relative;
     font-size: 0.88rem;
-    font-weight: 500;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
 }
@@ -302,45 +302,71 @@ body {
     opacity: 1;
 }
 
-/* Section Headers */
+/* Section Headers - Premium & Large */
 .sidebar-section {
-    margin-top: 6px;
+    margin-top: 15px;
+    padding-bottom: 5px;
 }
 
 .sidebar-section-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 22px 6px;
+    padding: 12px 20px;
     cursor: pointer;
     user-select: none;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    margin: 0 10px 8px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-section-header:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(4px);
 }
 
 .sidebar-section-title {
-    font-size: 0.6rem;
-    font-weight: 700;
+    font-size: 0.8rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1.4px;
-    color: rgba(148, 163, 184, 0.75);
-    transition: color 0.2s;
+    letter-spacing: 1.6px;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
+.sidebar-section-title i {
+    font-size: 1.1rem;
+    width: 28px;
+    text-align: center;
+}
+
+/* Group Specific Colors */
+#menuPatients + .sidebar-section-header .sidebar-section-title,
+[data-bs-target="#menuPatients"] .sidebar-section-title { color: #ff4d4d; } /* Red for Patient Care */
+
+[data-bs-target="#menuClinical"] .sidebar-section-title { color: #33d9ff; } /* Cyan for Clinical */
+
+[data-bs-target="#menuFinance"] .sidebar-section-title { color: #ffcc00; } /* Gold for Ops */
+
+[data-bs-target="#menuAccounting"] .sidebar-section-title { color: #00ff88; } /* Emerald for Financial */
+
+[data-bs-target="#menuSystem"] .sidebar-section-title { color: #b3b3b3; } /* Grey for System */
+
 .sidebar-section-header:hover .sidebar-section-title {
-    color: rgba(148, 163, 184, 0.95);
+    filter: brightness(1.2);
 }
 
 .sidebar-section-chevron {
-    font-size: 0.5rem;
-    color: rgba(148, 163, 184, 0.5);
-    transition: transform 0.3s ease, color 0.2s;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s ease;
 }
 
-.sidebar-section-header:hover .sidebar-section-chevron {
-    color: rgba(148, 163, 184, 0.8);
-}
-
-.sidebar-section-header[aria-expanded="false"] .sidebar-section-chevron {
-    transform: rotate(-90deg);
+.sidebar-section-header[aria-expanded="true"] .sidebar-section-chevron {
+    transform: rotate(180deg);
 }
 
 /* Hide section headers in collapsed mode */
@@ -1421,3 +1447,86 @@ body {
     color: inherit !important;
     border-bottom: none !important;
 }
+
+/* ==========================================
+   PATIENT JOURNEY & QUEUE CUSTOM STYLES
+   ========================================== */
+
+/* Enhanced Badge for Queue */
+.badge-soft-info { background-color: rgba(14, 165, 233, 0.1); color: #0ea5e9; }
+.badge-soft-warning { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.badge-soft-success { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+/* Timeline Utility */
+.timeline-simple { padding-left: 1rem; }
+.timeline-simple .x-small { font-size: 0.72rem; opacity: 0.8; }
+
+/* Journey Tabs Customization */
+#encounterTabs .nav-link {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+}
+
+#encounterTabs .nav-link:not(.active):hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Patient Header Lifebar Animation */
+.bg-primary {
+    background: linear-gradient(135deg, #0047AB 0%, #1e40af 100%) !important;
+}
+
+/* Form Styling in Journey */
+.bg-light-subtle {
+    background-color: var(--background) !important;
+    border: 1px dashed var(--border);
+}
+
+/* Responsive Table Adjustments */
+@media (max-width: 768px) {
+    .main-content { padding: 80px 15px 40px 15px; }
+    .nav-pills .nav-link { font-size: 0.8rem; padding: 10px 5px; }
+}
+
+/* System Settings Premium Look */
+.form-label-small {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    display: block;
+}
+
+.input-group .form-control {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.bg-white-10 {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.sticky-sidebar {
+    position: sticky;
+    top: 90px;
+    border-radius: 1.5rem;
+}
+
+.bg-navy {
+    background: #000000 !important;
+}
+
+/* ==========================================
+   PROFESSIONAL PRINT SYSTEM (MEDICAL GRADE)
+   ========================================== */
+@media print {
+    .no-print, .sidebar, .navbar, .btn, .breadcrumb, ul.nav-pills { display: none !important; }
+    body, .main-content { background: white !important; padding: 0 !important; margin: 0 !important; color: black !important; }
+    .card { border: none !important; box-shadow: none !important; }
+    .table thead th { background-color: #f1f5f9 !important; color: black !important; -webkit-print-color-adjust: exact; }
+    .print-only { display: block !important; }
+}
+
+.print-only { display: none; }

@@ -1,0 +1,197 @@
+{% extends "main/base.html" %}
+
+{% block title %}API Intelligence & Routing Architecture{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 min-vh-100 bg-light-soft">
+    <!-- Header with Stats -->
+    <div class="row mb-5 align-items-end">
+        <div class="col">
+            <h6 class="text-primary fw-bold text-uppercase ls-wide mb-1">Architecture Overview</h6>
+            <h2 class="fw-800 mb-0" style="letter-spacing: -1px;">Application API Intelligence</h2>
+        </div>
+        <div class="col-auto">
+            <div class="d-flex gap-3">
+                <div class="api-stat-card">
+                    <span class="val">{{ stats.total }}</span>
+                    <span class="lbl">Endpoints</span>
+                </div>
+                <div class="api-stat-card border-success">
+                    <span class="val text-success">{{ stats.get }}</span>
+                    <span class="lbl">GET</span>
+                </div>
+                <div class="api-stat-card border-warning">
+                    <span class="val text-warning">{{ stats.post }}</span>
+                    <span class="lbl">POST</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Search -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="search-box p-1 bg-white rounded-pill shadow-sm d-flex">
+                <i class="fa fa-search m-3 text-muted"></i>
+                <input type="text" id="apiSearch" class="form-control border-0 bg-transparent py-3" 
+                       placeholder="Search by endpoint, path or blueprint name...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Blueprints Accordion -->
+    {% for bp_name, routes in blueprints|dictsort %}
+    <div class="blueprint-section mb-4" data-bp="{{ bp_name|lower }}">
+        <div class="blueprint-header d-flex align-items-center mb-3">
+            <div class="bp-icon me-3 bg-{{ 'primary' if bp_name != 'Global' else 'dark' }}">
+                <i class="fa fa-{{ 'cubes' if bp_name != 'Global' else 'globe' }}"></i>
+            </div>
+            <div>
+                <h4 class="mb-0 fw-bold">{{ bp_name|capitalize }} Blueprint</h4>
+                <span class="text-muted small">{{ routes|length }} registered controllers</span>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            {% for route in routes|sort(attribute='path') %}
+            <div class="col-12 route-item" data-search="{{ route.endpoint }} {{ route.path }} {{ bp_name }}">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden route-card h-100">
+                    <div class="card-body p-0">
+                        <div class="d-md-flex align-items-center">
+                            <!-- Method Column -->
+                            <div class="method-col d-flex flex-column align-items-center justify-content-center p-3 text-center"
+                                 style="min-width: 100px; height: 100%;">
+                                {% for m in route.methods %}
+                                <span class="badge-method method-{{ m|lower }} mb-1">{{ m }}</span>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Path & Endpoint -->
+                            <div class="flex-grow-1 p-3 border-start">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h6 class="mb-0 fw-bold font-monospace text-primary">{{ route.path }}</h6>
+                                    <span class="badge bg-light text-dark border rounded-pill small px-2">v1.0</span>
+                                </div>
+                                <div class="text-muted small d-flex align-items-center">
+                                    <i class="fa fa-link me-2 opacity-50"></i>
+                                    <span class="font-monospace">{{ route.endpoint }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Docs -->
+                            <div class="p-3 bg-light-soft text-muted small border-start d-none d-lg-block" style="width: 300px;">
+                                <div class="text-truncate-2">
+                                    {{ route.doc }}
+                                </div>
+                            </div>
+
+                            <!-- Action -->
+                            <div class="p-3 border-start text-center">
+                                <button class="btn btn-icon btn-light rounded-circle shadow-sm" title="Test Endpoint">
+                                    <i class="fa fa-play text-success"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .bg-light-soft { background-color: #f8fafc; }
+    .ls-wide { letter-spacing: 0.1em; }
+    .fw-800 { font-weight: 800; }
+    
+    .api-stat-card {
+        background: white;
+        padding: 1rem 2rem;
+        border-radius: 20px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        border-bottom: 4px solid #0d6efd;
+    }
+    .api-stat-card .val { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+    .api-stat-card .lbl { font-size: 0.7rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
+
+    .bp-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .route-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid transparent !important;
+    }
+    .route-card:hover {
+        transform: scale(1.01);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+        border-color: #e2e8f0 !important;
+    }
+
+    .badge-method {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        width: 100%;
+    }
+    .method-get { background: #dcfce7; color: #15803d; }
+    .method-post { background: #fef9c3; color: #a16207; }
+    .method-put { background: #ffedd5; color: #9a3412; }
+    .method-delete { background: #fee2e2; color: #b91c1c; }
+
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .btn-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+<script>
+    document.getElementById('apiSearch').addEventListener('input', function(e) {
+        let term = e.target.value.toLowerCase();
+        document.querySelectorAll('.route-item').forEach(item => {
+            let content = item.getAttribute('data-search').toLowerCase();
+            if (content.includes(term)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Hide blueprint sections if no visible routes
+        document.querySelectorAll('.blueprint-section').forEach(section => {
+            let visible = section.querySelectorAll('.route-item[style="display: block;"]').length;
+            if (visible === 0 && term !== "") {
+                 section.style.display = 'none';
+            } else {
+                 section.style.display = 'block';
+            }
+        });
+    });
+</script>
+{% endblock %}

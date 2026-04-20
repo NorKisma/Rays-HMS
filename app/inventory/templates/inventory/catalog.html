@@ -1,0 +1,424 @@
+{% extends "main/base.html" %}
+{% block title %}Purchase Catalog — Rays HMS{% endblock %}
+
+{% block head %}
+<style>
+/* ── Page Hero ─────────────────────────────────── */
+.catalog-hero {
+  background: linear-gradient(135deg,#0a0f1a 0%,#0f172a 60%,#0d1b2a 100%);
+  border-radius: 20px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.catalog-hero::before {
+  content:''; position:absolute; top:-60px; right:-60px;
+  width:220px; height:220px;
+  background:radial-gradient(circle,rgba(59,130,246,.18) 0%,transparent 70%);
+  pointer-events:none;
+}
+.catalog-hero::after {
+  content:''; position:absolute; bottom:-40px; left:30%;
+  width:180px; height:180px;
+  background:radial-gradient(circle,rgba(16,185,129,.10) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-icon {
+  width:50px;height:50px;
+  background:linear-gradient(135deg,#1d4ed8,#3b82f6);
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;color:#fff;
+  box-shadow:0 6px 20px rgba(59,130,246,.45);
+  flex-shrink:0;
+}
+.hero-badge {
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(59,130,246,.12);
+  border:1px solid rgba(59,130,246,.25);
+  border-radius:999px;
+  padding:3px 14px;font-size:.68rem;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;color:#60a5fa;
+  margin-bottom:8px;
+}
+.hero-stat {
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;
+  padding:12px 18px;text-align:center;min-width:90px;
+}
+.hero-stat-value {
+  font-size:1.4rem;font-weight:800;color:#fff;line-height:1;
+}
+.hero-stat-label {
+  font-size:.65rem;font-weight:600;
+  letter-spacing:.8px;text-transform:uppercase;
+  color:rgba(148,163,184,.7);margin-top:3px;
+}
+
+/* ── Filter Bar ────────────────────────────────── */
+.filter-bar {
+  background:#fff;
+  border:1px solid #e8ecf1;
+  border-radius:16px;
+  padding:12px 16px;
+  margin-bottom:24px;
+  box-shadow:0 2px 12px rgba(0,0,0,.05);
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.filter-search {
+  flex:1;min-width:200px;
+  display:flex;align-items:center;gap:10px;
+  background:#f8fafd;
+  border:1.5px solid #e2e8f0;
+  border-radius:10px;
+  padding:9px 14px;
+}
+.filter-search input {
+  border:none;background:transparent;
+  font-size:.88rem;font-weight:500;color:#1e293b;
+  outline:none;flex:1;
+}
+.filter-search input::placeholder { color:#94a3b8; }
+.filter-divider {
+  width:1px;height:28px;background:#e2e8f0;flex-shrink:0;
+}
+.filter-cats { display:flex;gap:6px;flex-wrap:wrap; }
+.cat-pill {
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 14px;border-radius:999px;
+  font-size:.75rem;font-weight:700;letter-spacing:.3px;
+  cursor:pointer;transition:all .2s;
+  border:1.5px solid #e2e8f0;background:#f8fafd;color:#64748b;
+}
+.cat-pill.active {
+  background:linear-gradient(135deg,#1d4ed8,#3b82f6);
+  border-color:#3b82f6;color:#fff;
+  box-shadow:0 4px 12px rgba(37,99,235,.3);
+}
+.cat-pill:hover:not(.active) {
+  background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;
+}
+
+/* ── Product Card ──────────────────────────────── */
+.product-card {
+  border-radius:18px !important;
+  border:1px solid #edf0f7 !important;
+  background:#fff;
+  box-shadow:0 2px 12px rgba(0,0,0,.05);
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+  height:100%;
+}
+.product-card:hover {
+  transform:translateY(-5px);
+  box-shadow:0 16px 40px rgba(0,0,0,.10);
+  border-color:#bfdbfe !important;
+}
+.product-card-top {
+  padding:20px 20px 0;
+}
+.product-cat-badge {
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 12px;border-radius:999px;
+  font-size:.68rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+  background:rgba(37,99,235,.08);color:#1d4ed8;
+  border:1px solid rgba(37,99,235,.15);
+}
+.product-menu-btn {
+  width:32px;height:32px;border-radius:8px;
+  border:1.5px solid #e2e8f0;background:#f8fafd;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:#94a3b8;transition:all .2s;
+}
+.product-menu-btn:hover { background:#fff;color:#1e293b;border-color:#cbd5e1; }
+.product-name {
+  font-size:1rem;font-weight:800;color:#0f172a;
+  margin:12px 0 4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.product-sku {
+  font-size:.75rem;font-weight:600;color:#94a3b8;
+  font-family:monospace;letter-spacing:.3px;
+  display:flex;align-items:center;gap:5px;
+}
+
+/* ── Stats Row ─────────────────────────────────── */
+.product-stats {
+  display:grid;grid-template-columns:1fr 1fr;
+  margin:14px 0;
+  border:1.5px solid #f0f4f8;
+  border-radius:14px;
+  overflow:hidden;
+}
+.stat-cell {
+  padding:10px 12px;text-align:center;
+  background:#f8fafd;
+}
+.stat-cell:first-child { border-right:1.5px solid #f0f4f8; }
+.stat-cell-label {
+  font-size:.6rem;font-weight:800;letter-spacing:1px;
+  text-transform:uppercase;color:#94a3b8;margin-bottom:3px;
+}
+.stat-cell-value {
+  font-size:.98rem;font-weight:800;color:#0f172a;
+}
+.stat-cell-value.markup-good { color:#10b981; }
+.stat-cell-value.markup-warn { color:#f59e0b; }
+
+/* ── Card Footer ───────────────────────────────── */
+.product-card-footer {
+  padding:0 20px 18px;display:flex;gap:8px;
+}
+.btn-restock {
+  flex:1;
+  background:linear-gradient(135deg,#1d4ed8,#2563eb);
+  border:none;border-radius:10px;
+  color:#fff;font-size:.82rem;font-weight:700;
+  padding:10px;
+  transition:all .2s;
+  box-shadow:0 4px 12px rgba(37,99,235,.3);
+  position:relative;overflow:hidden;
+}
+.btn-restock::after {
+  content:'';position:absolute;top:0;left:-100%;
+  width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
+  transition:left .4s;
+}
+.btn-restock:hover::after { left:100%; }
+.btn-restock:hover { box-shadow:0 8px 20px rgba(37,99,235,.4);transform:translateY(-1px); }
+.btn-info-circle {
+  width:40px;height:40px;border-radius:10px;
+  border:1.5px solid #e2e8f0;background:#f8fafd;
+  display:flex;align-items:center;justify-content:center;
+  color:#94a3b8;font-size:.9rem;transition:all .2s;
+  flex-shrink:0;cursor:pointer;
+}
+.btn-info-circle:hover { background:#eff6ff;border-color:#bfdbfe;color:#3b82f6; }
+
+/* ── Empty State ───────────────────────────────── */
+.empty-catalog {
+  text-align:center;padding:80px 20px;
+  background:#fff;border-radius:18px;
+  border:1.5px dashed #e2e8f0;
+}
+.empty-icon {
+  width:80px;height:80px;
+  background:linear-gradient(135deg,#f0f9ff,#eff6ff);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;color:#3b82f6;margin:0 auto 20px;
+}
+
+/* ── Responsive ─────────────────────────────────── */
+@media (max-width: 768px) {
+  .catalog-hero { padding: 20px 16px; border-radius: 14px; }
+  .catalog-hero h3 { font-size: 1.25rem; }
+  .catalog-hero::before, .catalog-hero::after { display: none; }
+  .hero-stat { flex: 1; padding: 10px; min-width: 80px; }
+  .hero-stat-value { font-size: 1.2rem; }
+  .filter-bar { flex-direction: column; padding: 12px; gap: 10px; }
+  .filter-search { width: 100%; min-width: 100%; }
+  .filter-divider { width: 100%; height: 1px; margin: 4px 0; }
+  .filter-cats { display: flex; overflow-x: auto; padding-bottom: 4px; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+  .filter-cats::-webkit-scrollbar { display: none; }
+  .cat-pill { white-space: nowrap; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-2">
+
+  <!-- ── Hero ── -->
+  <div class="catalog-hero mb-4">
+    <div class="d-flex flex-wrap gap-4 align-items-center justify-content-between position-relative" style="z-index:2;">
+      <div class="d-flex align-items-center gap-4">
+        <div class="hero-icon"><i class="fa fa-pills"></i></div>
+        <div>
+          <div class="hero-badge"><i class="fa fa-circle" style="font-size:.4rem;"></i> Inventory Module</div>
+          <h3 class="fw-bold mb-0 text-white">Purchase Catalog</h3>
+          <p class="mb-0" style="color:rgba(148,163,184,.8);font-size:.83rem;">
+            Manage pharmaceutical items, pricing &amp; stock classifications.
+          </p>
+        </div>
+      </div>
+      <div class="d-flex gap-3 flex-wrap align-items-center">
+        <!-- Quick stats -->
+        <div class="hero-stat">
+          <div class="hero-stat-value">{{ products|length }}</div>
+          <div class="hero-stat-label">Products</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">{{ categories|length }}</div>
+          <div class="hero-stat-label">Categories</div>
+        </div>
+        <!-- Actions -->
+        <a href="{{ url_for('inventory.add_product') }}"
+           class="btn btn-primary fw-bold px-4 py-2"
+           style="border-radius:12px;box-shadow:0 4px 16px rgba(37,99,235,.4);">
+          <i class="fa fa-plus-circle me-2"></i>Add New Item
+        </a>
+        <button class="btn fw-bold px-4 py-2"
+                style="border-radius:12px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);color:#fff;"
+                data-bs-toggle="modal" data-bs-target="#importModal">
+          <i class="fa fa-file-import me-2"></i>Import
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Filter Bar ── -->
+  <div class="filter-bar">
+    <div class="filter-search">
+      <i class="fa fa-search" style="color:#94a3b8;"></i>
+      <input type="text" id="catalogSearch" placeholder="Search product name, barcode or category...">
+    </div>
+    <div class="filter-divider"></div>
+    <div class="filter-cats" id="categoryFilters">
+      <span class="cat-pill active" data-category="all">
+        <i class="fa fa-border-all"></i> All
+      </span>
+      {% for cat in categories %}
+      <span class="cat-pill" data-category="{{ cat.name }}">{{ cat.name }}</span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ── Catalog Grid ── -->
+  <div class="row g-3" id="catalogGrid">
+    {% for product in products %}
+    {% set latest_batch = product.batches|sort(attribute='created_at', reverse=True)|first %}
+    {% set markup_pct = 0 %}
+    {% if latest_batch and latest_batch.unit_cost and latest_batch.unit_cost > 0 %}
+      {% set markup_pct = ((latest_batch.selling_price - latest_batch.unit_cost) / latest_batch.unit_cost * 100)|round(1) %}
+    {% endif %}
+
+    <div class="col-xl-3 col-lg-4 col-md-6 catalog-item"
+         data-product-category="{{ product.category.name if product.category else 'General' }}">
+      <div class="product-card">
+        <!-- Top -->
+        <div class="product-card-top">
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="product-cat-badge">
+              <i class="fa fa-tag" style="font-size:.55rem;"></i>
+              {{ product.category.name if product.category else 'General' }}
+            </span>
+            <div class="dropdown">
+              <div class="product-menu-btn" data-bs-toggle="dropdown">
+                <i class="fa fa-ellipsis-v"></i>
+              </div>
+              <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('inventory.add_batch', product_id=product.id) }}">
+                    <i class="fa fa-boxes me-2 text-primary"></i>Restock Item
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fa fa-history me-2 text-warning"></i>Price History
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider my-1"></li>
+                <li>
+                  <a class="dropdown-item text-danger" href="#">
+                    <i class="fa fa-trash me-2"></i>Remove Item
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <h6 class="product-name" title="{{ product.name }}">{{ product.name }}</h6>
+          <div class="product-sku">
+            <i class="fa fa-barcode" style="font-size:.8rem;color:#cbd5e1;"></i>
+            {{ product.barcode or 'NO-SKU' }}
+          </div>
+
+          <!-- Stats -->
+          <div class="product-stats">
+            <div class="stat-cell">
+              <div class="stat-cell-label">Last Cost</div>
+              <div class="stat-cell-value">
+                ${{ "%.2f"|format(latest_batch.unit_cost) if latest_batch else '0.00' }}
+              </div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-cell-label">Markup</div>
+              <div class="stat-cell-value {{ 'markup-good' if markup_pct >= 20 else 'markup-warn' }}">
+                {{ markup_pct }}%
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="product-card-footer">
+          <a href="{{ url_for('inventory.add_batch', product_id=product.id) }}" class="btn-restock">
+            <i class="fa fa-shopping-cart me-2"></i>Restock
+          </a>
+          <div class="btn-info-circle" title="{{ product.description or 'No description' }}"
+               data-bs-toggle="tooltip" data-bs-placement="top">
+            <i class="fa fa-info-circle"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% else %}
+    <div class="col-12">
+      <div class="empty-catalog">
+        <div class="empty-icon"><i class="fa fa-pills"></i></div>
+        <h5 class="fw-bold mb-2">Catalog is Empty</h5>
+        <p class="text-muted mb-4">No pharmaceutical products have been added yet.<br>Start by creating your first item.</p>
+        <a href="{{ url_for('inventory.add_product') }}"
+           class="btn btn-primary fw-bold px-5"
+           style="border-radius:12px;padding-top:12px;padding-bottom:12px;">
+          <i class="fa fa-plus-circle me-2"></i>Add First Product
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div><!-- /container -->
+
+{% block scripts %}
+<script>
+  // ── Filter Logic ─────────────────────────────────────────
+  const searchInput  = document.getElementById('catalogSearch');
+  const catPills     = document.querySelectorAll('.cat-pill');
+  const catalogItems = document.querySelectorAll('.catalog-item');
+  let activeCat = 'all';
+
+  function applyFilters() {
+    const q = searchInput.value.toLowerCase();
+    catalogItems.forEach(item => {
+      const text = item.textContent.toLowerCase();
+      const cat  = item.getAttribute('data-product-category');
+      const matchQ   = !q || text.includes(q);
+      const matchCat = activeCat === 'all' || cat === activeCat;
+      item.style.display = matchQ && matchCat ? '' : 'none';
+    });
+  }
+
+  searchInput.addEventListener('input', applyFilters);
+
+  catPills.forEach(pill => {
+    pill.addEventListener('click', function () {
+      catPills.forEach(p => p.classList.remove('active'));
+      this.classList.add('active');
+      activeCat = this.getAttribute('data-category');
+      applyFilters();
+    });
+  });
+
+  // ── Tooltips ─────────────────────────────────────────────
+  document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+    new bootstrap.Tooltip(el);
+  });
+</script>
+{% endblock %}
+
+{% endblock %}

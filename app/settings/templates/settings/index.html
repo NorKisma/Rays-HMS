@@ -13,6 +13,71 @@
 
   <div class="row g-4">
     <div class="col-lg-8">
+      <!-- Organization Profile Card -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 px-4 pt-4 pb-2">
+          <h6 class="mb-1 fw-bold">
+            <i class="fa fa-building text-primary me-2"></i>
+            {{ _('Organization Profile') }}
+          </h6>
+          <p class="small text-muted mb-0">
+            {{ _('Update your facility name and primary logo for prints and reports.') }}
+          </p>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <form action="{{ url_for('settings.update_profile') }}" method="POST" enctype="multipart/form-data">
+            <div class="row align-items-center">
+              <div class="col-md-3 text-center mb-3 mb-md-0">
+                <div class="mx-auto bg-light rounded-4 d-flex align-items-center justify-content-center overflow-hidden border" style="width: 120px; height: 120px;">
+                  {% if current_user.hospital and current_user.hospital.logo %}
+                    <img src="{{ url_for('static', filename=current_user.hospital.logo) }}" alt="Logo" class="img-fluid">
+                  {% else %}
+                    <i class="fa fa-image text-muted fa-3x"></i>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-9">
+                <div class="mb-3">
+                  <label class="form-label-small">{{ _('Organization Name') }}</label>
+                  <input type="text" name="hospital_name" class="form-control bg-light border-0" 
+                         value="{{ current_user.hospital.name if current_user.hospital else '' }}" required>
+                </div>
+                <div class="row g-2 mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label-small">{{ _('Contact Phone') }}</label>
+                    <input type="text" name="hospital_phone" class="form-control bg-light border-0" 
+                           value="{{ current_user.hospital.phone if current_user.hospital else '' }}">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label-small">{{ _('Official Email') }}</label>
+                    <input type="email" name="hospital_email" class="form-control bg-light border-0" 
+                           value="{{ current_user.hospital.email if current_user.hospital else '' }}">
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label-small">{{ _('Website URL') }}</label>
+                  <input type="text" name="hospital_website" class="form-control bg-light border-0" 
+                         value="{{ current_user.hospital.website if current_user.hospital else '' }}" placeholder="www.hospital.com">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label-small">{{ _('Physical Address (For Print Headers)') }}</label>
+                  <textarea name="hospital_address" class="form-control bg-light border-0" rows="2">{{ current_user.hospital.address if current_user.hospital else '' }}</textarea>
+                </div>
+                <div>
+                  <label class="form-label-small">{{ _('Change Logo (.png, .jpg)') }}</label>
+                  <input type="file" name="hospital_logo" class="form-control bg-light border-0" accept="image/*">
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 text-end">
+              <button type="submit" class="btn btn-navy rounded-pill px-4 shadow-sm">
+                <i class="fa fa-save me-2"></i>{{ _('Update Profile') }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-white border-0 px-4 pt-4 pb-2">
           <h6 class="mb-1 fw-bold">
@@ -94,17 +159,15 @@
     </div>
 
     <div class="col-lg-4">
-      <div class="card border-0 bg-navy text-white shadow-sm p-4 sticky-sidebar">
+      <!-- Right Sidebar Card -->
+      <div class="card border-0 bg-navy text-white shadow-sm p-4 mb-4 sticky-sidebar">
         <h5 class="fw-bold mb-3">{{ _('How these settings are used') }}</h5>
         <ul class="small text-white-50 mb-0">
           <li class="mb-2">
             {{ _('Service prices power the green $ amounts on the invoice service cards.') }}
           </li>
           <li class="mb-2">
-            {{ _('The same values are used when creating Billing Items for each selected service.') }}
-          </li>
-          <li class="mb-2">
-            {{ _('Card fee is used on the Reception Check-In screen when auto-generating the first invoice.') }}
+            {{ _('Detailed Lab Tests allow you to charge different prices for specific tests (CBC, Glucose, etc).') }}
           </li>
         </ul>
         <div class="mt-4 p-3 bg-white-10 rounded-4">
@@ -112,6 +175,57 @@
           <p class="small text-white-50 mb-0">
             {{ _('Only administrators should change pricing logic in production.') }}
           </p>
+        </div>
+      </div>
+
+      <!-- Lab Tests Management (Right side or bottom) -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 px-4 pt-4">
+            <h6 class="fw-bold mb-1"><i class="fa fa-microscope text-info me-2"></i>{% if session.get('lang') == 'so' %}Baaritaannada Shaybaarka{% else %}Detailed Lab Tests{% endif %}</h6>
+            <p class="small text-muted mb-0">{% if session.get('lang') == 'so' %}Kudar baaritaanno gaar ah iyo qiimahooda.{% else %}Add specific tests and their unique pricing.{% endif %}</p>
+        </div>
+        <div class="card-body px-4 pb-4">
+            <div class="table-responsive mb-4">
+                <table class="table table-sm table-borderless align-middle">
+                    <thead class="bg-light rounded-3">
+                        <tr class="small uppercase fw-bold text-muted">
+                            <th class="ps-3 py-2">Test Name</th>
+                            <th class="text-end py-2">Price</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for test in lab_tests %}
+                        <tr class="border-bottom-light">
+                            <td class="ps-3 py-2 fw-bold text-dark small" style="font-size: 0.75rem;">{{ test.name }}</td>
+                            <td class="text-end py-2 fw-bold text-primary small">${{ "%.2f"|format(test.price) }}</td>
+                            <td class="text-end pe-3">
+                                <a href="{{ url_for('settings.delete_lab_test', id=test.id) }}" class="text-danger small opacity-50 hover-opacity-100">
+                                    <i class="fa fa-times-circle"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center py-4 text-muted small">No specific tests added yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- New Lab Test Mini Form (Part of the main form or separate) -->
+            <div class="p-3 bg-light rounded-4 border">
+                <h6 class="small fw-bold mb-3">Add New Lab Test</h6>
+                <div class="mb-2">
+                    <input type="text" name="new_lab_test_name" class="form-control form-control-sm border-0 shadow-none" placeholder="e.g. CBC / Shaybaarka Dhiigga">
+                </div>
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text bg-white border-0 text-muted">$</span>
+                    <input type="number" step="0.5" name="new_lab_test_price" class="form-control border-0 shadow-none" placeholder="Price">
+                </div>
+                <p class="small text-muted x-small mb-0">Tip: Click "Save Settings" below after filling this to save.</p>
+            </div>
         </div>
       </div>
     </div>

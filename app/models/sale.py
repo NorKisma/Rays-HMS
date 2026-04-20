@@ -1,8 +1,8 @@
 from app.extensions import db
-from .user import TimestampMixin, SoftDeleteMixin
+from .user import TimestampMixin, SoftDeleteMixin, MultiTenantMixin
 from datetime import datetime
 
-class Sale(db.Model, SoftDeleteMixin, TimestampMixin):
+class Sale(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     __tablename__ = 'sales'
     id = db.Column(db.Integer, primary_key=True)
     invoice_number = db.Column(db.String(50), unique=True, nullable=False)
@@ -15,6 +15,7 @@ class Sale(db.Model, SoftDeleteMixin, TimestampMixin):
     change_amount = db.Column(db.Float, default=0.0)
     payment_method = db.Column(db.String(50), default='Cash') # Cash, Card, Mobile, Mixed
     status = db.Column(db.String(20), default='completed') # completed, returned, cancelled
+    sale_source = db.Column(db.String(50), default='Pharmacy') # Pharmacy, Customer
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False) # Cashier
 
     customer = db.relationship('Patient', backref=db.backref('sales', lazy=True))

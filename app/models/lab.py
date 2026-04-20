@@ -1,7 +1,7 @@
 from app.extensions import db
-from .user import TimestampMixin, SoftDeleteMixin
+from .user import TimestampMixin, SoftDeleteMixin, MultiTenantMixin
 
-class LabRequest(db.Model, SoftDeleteMixin, TimestampMixin):
+class LabRequest(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     __tablename__ = "lab_requests"
     
     id = db.Column(db.Integer, primary_key=True)
@@ -18,7 +18,7 @@ class LabRequest(db.Model, SoftDeleteMixin, TimestampMixin):
     def __repr__(self):
         return f"<LabRequest {self.test_name} - {self.status}>"
 
-class LabResultTemplate(db.Model, SoftDeleteMixin, TimestampMixin):
+class LabResultTemplate(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     """Reusable templates for common lab tests (CBC, Urinalysis, etc.)"""
     __tablename__ = 'lab_result_templates'
     
@@ -29,3 +29,15 @@ class LabResultTemplate(db.Model, SoftDeleteMixin, TimestampMixin):
     
     def __repr__(self):
         return f"<LabResultTemplate {self.name}>"
+class LabTest(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
+    """Specific lab tests available in the hospital and their prices"""
+    __tablename__ = 'lab_tests'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    code = db.Column(db.String(20), unique=True)
+    category = db.Column(db.String(50))
+    price = db.Column(db.Numeric(10, 2), default=0.00)
+    
+    def __repr__(self):
+        return f"<LabTest {self.name} - ${self.price}>"

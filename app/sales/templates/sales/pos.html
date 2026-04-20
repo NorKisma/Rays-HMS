@@ -7,11 +7,25 @@
     /* ==========================================
        POS SYSTEM — Premium Professional UI
        ========================================== */
+    html, body {
+        height: 100%;
+    }
+
+    body .sidebar,
+    body .sidebar-overlay {
+        display: none !important;
+    }
+
+    body .main-content {
+        margin-left: 0 !important;
+        padding: 90px 20px 24px 20px !important;
+        width: 100% !important;
+    }
+
     .pos-wrapper {
         display: flex;
         gap: 20px;
-        height: calc(100vh - 130px);
-        min-height: 500px;
+        min-height: calc(100vh - 110px);
     }
 
     /* === LEFT: Product Discovery === */
@@ -35,6 +49,33 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         position: relative;
         overflow: hidden;
+        gap: 14px;
+    }
+
+    .pos-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid rgba(255,255,255,0.25);
+        color: white;
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.08);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: background 0.2s, transform 0.2s;
+    }
+
+    .pos-back-btn:hover {
+        background: rgba(255,255,255,0.16);
+        transform: translateY(-1px);
+    }
+
+    .pos-header-inner {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 0;
     }
 
     .pos-header-bar::before {
@@ -189,6 +230,61 @@
     .pos-search-results .result-item:hover {
         background: #f1f5f9;
         border-color: #e2e8f0;
+    }
+
+    .container-fluid.px-0 {
+        min-height: 100vh;
+        padding: 0;
+    }
+
+    .pos-wrapper {
+        display: flex;
+        gap: 20px;
+        min-height: calc(100vh - 100px);
+        align-items: stretch;
+    }
+
+    .pos-inventory-body {
+        padding: 12px;
+        display: grid;
+        gap: 10px;
+        max-height: calc(100vh - 320px);
+        overflow-y: auto;
+    }
+
+    .pos-item-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 14px 14px;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+        cursor: pointer;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        min-height: 80px;
+    }
+
+    .pos-item-card:hover {
+        transform: translateY(-1px);
+        border-color: #cbd5e1;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+        background: #f8fafc;
+    }
+
+    .pos-item-card .ri-name {
+        font-weight: 800;
+        color: var(--text-main, #0f172a);
+        font-size: 0.97rem;
+        margin-bottom: 3px;
+    }
+
+    .pos-item-card .ri-meta {
+        font-size: 0.8rem;
+        color: #475569;
+        font-weight: 600;
     }
 
     .result-item .ri-name {
@@ -753,13 +849,19 @@
         <div class="pos-left">
             <!-- Header -->
             <div class="pos-header-bar">
-                <h4>
-                    <i class="fa fa-cash-register"></i>
-                    {{ _('Point of Sale') }}
-                </h4>
-                <div class="pos-live-badge">
-                    <span class="pos-live-dot"></span>
-                    {{ _('LIVE') }}
+                <a href="{{ url_for('sales.list_sales') }}" class="pos-back-btn">
+                    <i class="fa fa-arrow-left"></i>
+                    {{ _('Back') }}
+                </a>
+                <div class="pos-header-inner">
+                    <h4>
+                        <i class="fa fa-cash-register"></i>
+                        {{ _('Point of Sale') }}
+                    </h4>
+                    <div class="pos-live-badge">
+                        <span class="pos-live-dot"></span>
+                        {{ _('LIVE') }}
+                    </div>
                 </div>
             </div>
 
@@ -779,18 +881,34 @@
                 <div class="pos-inventory-head">
                     <h6><i class="fa fa-boxes-stacked me-2 text-primary opacity-50"></i>{{ _('Quick Inventory') }}</h6>
                     <div class="pill-filters">
-                        <button class="pill-filter active">{{ _('All') }}</button>
-                        <button class="pill-filter">{{ _('Tablets') }}</button>
-                        <button class="pill-filter">{{ _('Syrups') }}</button>
-                        <button class="pill-filter">{{ _('Injections') }}</button>
+                        <button class="pill-filter active" data-filter="All">{{ _('All') }}</button>
+                        <button class="pill-filter" data-filter="Tablets">{{ _('Tablets') }}</button>
+                        <button class="pill-filter" data-filter="Syrups">{{ _('Syrups') }}</button>
+                        <button class="pill-filter" data-filter="Injections">{{ _('Injections') }}</button>
                     </div>
                 </div>
-                <div class="pos-empty" id="placeholder-msg">
-                    <div class="pos-empty-icon">
-                        <i class="fa fa-barcode fa-2x"></i>
+                <div class="pos-inventory-body" id="pos-inventory-body">
+                    <div class="pos-empty{% if pos_items %} d-none{% endif %}" id="placeholder-msg">
+                        <div class="pos-empty-icon">
+                            <i class="fa fa-barcode fa-2x"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1" style="color: var(--text-main);">{{ _('Ready to Scan') }}</h6>
+                        <p class="mb-0 small">{{ _('Search for products to add them to the order') }}</p>
                     </div>
-                    <h6 class="fw-bold mb-1" style="color: var(--text-main);">{{ _('Ready to Scan') }}</h6>
-                    <p class="mb-0 small">{{ _('Search for products to add them to the order') }}</p>
+                    {% if pos_items %}
+                    {% for item in pos_items %}
+                    <div class="result-item pos-item-card" data-category="{{ item.category|e }}" onclick='addToCart({{ item | tojson | safe }})'>
+                        <div>
+                            <div class="ri-name">{{ item.name }}</div>
+                            <div class="ri-meta">Batch: {{ item.batch_number }} &bull; Exp: {{ item.expiry }}</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="ri-price">${{ '%.2f'|format(item.price) }}</div>
+                            <div class="ri-stock {{ 'low' if item.stock < 10 else 'ok' }}">{{ item.stock }} {{ item.unit }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -817,10 +935,39 @@
             </div>
 
             <div class="cart-footer">
-                <!-- Customer -->
-                <div class="cart-customer-input">
-                    <i class="fa fa-user"></i>
-                    <input type="text" id="customer-name" placeholder="{{ _('Walk-in Customer') }}">
+                <!-- Sale Source Toggle -->
+                <div class="mb-3">
+                    <label class="x-small fw-bold text-muted uppercase mb-2 d-block">Transaction Source</label>
+                    <div class="btn-group btn-group-sm w-100 rounded-3 overflow-hidden border shadow-sm">
+                        <input type="radio" class="btn-check" name="sale_source" id="source-pharmacy" value="Pharmacy" checked onchange="toggleSource()">
+                        <label class="btn btn-outline-primary border-0 py-2" for="source-pharmacy">
+                            <i class="fa fa-clinic-medical me-1"></i> Pharmacy
+                        </label>
+                        <input type="radio" class="btn-check" name="sale_source" id="source-customer" value="Customer" onchange="toggleSource()">
+                        <label class="btn btn-outline-primary border-0 py-2" for="source-customer">
+                            <i class="fa fa-user-tag me-1"></i> Patient/Guest
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Customer Selection Area -->
+                <div id="customer-select-area" class="d-none">
+                    <div class="cart-customer-input mb-2">
+                        <i class="fa fa-search"></i>
+                        <input type="text" id="patient-pos-search" placeholder="{{ _('Search patient or enter name...') }}" autocomplete="off">
+                    </div>
+                    <div id="patient-search-results" class="pos-search-results" style="left: auto; right: 16px; width: 338px;"></div>
+                    <div class="p-2 mb-3 bg-light rounded-3 text-center d-none" id="selected-customer-box">
+                        <span class="x-small fw-bold text-primary"><i class="fa fa-user-check me-1"></i> Selected: <span id="selected-customer-name">None</span></span>
+                        <button type="button" class="btn btn-link btn-sm p-0 ms-2 text-danger" onclick="clearSelectedCustomer()"><i class="fa fa-times-circle"></i></button>
+                    </div>
+                </div>
+
+                <div id="pharmacy-input-area">
+                    <div class="cart-customer-input mb-3">
+                        <i class="fa fa-walking"></i>
+                        <input type="text" id="customer-name" value="Walk-in Customer" readonly>
+                    </div>
                 </div>
 
                 <!-- Payment Method -->
@@ -850,11 +997,27 @@
                     </div>
                 </div>
                 <div class="summary-total">
-                    <span class="summary-total-label">{{ _('Total') }}</span>
+                    <span class="summary-total-label">{{ _('Grand Total') }}</span>
                     <span class="summary-total-val" id="grand-total">$0.00</span>
                 </div>
 
-                <button class="btn-checkout" id="checkout-btn" onclick="processCheckout()" disabled>
+                <!-- Payment Details -->
+                <div class="mt-3 pt-3 border-top">
+                    <div class="summary-line">
+                        <span class="fw-bold">{{ _('Amount Paid') }}</span>
+                        <div class="summary-discount">
+                            <span class="text-muted small">$</span>
+                            <input type="number" id="paid-input" value="0" min="0" step="0.01" oninput="updateTotals()"
+                                onfocus="this.select()" class="border-primary">
+                        </div>
+                    </div>
+                    <div class="summary-line mt-1">
+                        <span>{{ _('Change / Balance') }}</span>
+                        <span class="sl-val" id="balance-display">$0.00</span>
+                    </div>
+                </div>
+
+                <button class="btn-checkout mt-3" id="checkout-btn" onclick="processCheckout()" disabled>
                     <i class="fa fa-lock me-2 opacity-50"></i>{{ _('Complete Payment') }}
                 </button>
             </div>
@@ -881,8 +1044,8 @@
                     <button class="btn btn-primary py-3 fw-bold rounded-3" onclick="window.location.reload()">
                         <i class="fa fa-plus me-2"></i>{{ _('Start New Sale') }}
                     </button>
-                    <button class="btn btn-light border py-3 fw-bold rounded-3" data-bs-dismiss="modal">
-                        <i class="fa fa-print me-2 text-muted"></i>{{ _('Print Invoice') }}
+                    <button id="print-receipt-btn" class="btn btn-light border py-3 fw-bold rounded-3" type="button">
+                        <i class="fa fa-print me-2 text-muted"></i>{{ _('Print Receipt') }}
                     </button>
                 </div>
             </div>
@@ -957,6 +1120,40 @@
             resultsDiv.style.display = 'none';
         }
     });
+
+    const filterButtons = document.querySelectorAll('.pill-filter');
+    const inventoryBody = document.getElementById('pos-inventory-body');
+    const inventoryPlaceholder = document.getElementById('placeholder-msg');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const filter = button.dataset.filter || button.textContent.trim();
+            applyInventoryFilter(filter);
+        });
+    });
+
+    function applyInventoryFilter(filter) {
+        filterButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.filter === filter));
+        const cards = inventoryBody.querySelectorAll('.pos-item-card');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const category = (card.dataset.category || '').toLowerCase();
+            const show = filter === 'All' || category === filter.toLowerCase();
+            card.style.display = show ? '' : 'none';
+            if (show) visibleCount++;
+        });
+
+        if (inventoryPlaceholder) {
+            if (visibleCount === 0 && cards.length > 0) {
+                inventoryPlaceholder.classList.remove('d-none');
+                inventoryPlaceholder.querySelector('p').textContent = '{{ _('No items found for this category.') }}';
+            } else {
+                inventoryPlaceholder.classList.add('d-none');
+                inventoryPlaceholder.querySelector('p').textContent = '{{ _('Search for products to add them to the order') }}';
+            }
+        }
+    }
 
     function addFromSearch(idx) {
         const product = window.lastSearchResults[idx];
@@ -1047,8 +1244,18 @@
         const discount = parseFloat(document.getElementById('discount-input').value) || 0;
         const total = Math.max(subtotal - discount, 0);
 
+        const paid = parseFloat(document.getElementById('paid-input').value) || 0;
+        const balance = paid - total;
+
         document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
         document.getElementById('grand-total').textContent = `$${total.toFixed(2)}`;
+
+        const balanceDisplay = document.getElementById('balance-display');
+        if (balance < 0) {
+            balanceDisplay.innerHTML = `<span class="text-danger fw-bold">-$${Math.abs(balance).toFixed(2)} (Debt)</span>`;
+        } else {
+            balanceDisplay.innerHTML = `<span class="text-success fw-bold">+$${balance.toFixed(2)}</span>`;
+        }
     }
 
     function clearCart() {
@@ -1063,11 +1270,101 @@
         paymentMethod = el.dataset.method;
     }
 
+    // --- Sale Source & Patient Selection ---
+    const sourcePharmacy = document.getElementById('source-pharmacy');
+    const customerSelectArea = document.getElementById('customer-select-area');
+    const pharmacyInputArea = document.getElementById('pharmacy-input-area');
+    const patientSearchInput = document.getElementById('patient-pos-search');
+    const patientResultsDiv = document.getElementById('patient-search-results');
+    const selectedCustomerBox = document.getElementById('selected-customer-box');
+    const selectedCustomerName = document.getElementById('selected-customer-name');
+    const mainCustomerInput = document.getElementById('customer-name');
+
+    function toggleSource() {
+        if (sourcePharmacy.checked) {
+            customerSelectArea.classList.add('d-none');
+            pharmacyInputArea.classList.remove('d-none');
+            mainCustomerInput.value = 'Walk-in Customer';
+        } else {
+            customerSelectArea.classList.remove('d-none');
+            pharmacyInputArea.classList.add('d-none');
+            mainCustomerInput.value = '';
+        }
+    }
+
+    patientSearchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimer);
+        const q = e.target.value.trim();
+        if (q.length < 2) {
+            patientResultsDiv.style.display = 'none';
+            return;
+        }
+        searchTimer = setTimeout(() => performPatientSearch(q), 250);
+    });
+
+    async function performPatientSearch(q) {
+        try {
+            const res = await fetch(`{{ url_for('patients.search') }}?q=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            if (data.patients && data.patients.length > 0) {
+                window.lastPatientResults = data.patients;
+                patientResultsDiv.innerHTML = data.patients.map((p, idx) => `
+                    <div class="result-item" onclick="selectPatient(${idx})">
+                        <div>
+                            <div class="ri-name">${p.full_name}</div>
+                            <div class="ri-meta">ID: ${p.patient_id} &bull; ${p.phone || 'No phone'}</div>
+                        </div>
+                    </div>
+                `).join('');
+                patientResultsDiv.style.display = 'block';
+            } else {
+                patientResultsDiv.innerHTML = `<div class="p-3 text-center text-muted x-small">No patients found. Press Enter to use manual name.</div>`;
+                patientResultsDiv.style.display = 'block';
+            }
+        } catch (err) { console.error(err); }
+    }
+
+    patientSearchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = patientSearchInput.value.trim();
+            if (val) {
+                mainCustomerInput.value = val;
+                selectedCustomerName.textContent = val;
+                selectedCustomerBox.classList.remove('d-none');
+                patientResultsDiv.style.display = 'none';
+                patientSearchInput.value = '';
+            }
+        }
+    });
+
+    function selectPatient(idx) {
+        const p = window.lastPatientResults[idx];
+        mainCustomerInput.value = p.full_name;
+        selectedCustomerName.textContent = p.full_name + ' (' + p.patient_id + ')';
+        selectedCustomerBox.classList.remove('d-none');
+        patientResultsDiv.style.display = 'none';
+        patientSearchInput.value = '';
+    }
+
+    function clearSelectedCustomer() {
+        mainCustomerInput.value = '';
+        selectedCustomerBox.classList.add('d-none');
+    }
+
     // --- Checkout ---
     async function processCheckout() {
         if (cart.length === 0) return;
 
         const btn = document.getElementById('checkout-btn');
+        const source = document.querySelector('input[name="sale_source"]:checked').value;
+        const customer = document.getElementById('customer-name').value;
+
+        if (!customer) {
+            showToast('Please specify a customer or patient', 'warning');
+            return;
+        }
+
         btn.disabled = true;
         btn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i>{{ _("Processing...") }}';
 
@@ -1078,8 +1375,10 @@
                 quantity: item.quantity,
                 price: item.price
             })),
-            customer_name: document.getElementById('customer-name').value || 'Walk-in Customer',
+            customer_name: customer,
+            sale_source: source,
             discount: parseFloat(document.getElementById('discount-input').value) || 0,
+            paid_amount: parseFloat(document.getElementById('paid-input').value) || 0,
             payment_method: paymentMethod
         };
 
@@ -1096,6 +1395,10 @@
             const result = await response.json();
             if (result.status === 'success') {
                 document.getElementById('modal-invoice-num').textContent = result.invoice_number;
+                const printBtn = document.getElementById('print-receipt-btn');
+                printBtn.onclick = () => {
+                    window.open(`{{ url_for('sales.print_receipt', id=0) }}`.replace('/0/', `/${result.sale_id}/`), '_blank');
+                };
                 new bootstrap.Modal(document.getElementById('successModal')).show();
             } else {
                 showToast('Error: ' + result.message, 'danger');

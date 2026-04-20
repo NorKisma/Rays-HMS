@@ -1,0 +1,271 @@
+{% extends "main/base.html" %}
+
+{% block title %}SaaS Global Command Center - Infrastructure Control{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 bg-light-soft min-vh-100">
+    <!-- Header -->
+    <div class="row mb-5 align-items-center">
+        <div class="col">
+            <h6 class="text-primary fw-bold text-uppercase ls-wide mb-1">Infrastructure Control</h6>
+            <h2 class="fw-800 mb-0" style="letter-spacing: -1.5px;">Global SaaS Command Center</h2>
+            <p class="text-muted small mb-0">Managing {{ hospitals|length }} federated healthcare organizations.</p>
+        </div>
+        <div class="col-auto">
+            <div class="d-flex align-items-center gap-3">
+                <div class="btn-group shadow-sm rounded-3 overflow-hidden">
+                    <a href="{{ url_for('saas.api_management') }}" class="btn btn-white border-0 px-3 py-2" title="Infrastructure Settings" data-bs-toggle="tooltip">
+                        <i class="fa fa-sliders-h text-muted"></i>
+                    </a>
+                    <a href="{{ url_for('saas.audit_log') }}" class="btn btn-white border-0 px-3 py-2" title="Platform Audit Trail" data-bs-toggle="tooltip">
+                        <i class="fa fa-history text-info"></i>
+                    </a>
+                </div>
+                <a href="{{ url_for('saas.create_hospital') }}" class="btn btn-primary btn-lg rounded-pill shadow-lg px-4 fw-bold">
+                    <i class="fa fa-plus-circle me-2"></i>Provision New Tenant
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metrics Dashboard -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="metric-card bg-white border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                        <i class="fa fa-hospital"></i>
+                    </div>
+                    <span class="badge bg-soft-success text-success rounded-pill">+12%</span>
+                </div>
+                <h3 class="fw-800 mb-1">{{ stats.total }}</h3>
+                <p class="text-muted small fw-bold text-uppercase mb-0">Total Clients</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card bg-white border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="icon-box bg-success bg-opacity-10 text-success">
+                        <i class="fa fa-check-circle"></i>
+                    </div>
+                    <span class="text-success small fw-bold">Online</span>
+                </div>
+                <h3 class="fw-800 mb-1">{{ stats.active }}</h3>
+                <p class="text-muted small fw-bold text-uppercase mb-0">Active Subs</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card bg-white border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                        <i class="fa fa-crown"></i>
+                    </div>
+                    <span class="text-warning small fw-bold">Tier 1</span>
+                </div>
+                <h3 class="fw-800 mb-1">{{ stats.ent }}</h3>
+                <p class="text-muted small fw-bold text-uppercase mb-0">Enterprise Tiers</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card bg-dark border-0 shadow-lg rounded-4 p-4 text-white">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="icon-box bg-white bg-opacity-10 text-white">
+                        <i class="fa fa-chart-line"></i>
+                    </div>
+                </div>
+                <h3 class="fw-800 mb-1">PRO Tier</h3>
+                <p class="text-white-50 small fw-bold text-uppercase mb-0">{{ stats.pro }} Organizations</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card tenant-card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white py-4 px-4 border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">Tenant Directory</h5>
+            <div class="d-flex gap-2">
+                <div class="input-group input-group-sm" style="width: 250px;">
+                    <span class="input-group-text bg-light border-0 text-muted"><i class="fa fa-search"></i></span>
+                    <input type="text" id="tenantSearch" class="form-control bg-light border-0" placeholder="Search tenants...">
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive" style="overflow-x: auto; overflow-y: visible;">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background: #1e293b; color: #f8fafc;">
+                        <tr>
+                            <th class="px-4 py-3 small text-uppercase fw-bold">Healthcare Entity</th>
+                            <th class="py-3 small text-uppercase fw-bold">Plan & Tier</th>
+                            <th class="py-3 text-center small text-uppercase fw-bold">Module Cluster</th>
+                            <th class="py-3 small text-uppercase fw-bold">Network Slug</th>
+                            <th class="py-3 small text-uppercase fw-bold">Status & Tenure</th>
+                            <th class="text-end px-4 py-3 small text-uppercase fw-bold">Operations</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tenantBody">
+                        {% for hospital in hospitals %}
+                        <tr class="tenant-row border-bottom border-light" data-name="{{ hospital.name|lower }}">
+                            <td class="px-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="tenant-avatar me-3 shadow-sm border border-2 border-white">
+                                        {% if hospital.logo %}
+                                            <img src="{{ url_for('static', filename=hospital.logo) }}" alt="Logo">
+                                        {% else %}
+                                            <div class="avatar-placeholder">{{ hospital.name[0] }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-dark fs-6">{{ hospital.name }}</h6>
+                                        <span class="x-small text-muted font-monospace opacity-75">UUID: #{{ hospital.id }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-3">
+                                {% if hospital.plan == 'enterprise' %}
+                                    <span class="badge bg-gold-soft text-gold border border-gold border-opacity-25 rounded-pill px-3 py-2">
+                                        <i class="fa fa-crown me-1"></i>ENTERPRISE
+                                    </span>
+                                {% elif hospital.plan == 'professional' %}
+                                    <span class="badge bg-soft-primary text-primary rounded-pill px-3 py-2 border border-primary border-opacity-10">
+                                        <i class="fa fa-rocket me-1"></i>PROFESSIONAL
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-light text-muted border rounded-pill px-3 py-2">BASIC TIER</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center py-3">
+                                <div class="module-dots d-inline-flex justify-content-center">
+                                    <span class="dot {{ 'active' if hospital.has_clinical }}" title="Clinical" data-bs-toggle="tooltip"></span>
+                                    <span class="dot {{ 'active' if hospital.has_pos }}" title="POS" data-bs-toggle="tooltip"></span>
+                                    <span class="dot {{ 'active' if hospital.has_pharmacy }}" title="Pharmacy" data-bs-toggle="tooltip"></span>
+                                    <span class="dot {{ 'active' if hospital.has_lab }}" title="Laboratory" data-bs-toggle="tooltip"></span>
+                                    <span class="dot {{ 'active' if hospital.has_accounting }}" title="Accounting" data-bs-toggle="tooltip"></span>
+                                </div>
+                            </td>
+                            <td class="py-3">
+                                <div class="bg-light px-3 py-1 rounded-pill d-inline-block border border-opacity-50">
+                                    <code class="small text-primary fw-bold">/{{ hospital.slug }}</code>
+                                </div>
+                            </td>
+                            <td class="py-3">
+                                <div class="d-flex align-items-center mb-1">
+                                    <div class="h-indicator bg-{{ 'success' if hospital.subscription_status == 'active' else 'danger' }} pulse-{{ 'green' if hospital.subscription_status == 'active' else 'red' }}"></div>
+                                    <span class="ms-2 small fw-800 text-{{ 'success' if hospital.subscription_status == 'active' else 'danger' }} text-uppercase ls-1">
+                                        {{ hospital.subscription_status }}
+                                    </span>
+                                </div>
+                                <div class="text-muted small">
+                                    <i class="fa fa-clock-o me-1 opacity-50"></i>{{ hospital.created_at|format_date }}
+                                </div>
+                            </td>
+                            <td class="text-end px-4 py-3">
+                                <div class="dropdown">
+                                    <button class="btn btn-light btn-sm rounded-circle shadow-sm border p-0 d-flex align-items-center justify-content-center mx-auto me-0" 
+                                            style="width: 32px; height: 32px;" data-bs-toggle="dropdown" data-bs-boundary="viewport">
+                                        <i class="fa fa-ellipsis-v text-muted x-small"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 overflow-hidden" style="min-width: 190px; border: 1px solid rgba(0,0,0,0.05) !important;">
+                                        <li class="px-3 pt-3 pb-1 text-muted x-small fw-bold text-uppercase opacity-50 ls-1">Control Operations</li>
+                                        <li><a class="dropdown-item py-2 px-3 rounded-2 m-1" href="{{ url_for('saas.edit_hospital', id=hospital.id) }}">
+                                            <i class="fa fa-edit me-2 text-primary"></i> Edit Profile
+                                        </a></li>
+                                        <li><a class="dropdown-item py-2 px-3 rounded-2 m-1" href="{{ url_for('saas.impersonate', id=hospital.id) }}">
+                                            <i class="fa fa-user-secret me-2 text-info"></i> Login As Admin
+                                        </a></li>
+                                        <li>
+                                            <form action="{{ url_for('saas.toggle_hospital_status', id=hospital.id) }}" method="POST" class="d-inline">
+                                                <button type="submit" class="dropdown-item py-2 px-3 rounded-2 m-1 {{ 'text-danger' if hospital.subscription_status == 'active' else 'text-success' }}">
+                                                    <i class="fa fa-{{ 'ban' if hospital.subscription_status == 'active' else 'check-circle' }} me-2"></i> 
+                                                    {{ 'Suspend Tenant' if hospital.subscription_status == 'active' else 'Activate Tenant' }}
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-light-soft { background-color: #f8fafc; }
+    .ls-wide { letter-spacing: 0.1em; }
+    .fw-800 { font-weight: 800; }
+    
+    .icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .metric-card { transition: transform 0.3s ease; }
+    .metric-card:hover { transform: translateY(-5px); }
+
+    .tenant-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 2px solid white;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    .tenant-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        background: #0d6efd;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.2rem;
+    }
+
+    .module-dots { display: flex; gap: 4px; }
+    .module-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: #e2e8f0; }
+    .module-dots .dot.active { background: #10b981; box-shadow: 0 0 5px #10b981; }
+
+    .h-indicator { width: 8px; height: 8px; border-radius: 50%; }
+    .pulse-green { animation: pulse-green 1.5s infinite; }
+    .pulse-red { animation: pulse-red 1.5s infinite; }
+    @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+    @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+    .bg-gold-soft { background-color: rgba(212, 175, 55, 0.1); }
+    .text-gold { color: #D4AF37; }
+    .border-gold { border-color: rgba(212, 175, 55, 0.3) !important; }
+
+    .ls-1 { letter-spacing: 0.05em; }
+    .fw-800 { font-weight: 800; }
+
+    .dropdown-item { font-size: 0.85rem; font-weight: 600; color: #475569; }
+    .dropdown-item i { width: 20px; }
+    .dropdown-item:hover { background-color: #f8fafc; color: #0f172a; }
+
+    .table-hover tbody tr:hover { background-color: rgba(0,0,0,0.01); }
+
+    .tenant-card { overflow: visible; }
+    .tenant-card .dropdown { overflow: visible; }
+    .tenant-card .dropdown-menu { z-index: 1500; }
+</style>
+
+<script>
+    document.getElementById('tenantSearch').addEventListener('input', function(e) {
+        let term = e.target.value.toLowerCase();
+        document.querySelectorAll('.tenant-row').forEach(row => {
+            let name = row.getAttribute('data-name');
+            row.style.display = name.includes(term) ? 'table-row' : 'none';
+        });
+    });
+</script>
+{% endblock %}

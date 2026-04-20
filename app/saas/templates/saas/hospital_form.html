@@ -1,0 +1,168 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ 'Modify' if hospital else 'Initialize' }} Organization - SaaS Console{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-primary-600 text-white p-4">
+                    <h3 class="mb-0 font-weight-bold">
+                        <i class="fa {{ 'fa-edit' if hospital else 'fa-rocket' }} me-2"></i>
+                        {{ 'Modify Organization' if hospital else 'Provision New Organization' }}
+                    </h3>
+                    <p class="mb-0 opacity-75">Configure global settings, modules, and scaling options for this tenant.</p>
+                </div>
+                <div class="card-body p-5">
+                    <form method="POST">
+                        <div class="row mb-5">
+                            <div class="col-md-12">
+                                <h5 class="font-weight-bold text-primary mb-4 border-bottom pb-2">1. Identity & Branding</h5>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label font-weight-bold">Hospital/Clinic Name</label>
+                                <input type="text" name="name" class="form-control form-control-lg rounded-3" 
+                                       value="{{ hospital.name if hospital else '' }}" required placeholder="e.g. Rays Central Hospital">
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label font-weight-bold">Deployment Slug (Market Domain)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">/</span>
+                                    <input type="text" name="slug" class="form-control form-control-lg rounded-3 border-start-0" 
+                                           value="{{ hospital.slug if hospital else '' }}" {{ 'readonly' if hospital else '' }} 
+                                           required placeholder="rays-central">
+                                </div>
+                                <small class="text-muted">Unique identifier for this organization's URL space.</small>
+                            </div>
+                        </div>
+
+                        <div class="row mb-5">
+                            <div class="col-md-12">
+                                <h5 class="font-weight-bold text-primary mb-4 border-bottom pb-2">2. Subscription & Modules</h5>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label font-weight-bold">Pricing Plan Tier</label>
+                                <select name="plan" class="form-select form-select-lg rounded-3">
+                                    <option value="free" {{ 'selected' if hospital and hospital.plan == 'free' }}>Free Tier (MVP)</option>
+                                    <option value="professional" {{ 'selected' if hospital and hospital.plan == 'professional' }}>Professional (Growth)</option>
+                                    <option value="enterprise" {{ 'selected' if hospital and hospital.plan == 'enterprise' }}>Enterprise (Full Clinical)</option>
+                                </select>
+                            </div>
+                            {% if hospital %}
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label font-weight-bold">Deployment Status</label>
+                                <select name="status" class="form-select form-select-lg rounded-3">
+                                    <option value="active" {{ 'selected' if hospital.subscription_status == 'active' }}>Active / Running</option>
+                                    <option value="suspended" {{ 'selected' if hospital.subscription_status == 'suspended' }}>Suspended / Frozen</option>
+                                    <option value="expired" {{ 'selected' if hospital.subscription_status == 'expired' }}>Subscription Expired</option>
+                                </select>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="col-12 mt-3">
+                                <label class="form-label font-weight-bold d-block mb-3">Enable System Modules:</label>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="p-3 border rounded-3 bg-light">
+                                            <div class="form-check form-switch mb-0">
+                                                <input class="form-check-input" type="checkbox" name="has_pos" id="modPOS" 
+                                                       {{ 'checked' if not hospital or hospital.has_pos }}>
+                                                <label class="form-check-label font-weight-bold" for="modPOS">Sales & POS Terminal</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="p-3 border rounded-3 bg-light">
+                                            <div class="form-check form-switch mb-0">
+                                                <input class="form-check-input" type="checkbox" name="has_pharmacy" id="modPHA" 
+                                                       {{ 'checked' if not hospital or hospital.has_pharmacy }}>
+                                                <label class="form-check-label font-weight-bold" for="modPHA">Pharmacy & Stock</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="p-3 border rounded-3 bg-light">
+                                            <div class="form-check form-switch mb-0">
+                                                <input class="form-check-input" type="checkbox" name="has_clinical" id="modCLN" 
+                                                       {{ 'checked' if hospital and hospital.has_clinical }}>
+                                                <label class="form-check-label font-weight-bold" for="modCLN">Clinical & Vitals</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="p-3 border rounded-3 bg-light">
+                                            <div class="form-check form-switch mb-0">
+                                                <input class="form-check-input" type="checkbox" name="has_accounting" id="modACC" 
+                                                       {{ 'checked' if hospital and hospital.has_accounting }}>
+                                                <label class="form-check-label font-weight-bold" for="modACC">Full Accounting Hub</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="p-3 border rounded-3 bg-light">
+                                            <div class="form-check form-switch mb-0">
+                                                <input class="form-check-input" type="checkbox" name="has_inventory" id="modINV" 
+                                                       {{ 'checked' if not hospital or hospital.has_inventory }}>
+                                                <label class="form-check-label font-weight-bold" for="modINV">Inventory Tracking</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="p-3 border rounded-3 bg-light">
+                                            <div class="form-check form-switch mb-0">
+                                                <input class="form-check-input" type="checkbox" name="has_lab" id="modLAB" 
+                                                       {{ 'checked' if hospital and hospital.has_lab }}>
+                                                <label class="form-check-label font-weight-bold" for="modLAB">Laboratory Module</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="p-3 border rounded-3 bg-light">
+                                            <div class="form-check form-switch mb-0">
+                                                <input class="form-check-input" type="checkbox" name="has_ipd" id="modIPD" 
+                                                       {{ 'checked' if hospital and hospital.has_ipd }}>
+                                                <label class="form-check-label font-weight-bold" for="modIPD">In-Patient (IPD)</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if not hospital %}
+                        <div class="row mb-5">
+                            <div class="col-md-12">
+                                <h5 class="font-weight-bold text-success mb-4 border-bottom pb-2">3. Initial Administrator Setup</h5>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label font-weight-bold">Admin Full Name</label>
+                                <input type="text" name="admin_name" class="form-control bg-light border-0" required placeholder="e.g. Ali Ahmed">
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label font-weight-bold">Admin Email Address</label>
+                                <input type="email" name="admin_email" class="form-control bg-light border-0" required placeholder="admin@hospital.com">
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label font-weight-bold">Initial Password</label>
+                                <input type="password" name="admin_password" class="form-control bg-light border-0" required placeholder="••••••••">
+                                <small class="text-muted">The user will use this for their first login.</small>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between align-items-center border-top pt-5 mt-5">
+                            <a href="{{ url_for('saas.list_hospitals') }}" class="btn btn-link text-muted p-0 text-decoration-none">
+                                <i class="fa fa-arrow-left me-2"></i>Cancel & Return
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill shadow-lg">
+                                <i class="fa fa-save me-2"></i>{{ 'Execute Changes' if hospital else 'Provision Organization' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

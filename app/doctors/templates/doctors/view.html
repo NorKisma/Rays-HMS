@@ -1,6 +1,6 @@
 {% extends "main/base.html" %}
 
-{% block title %}Faculty Profile - Dr. {{ doctor.first_name }} {{ doctor.last_name }}{% endblock %}
+{% block title %}Staff Profile - {{ doctor.first_name }} {{ doctor.last_name }}{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
@@ -13,10 +13,10 @@
             <div>
                 <a href="{{ url_for('doctors.index') }}"
                     class="text-decoration-none small text-muted hover-primary transition-base">
-                    <i class="fa fa-arrow-left me-1"></i> {% if session.get('lang') == 'so' %}Ku laabo Kulliyadda{% else
-                    %}Back to Faculty{% endif %}
+                    <i class="fa fa-arrow-left me-1"></i> {% if session.get('lang') == 'so' %}Ku laabo Shaqaalaha{% else
+                    %}Back to Staff Directory{% endif %}
                 </a>
-                <h2 class="fw-bold mb-1 mt-1">Dr. {{ doctor.first_name }} {{ doctor.last_name }}</h2>
+                <h2 class="fw-bold mb-1 mt-1">{{ doctor.first_name }} {{ doctor.last_name }}</h2>
                 <div class="d-flex align-items-center gap-2">
                     <span class="badge bg-info-soft text-info text-uppercase text-xs tracking-wide">{{
                         doctor.specialization }}</span>
@@ -203,8 +203,8 @@
                     <div class="p-4 bg-light-soft rounded-3 border border-dashed text-center">
                         <i class="fa fa-quote-left text-muted opacity-25 mb-2 display-6"></i>
                         <p class="text-muted small lh-lg mb-0 fst-italic">
-                            "Professional summary and biographical data are pending verification. This specialist is
-                            currently authorized for clinical operations within the <span class="fw-bold text-dark">{{
+                            "Professional summary and biographical data are pending verification. This staff member is
+                            currently authorized to serve within the <span class="fw-bold text-dark">{{
                                 doctor.specialization }}</span>
                             department."
                         </p>

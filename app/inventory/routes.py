@@ -3,7 +3,10 @@ from flask_login import login_required, current_user
 from app.decorators import permission_required
 from app.extensions import db
 from . import bp
-from app.models import Category, Product, Batch, Inventory, StockLog
+from app.models import (
+    Category, Product, Batch, Inventory, StockLog, Supplier, 
+    PurchaseOrder, PurchaseOrderItem, Account, JournalEntry, JournalItem
+)
 import pandas as pd
 from datetime import datetime
 from .forms import CategoryForm, ProductForm, BatchForm, ImportInventoryForm
@@ -13,7 +16,17 @@ from .forms import CategoryForm, ProductForm, BatchForm, ImportInventoryForm
 @permission_required('view_inventory')
 def index():
     items = Inventory.query.join(Product).filter(Inventory.is_deleted == False).all()
-    return render_template('inventory/index.html', items=items)
+    now = datetime.utcnow().date()
+    return render_template('inventory/index.html', items=items, now=now)
+
+@bp.route('/catalog')
+@login_required
+@permission_required('view_inventory')
+def catalog():
+    # Product Catalog with latest batch info for pricing
+    products = Product.query.filter_by(is_deleted=False).all()
+    categories = Category.query.filter_by(is_deleted=False).all()
+    return render_template('inventory/catalog.html', products=products, categories=categories)
 
 @bp.route('/product/add', methods=['GET', 'POST'])
 @login_required
@@ -34,8 +47,14 @@ def add_product():
 @login_required
 @permission_required('adjust_stock')
 def add_batch():
+    # Check if a product_id is passed for pre-selection
+    preselected_id = request.args.get('product_id', type=int)
+    
     form = BatchForm()
     form.product_id.choices = [(p.id, p.name) for p in Product.query.filter_by(is_deleted=False).all()]
+    
+    if request.method == 'GET' and preselected_id:
+        form.product_id.data = preselected_id
     if form.validate_on_submit():
         batch = Batch(
             product_id=form.product_id.data,
@@ -270,3 +289,169 @@ def alerts():
                            expiring=expiring_batches, 
                            expired=expired_batches,
                            today=today)
+
+@bp.route('/suppliers', methods=['GET', 'POST'])
+@login_required
+@permission_required('view_inventory')
+def suppliers():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        contact = request.form.get('contact_person')
+        phone = request.form.get('phone')
+        email = request.form.get('email')
+        address = request.form.get('address')
+        
+        supplier = Supplier(
+            name=name, contact_person=contact, 
+            phone=phone, email=email, address=address,
+            hospital_id=current_user.hospital_id
+        )
+        db.session.add(supplier)
+        db.session.commit()
+        flash('Supplier added successfully!', 'success')
+        return redirect(url_for('inventory.suppliers'))
+        
+    suppliers = Supplier.query.filter_by(is_deleted=False).all()
+    return render_template('inventory/suppliers.html', suppliers=suppliers)
+
+@bp.route('/purchase-orders')
+@login_required
+@permission_required('view_inventory')
+def list_pos():
+    orders = PurchaseOrder.query.order_by(PurchaseOrder.order_date.desc()).all()
+    return render_template('inventory/list_pos.html', orders=orders)
+
+@bp.route('/purchase-orders/new', methods=['GET', 'POST'])
+@login_required
+@permission_required('add_inventory')
+def create_po():
+    if request.method == 'POST':
+        # Create the Header
+        po = PurchaseOrder(
+            supplier_id=request.form.get('supplier_id'),
+            expected_date=datetime.strptime(request.form.get('expected_date'), '%Y-%m-%d') if request.form.get('expected_date') else None,
+            user_id=current_user.id,
+            status='pending',
+            hospital_id=current_user.hospital_id
+        )
+        db.session.add(po)
+        db.session.flush() # Get PO ID
+        
+        # Add Items (coming from dynamic form fields)
+        product_ids = request.form.getlist('product_id[]')
+        quantities = request.form.getlist('quantity[]')
+        costs = request.form.getlist('cost[]')
+        
+        total = 0
+        for p_id, qty, cost in zip(product_ids, quantities, costs):
+            if not p_id or not qty: continue
+            
+            line_total = float(qty) * float(cost)
+            item = PurchaseOrderItem(
+                order_id=po.id,
+                product_id=p_id,
+                quantity=float(qty),
+                unit_cost=float(cost),
+                line_total=line_total
+            )
+            db.session.add(item)
+            total += line_total
+            
+        po.total_amount = total
+        db.session.commit()
+        flash('Purchase Order created successfully!', 'success')
+        return redirect(url_for('inventory.list_pos'))
+        
+    suppliers = Supplier.query.filter_by(is_deleted=False).all()
+    products = Product.query.filter_by(is_deleted=False).all()
+    return render_template('inventory/create_po.html', suppliers=suppliers, products=products)
+
+@bp.route('/purchase-orders/<int:id>/voucher')
+@login_required
+@permission_required('view_inventory')
+def print_po_voucher(id):
+    po = PurchaseOrder.query.get_or_404(id)
+    return render_template('inventory/print_po_voucher.html', po=po)
+
+
+@bp.route('/purchase-orders/<int:id>/receive', methods=['POST'])
+@login_required
+@permission_required('adjust_stock')
+def receive_po(id):
+    po = PurchaseOrder.query.get_or_404(id)
+    if po.status == 'received':
+        flash('Order already received.', 'warning')
+        return redirect(url_for('inventory.list_pos'))
+        
+    hid = current_user.hospital_id
+    try:
+        total_value = 0
+        # 1. Update Inventory and Create Batches
+        for item in po.items:
+            # Create a new batch for this receipt
+            batch = Batch(
+                product_id=item.product_id,
+                batch_number=f"PO-{po.id}-{item.product_id}",
+                unit_cost=item.unit_cost,
+                selling_price=item.unit_cost * 1.5, # Default markup placeholder
+                status='active',
+                hospital_id=hid
+            )
+            db.session.add(batch)
+            db.session.flush()
+            
+            # Update Inventory
+            inv = Inventory(
+                product_id=item.product_id,
+                batch_id=batch.id,
+                quantity=item.quantity,
+                unit=item.product.base_unit,
+                hospital_id=hid
+            )
+            db.session.add(inv)
+            
+            # Log
+            log = StockLog(
+                product_id=item.product_id,
+                batch_id=batch.id,
+                change_type='Purchase',
+                old_qty=0,
+                new_qty=item.quantity,
+                difference=item.quantity,
+                user_id=current_user.id,
+                note=f"Received from PO #{po.id}",
+                hospital_id=hid
+            )
+            db.session.add(log)
+            total_value += (item.quantity * item.unit_cost)
+            
+        # 2. Accounting Integration (Purchase Receipt)
+        # 1300: Inventory Asset, 1000: Cash/Bank
+        inv_acc = Account.query.filter_by(code='1300', hospital_id=hid).first()
+        cash_acc = Account.query.filter_by(code='1000', hospital_id=hid).first()
+        
+        if inv_acc and cash_acc and total_value > 0:
+            je = JournalEntry(
+                date=datetime.utcnow(),
+                reference=f"PO-RCV-{po.id}",
+                description=f"Purchase Receipt - PO #{po.id:05d} from {po.supplier.name}",
+                user_id=current_user.id,
+                hospital_id=hid
+            )
+            # Dr Inventory Asset
+            je.items.append(JournalItem(account_id=inv_acc.id, debit=total_value, credit=0, hospital_id=hid))
+            # Cr Cash/Bank (Immediate Payment assumption)
+            je.items.append(JournalItem(account_id=cash_acc.id, debit=0, credit=total_value, hospital_id=hid))
+            db.session.add(je)
+
+        po.status = 'received'
+        po.total_amount = total_value
+        db.session.commit()
+        flash(f'Purchase Order #{po.id} received and ledger updated.', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"PO Receipt Error: {e}")
+        flash(f'Error receiving items: {str(e)}', 'danger')
+
+    return redirect(url_for('inventory.list_pos'))

@@ -1,11 +1,16 @@
 <aside class="sidebar" id="sidebar">
   <!-- Brand Header -->
   <div class="sidebar-brand">
-    <div class="sidebar-brand-icon">
-      <i class="fa fa-notes-medical"></i>
+    <div class="sidebar-brand-icon overflow-hidden">
+      {% if current_user.hospital and current_user.hospital.logo %}
+        <img src="{{ url_for('static', filename=current_user.hospital.logo) }}" alt="Logo" 
+             style="width: 100%; height: 100%; object-fit: contain;">
+      {% else %}
+        <i class="fa fa-notes-medical"></i>
+      {% endif %}
     </div>
     <div class="sidebar-brand-text">
-      <span class="brand-name">Rays HMS</span>
+      <span class="brand-name">{{ current_user.hospital.name if current_user.hospital else 'RTC Hospital' }}</span>
       <span class="brand-tagline">Healthcare System</span>
     </div>
   </div>
@@ -24,31 +29,30 @@
       </li>
     </ul>
 
-    <!-- Medical Center Section -->
+    <!-- PATIENT CARE GROUP -->
+    {% if (current_user.hospital and (current_user.hospital.has_clinical or current_user.hospital.has_ipd)) or (current_user.role and current_user.role.name.lower() == 'developer') %}
+    {% set patients_active = 'patients.' in (request.endpoint or '') or 'clinical.queue' == request.endpoint or 'ipd.' in (request.endpoint or '') %}
     <div class="sidebar-section">
-      <div class="sidebar-section-header" data-bs-toggle="collapse" data-bs-target="#menuMedical" aria-expanded="true">
-        <span class="sidebar-section-title">{{ _('Medical Center') }}</span>
+      <div class="sidebar-section-header" data-bs-toggle="collapse" data-bs-target="#menuPatients" aria-expanded="{{ 'true' if patients_active else 'false' }}">
+        <span class="sidebar-section-title"><i class="fa fa-heartbeat me-2"></i>{{ _('PATIENT CARE') }}</span>
         <i class="fa fa-chevron-down sidebar-section-chevron"></i>
       </div>
-      <ul class="sidebar-menu collapse show" id="menuMedical">
+      <ul class="sidebar-menu collapse {{ 'show' if patients_active else '' }}" id="menuPatients">
         {% if current_user.has_permission('view_patients') %}
         <li class="sidebar-item">
           <a href="{{ url_for('patients.index') }}"
-            class="sidebar-link {{ 'active' if 'patients.' in (request.endpoint or '') }}"
-            data-tooltip="{{ _('Patients') }}">
-            <i class="fa fa-hospital-user sidebar-icon"></i>
-            <span class="sidebar-text">{{ _('Patients') }}</span>
+            class="sidebar-link {{ 'active' if 'patients.index' == request.endpoint }}"
+            data-tooltip="{{ _('Patient List') }}">
+            <i class="fa fa-users sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Patient Directory') }}</span>
           </a>
         </li>
-        {% endif %}
-
-        {% if current_user.has_permission('view_doctors') %}
         <li class="sidebar-item">
-          <a href="{{ url_for('doctors.index') }}"
-            class="sidebar-link {{ 'active' if 'doctors.' in (request.endpoint or '') }}"
-            data-tooltip="{{ _('Medical Staff') }}">
-            <i class="fa fa-user-md sidebar-icon"></i>
-            <span class="sidebar-text">{{ _('Medical Staff') }}</span>
+          <a href="{{ url_for('clinical.queue') }}"
+            class="sidebar-link {{ 'active' if 'clinical.queue' == request.endpoint }}"
+            data-tooltip="{{ _('Medical Queue') }}">
+            <i class="fa fa-user-clock sidebar-icon text-info"></i>
+            <span class="sidebar-text">{{ _('Patient Queue') }}</span>
           </a>
         </li>
         {% endif %}
@@ -58,34 +62,8 @@
           <a href="{{ url_for('appointments.index') }}"
             class="sidebar-link {{ 'active' if 'appointments.' in (request.endpoint or '') }}"
             data-tooltip="{{ _('Schedules') }}">
-            <i class="fa fa-calendar-alt sidebar-icon"></i>
+            <i class="fa fa-calendar-check sidebar-icon"></i>
             <span class="sidebar-text">{{ _('Schedules') }}</span>
-          </a>
-        </li>
-        {% endif %}
-
-        {% if current_user.has_permission('view_appointments') %}
-        <li class="sidebar-item">
-          <a href="{{ url_for('lab.index') }}" class="sidebar-link {{ 'active' if request.endpoint == 'lab.index' }}"
-            data-tooltip="{{ _('Laboratory') }}">
-            <i class="fa fa-vials sidebar-icon"></i>
-            <span class="sidebar-text">{{ _('Laboratory') }}</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="{{ url_for('lab.completed') }}"
-            class="sidebar-link {{ 'active' if request.endpoint == 'lab.completed' }}"
-            data-tooltip="{{ _('Lab Results') }}">
-            <i class="fa fa-clipboard-check sidebar-icon"></i>
-            <span class="sidebar-text">{{ _('Lab Results') }}</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="{{ url_for('lab.list_templates') }}"
-            class="sidebar-link {{ 'active' if request.endpoint == 'lab.list_templates' }}"
-            data-tooltip="{{ _('Result Templates') }}">
-            <i class="fa fa-file-medical sidebar-icon"></i>
-            <span class="sidebar-text">{{ _('Result Templates') }}</span>
           </a>
         </li>
         {% endif %}
@@ -100,21 +78,98 @@
       </ul>
     </div>
 
-    <!-- Management Section -->
+    {% endif %}
+
+    <!-- CLINICAL SERVICES GROUP -->
+    {% if (current_user.hospital and (current_user.hospital.has_clinical or current_user.hospital.has_lab)) or (current_user.role and current_user.role.name.lower() == 'developer') %}
+    {% set clinical_active = 'doctors.' in (request.endpoint or '') or 'lab.' in (request.endpoint or '') %}
     <div class="sidebar-section">
-      <div class="sidebar-section-header" data-bs-toggle="collapse" data-bs-target="#menuManagement"
-        aria-expanded="true">
-        <span class="sidebar-section-title">{{ _('Management') }}</span>
+      <div class="sidebar-section-header" data-bs-toggle="collapse" data-bs-target="#menuClinical" aria-expanded="{{ 'true' if clinical_active else 'false' }}">
+        <span class="sidebar-section-title"><i class="fa fa-stethoscope me-2"></i>{{ _('CLINICAL SERVICES') }}</span>
         <i class="fa fa-chevron-down sidebar-section-chevron"></i>
       </div>
-      <ul class="sidebar-menu collapse show" id="menuManagement">
+      <ul class="sidebar-menu collapse {{ 'show' if clinical_active else '' }}" id="menuClinical">
+        {% if current_user.has_permission('view_doctors') %}
+        <li class="sidebar-item">
+          <a href="{{ url_for('doctors.index') }}"
+            class="sidebar-link {{ 'active' if 'doctors.' in (request.endpoint or '') }}"
+            data-tooltip="{{ _('Medical Staff') }}">
+            <i class="fa fa-user-md sidebar-icon text-primary"></i>
+            <span class="sidebar-text">{{ _('Medical Staff') }}</span>
+          </a>
+        </li>
+        {% endif %}
+
+        {% if current_user.has_permission('view_appointments') %}
+        <li class="sidebar-item">
+          <a href="{{ url_for('lab.index') }}" class="sidebar-link {{ 'active' if request.endpoint == 'lab.index' }}"
+            data-tooltip="{{ _('Lab Test Room') }}">
+            <i class="fa fa-vials sidebar-icon text-warning"></i>
+            <span class="sidebar-text">{{ _('Laboratory') }}</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{ url_for('lab.completed') }}"
+            class="sidebar-link {{ 'active' if request.endpoint == 'lab.completed' }}"
+            data-tooltip="{{ _('Verified Results') }}">
+            <i class="fa fa-file-medical-alt sidebar-icon text-success"></i>
+            <span class="sidebar-text">{{ _('Lab Results') }}</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{ url_for('lab.list_templates') }}"
+            class="sidebar-link {{ 'active' if request.endpoint == 'lab.list_templates' }}"
+            data-tooltip="{{ _('Setup Templates') }}">
+            <i class="fa fa-cog sidebar-icon opacity-50"></i>
+            <span class="sidebar-text">{{ _('Result Templates') }}</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+
+    {% endif %}
+
+    <!-- OPERATIONS & FINANCE GROUP -->
+    {% if (current_user.hospital and (current_user.hospital.has_pos or current_user.hospital.has_inventory)) or (current_user.role and current_user.role.name.lower() == 'developer') %}
+    {% set finance_active = 'inventory.' in (request.endpoint or '') or 'sales.' in (request.endpoint or '') or 'billing.' in (request.endpoint or '') %}
+    <div class="sidebar-section">
+      <div class="sidebar-section-header" data-bs-toggle="collapse" data-bs-target="#menuFinance" aria-expanded="{{ 'true' if finance_active else 'false' }}">
+        <span class="sidebar-section-title"><i class="fa fa-cogs me-2"></i>{{ _('OPERATIONS & SALES') }}</span>
+        <i class="fa fa-chevron-down sidebar-section-chevron"></i>
+      </div>
+      <ul class="sidebar-menu collapse {{ 'show' if finance_active else '' }}" id="menuFinance">
         {% if current_user.has_permission('view_inventory') %}
         <li class="sidebar-item">
           <a href="{{ url_for('inventory.index') }}"
-            class="sidebar-link {{ 'active' if 'inventory.' in (request.endpoint or '') }}"
-            data-tooltip="{{ _('Catalog') }}">
-            <i class="fa fa-pills sidebar-icon"></i>
-            <span class="sidebar-text">{{ _('Catalog') }}</span>
+            class="sidebar-link {{ 'active' if request.endpoint == 'inventory.index' }}"
+            data-tooltip="{{ _('Stock Levels') }}">
+            <i class="fa fa-boxes sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Inventory Status') }}</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{ url_for('inventory.list_pos') }}"
+            class="sidebar-link {{ 'active' if 'inventory.list_pos' in request.endpoint or 'inventory.create_po' in request.endpoint }}"
+            data-tooltip="{{ _('Orders') }}">
+            <i class="fa fa-file-invoice sidebar-icon text-primary"></i>
+            <span class="sidebar-text">{{ _('Purchase Orders') }}</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{ url_for('inventory.suppliers') }}"
+            class="sidebar-link {{ 'active' if request.endpoint == 'inventory.suppliers' }}"
+            data-tooltip="{{ _('Vendors') }}">
+            <i class="fa fa-truck-loading sidebar-icon text-warning"></i>
+            <span class="sidebar-text">{{ _('Suppliers') }}</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{ url_for('inventory.catalog') }}"
+            class="sidebar-link {{ 'active' if request.endpoint == 'inventory.catalog' }}"
+            data-tooltip="{{ _('Buying Catalog') }}">
+            <i class="fa fa-book-medical sidebar-icon"></i>
+            <span class="sidebar-text">{{ _('Purchase Catalog') }}</span>
           </a>
         </li>
         {% endif %}
@@ -122,16 +177,16 @@
         {% if current_user.has_permission('view_sales') %}
         <li class="sidebar-item">
           <a href="{{ url_for('sales.pos') }}" class="sidebar-link {{ 'active' if request.endpoint == 'sales.pos' }}"
-            data-tooltip="{{ _('Sales') }}">
-            <i class="fa fa-cash-register sidebar-icon"></i>
-            <span class="sidebar-text">{{ _('Sales') }}</span>
+            data-tooltip="{{ _('Terminal') }}">
+            <i class="fa fa-cash-register sidebar-icon text-success"></i>
+            <span class="sidebar-text">{{ _('Sales POS') }}</span>
           </a>
         </li>
         <li class="sidebar-item">
           <a href="{{ url_for('sales.list_sales') }}"
             class="sidebar-link {{ 'active' if request.endpoint == 'sales.list_sales' }}"
-            data-tooltip="{{ _('Sales History') }}">
-            <i class="fa fa-history sidebar-icon"></i>
+            data-tooltip="{{ _('All Transactions') }}">
+            <i class="fa fa-receipt sidebar-icon"></i>
             <span class="sidebar-text">{{ _('Sales History') }}</span>
           </a>
         </li>
@@ -141,63 +196,78 @@
         <li class="sidebar-item">
           <a href="{{ url_for('billing.index') }}"
             class="sidebar-link {{ 'active' if 'billing.' in (request.endpoint or '') }}"
-            data-tooltip="{{ _('Patient Invoices') }}">
+            data-tooltip="{{ _('Clinic Bills') }}">
             <i class="fa fa-file-invoice-dollar sidebar-icon"></i>
             <span class="sidebar-text">{{ _('Patient Invoices') }}</span>
           </a>
         </li>
         {% endif %}
+      </ul>
+    </div>
 
+    {% endif %}
+
+    <!-- ACCOUNTING & REPORTS -->
+    {% if (current_user.hospital and current_user.hospital.has_accounting) or (current_user.role and current_user.role.name.lower() == 'developer') %}
+    {% set accounting_active = 'accounting.' in (request.endpoint or '') %}
+    <div class="sidebar-section">
+      <div class="sidebar-section-header" data-bs-toggle="collapse" data-bs-target="#menuAccounting" aria-expanded="{{ 'true' if accounting_active else 'false' }}">
+        <span class="sidebar-section-title text-success"><i class="fa fa-money-check-alt me-2"></i>{{ _('FINANCIAL HUB') }}</span>
+        <i class="fa fa-chevron-down sidebar-section-chevron"></i>
+      </div>
+      <ul class="sidebar-menu collapse {{ 'show' if accounting_active else '' }}" id="menuAccounting">
         {% if current_user.has_permission('view_reports') %}
         <li class="sidebar-item">
           <a href="{{ url_for('accounting.dashboard') }}"
             class="sidebar-link {{ 'active' if 'accounting.dashboard' == request.endpoint }}"
-            data-tooltip="{{ _('Accounting Central') }}">
-            <i class="fa fa-calculator sidebar-icon"></i>
+            data-tooltip="{{ _('Central Finance') }}">
+            <i class="fa fa-university sidebar-icon"></i>
             <span class="sidebar-text">{{ _('Accounting Central') }}</span>
           </a>
         </li>
         <li class="sidebar-item">
           <a href="{{ url_for('accounting.list_expenses') }}"
             class="sidebar-link {{ 'active' if 'accounting.list_expenses' == request.endpoint }}"
-            data-tooltip="{{ _('Expense Tracker') }}">
+            data-tooltip="{{ _('Track Expenses') }}">
             <i class="fa fa-wallet sidebar-icon"></i>
             <span class="sidebar-text">{{ _('Expense Tracker') }}</span>
           </a>
         </li>
-        {% endif %}
-
         <li class="sidebar-item">
           <a href="{{ url_for('accounting.profit_loss') }}"
             class="sidebar-link {{ 'active' if 'accounting.profit_loss' == request.endpoint }}"
-            data-tooltip="{{ _('P&L Statements') }}">
+            data-tooltip="{{ _('Summary Report') }}">
             <i class="fa fa-chart-line sidebar-icon"></i>
             <span class="sidebar-text">{{ _('P&L Statements') }}</span>
           </a>
         </li>
+        {% endif %}
       </ul>
     </div>
 
+    {% endif %}
+
     <!-- System Section -->
     {% if current_user.has_permission('manage_users') %}
+    {% set system_active = 'auth.' in (request.endpoint or '') or 'settings.' in (request.endpoint or '') %}
     <div class="sidebar-section">
-      <div class="sidebar-section-header" data-bs-toggle="collapse" data-bs-target="#menuSystem" aria-expanded="true">
-        <span class="sidebar-section-title">{{ _('System') }}</span>
+      <div class="sidebar-section-header" data-bs-toggle="collapse" data-bs-target="#menuSystem" aria-expanded="{{ 'true' if system_active else 'false' }}">
+        <span class="sidebar-section-title"><i class="fa fa-server me-2"></i>{{ _('CORE SYSTEM') }}</span>
         <i class="fa fa-chevron-down sidebar-section-chevron"></i>
       </div>
-      <ul class="sidebar-menu collapse show" id="menuSystem">
+      <ul class="sidebar-menu collapse {{ 'show' if system_active else '' }}" id="menuSystem">
         <li class="sidebar-item">
           <a href="{{ url_for('auth.list_users') }}"
             class="sidebar-link {{ 'active' if 'auth.list_users' in (request.endpoint or '') }}"
-            data-tooltip="{{ _('Security') }}">
-            <i class="fa fa-shield-alt sidebar-icon"></i>
+            data-tooltip="{{ _('Accounts') }}">
+            <i class="fa fa-user-lock sidebar-icon"></i>
             <span class="sidebar-text">{{ _('Security') }}</span>
           </a>
         </li>
         <li class="sidebar-item">
           <a href="{{ url_for('auth.list_roles') }}"
             class="sidebar-link {{ 'active' if 'auth.list_roles' in (request.endpoint or '') }}"
-            data-tooltip="{{ _('Roles & Permissions') }}">
+            data-tooltip="{{ _('Permissions') }}">
             <i class="fa fa-user-tag sidebar-icon"></i>
             <span class="sidebar-text">{{ _('Roles & Permissions') }}</span>
           </a>
@@ -205,9 +275,46 @@
         <li class="sidebar-item">
           <a href="{{ url_for('settings.index') }}"
             class="sidebar-link {{ 'active' if 'settings.' in (request.endpoint or '') }}"
-            data-tooltip="{{ _('Settings') }}">
+            data-tooltip="{{ _('Global Config') }}">
             <i class="fa fa-sliders-h sidebar-icon"></i>
             <span class="sidebar-text">{{ _('Settings') }}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- DEVELOPER MODE (PRIVATE) -->
+    {% if current_user.is_authenticated and current_user.role and current_user.role.name.lower() == 'developer' %}
+    <div class="sidebar-section border-top border-warning border-opacity-10 mt-3 pt-3">
+      {% set dev_active = 'saas.' in (request.endpoint or '') %}
+      <div class="sidebar-section-header" data-bs-toggle="collapse" data-bs-target="#menuDev" aria-expanded="{{ 'true' if dev_active else 'false' }}">
+        <span class="sidebar-section-title text-warning"><i class="fa fa-terminal me-2"></i>{{ _('DEVELOPER CONSOLE') }}</span>
+        <i class="fa fa-chevron-down sidebar-section-chevron"></i>
+      </div>
+      <ul class="sidebar-menu collapse {{ 'show' if dev_active else '' }}" id="menuDev">
+        <li class="sidebar-item">
+          <a href="{{ url_for('saas.system_logs') }}" class="sidebar-link {{ 'active' if request.endpoint == 'saas.system_logs' }}" data-tooltip="{{ _('System Logs') }}">
+            <i class="fa fa-scroll sidebar-icon text-warning"></i>
+            <span class="sidebar-text">{{ _('Debug Logs') }}</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{ url_for('saas.schema_explorer') }}" class="sidebar-link {{ 'active' if request.endpoint == 'saas.schema_explorer' }}" data-tooltip="{{ _('Database Inspection') }}">
+            <i class="fa fa-database sidebar-icon text-warning"></i>
+            <span class="sidebar-text">{{ _('Schema Explorer') }}</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{ url_for('saas.api_management') }}" class="sidebar-link {{ 'active' if request.endpoint == 'saas.api_management' }}" data-tooltip="{{ _('API Config') }}">
+            <i class="fa fa-key sidebar-icon text-warning"></i>
+            <span class="sidebar-text">{{ _('API Management') }}</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{ url_for('saas.list_hospitals') }}" class="sidebar-link" data-tooltip="{{ _('Global SaaS Hub') }}">
+            <i class="fa fa-globe-africa sidebar-icon text-info"></i>
+            <span class="sidebar-text">{{ _('SaaS Command Center') }}</span>
           </a>
         </li>
       </ul>

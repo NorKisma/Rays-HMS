@@ -1,0 +1,97 @@
+{% extends "main/base.html" %}
+
+{% block title %}Inspecting Table: {{ table_name }} - Schema Intelligence{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 bg-light-soft min-vh-100">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('saas.schema_explorer') }}" class="text-decoration-none">Schema Explorer</a></li>
+            <li class="breadcrumb-item active fw-bold text-dark">{{ table_name|capitalize }}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h6 class="text-primary fw-bold text-uppercase ls-wide mb-1">Entity Definition</h6>
+            <h2 class="fw-800 mb-0" style="letter-spacing: -1px;">Table: {{ table_name }}</h2>
+        </div>
+        <div class="d-flex gap-2">
+            <div class="badge bg-white text-dark border rounded-pill px-3 py-2 shadow-sm font-monospace">
+                <i class="fa fa-info-circle me-2 text-primary"></i>STRUCTURE_VERIFIED
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-4 px-4">
+            <h5 class="mb-0 fw-bold">Columns & Constraints Mapping</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light-soft text-muted x-small text-uppercase fw-bold">
+                        <tr>
+                            <th class="px-4">Field Name</th>
+                            <th>Data Type</th>
+                            <th>Identity / Key</th>
+                            <th>Default Value</th>
+                            <th class="text-end px-4">Nullable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for col in columns %}
+                        <tr>
+                            <td class="px-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa fa-columns text-muted me-3 small"></i>
+                                    <span class="fw-bold text-dark font-monospace">{{ col.field }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <code class="bg-light text-primary px-2 py-1 rounded small">{{ col.type }}</code>
+                                {% if col.extra %}
+                                <span class="badge bg-soft-info text-info rounded-pill x-small ms-1">{{ col.extra }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if col.key == 'PRI' %}
+                                <span class="badge bg-soft-warning text-warning border border-warning border-opacity-25 rounded-pill px-3">
+                                    <i class="fa fa-key me-1"></i>PK (Primary)
+                                </span>
+                                {% elif col.key == 'MUL' %}
+                                <span class="badge bg-soft-primary text-primary rounded-pill px-3">
+                                    <i class="fa fa-project-diagram me-1"></i>FK (Indexed)
+                                </span>
+                                {% else %}
+                                <span class="text-muted small">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="font-monospace text-muted small">{{ col.default if col.default is not none else 'NULL' }}</span>
+                            </td>
+                            <td class="text-end px-4">
+                                {% if col.null == 'YES' %}
+                                <span class="text-success small"><i class="fa fa-check-circle me-1"></i>ALLOW_NULL</span>
+                                {% else %}
+                                <span class="text-danger small"><i class="fa fa-times-circle me-1"></i>NOT_NULL</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-light-soft { background-color: #f8fafc; }
+    .ls-wide { letter-spacing: 0.1em; }
+    .fw-800 { font-weight: 800; }
+    .bg-soft-info { background-color: rgba(13, 202, 240, 0.1); }
+    .bg-soft-warning { background-color: rgba(255, 193, 7, 0.1); }
+    .bg-soft-primary { background-color: rgba(13, 110, 253, 0.1); }
+</style>
+{% endblock %}

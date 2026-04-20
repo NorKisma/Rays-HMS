@@ -1,5 +1,5 @@
 from datetime import datetime, date, timedelta
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from app.decorators import permission_required
 from app.extensions import db
@@ -266,3 +266,33 @@ def statement(id):
         t['balance'] = running_balance
         
     return render_template('patients/statement.html', patient=patient, transactions=transactions, now=datetime.now())
+
+@bp.route('/print-chart/<int:id>')
+@login_required
+@permission_required('view_patients')
+def print_chart(id):
+    patient = Patient.query.get_or_404(id)
+    return render_template('patients/print_chart.html', patient=patient)
+
+@bp.route('/search')
+@login_required
+def search():
+    query = request.args.get('q', '')
+    if len(query) < 2:
+        return jsonify({'patients': []})
+    
+    patients = Patient.query.filter(
+        (Patient.first_name.ilike(f'%{query}%')) | 
+        (Patient.last_name.ilike(f'%{query}%')) |
+        (Patient.patient_id.ilike(f'%{query}%')) |
+        (Patient.phone.ilike(f'%{query}%'))
+    ).filter_by(is_deleted=False).limit(10).all()
+    
+    return jsonify({
+        'patients': [{
+            'id': p.id,
+            'patient_id': p.patient_id,
+            'full_name': f"{p.first_name} {p.last_name}",
+            'phone': p.phone
+        } for p in patients]
+    })

@@ -1,33 +1,37 @@
 from app.extensions import db
-from .user import TimestampMixin, SoftDeleteMixin
+from .user import TimestampMixin, SoftDeleteMixin, MultiTenantMixin
 from datetime import datetime
 
-class Category(db.Model, SoftDeleteMixin, TimestampMixin):
+class Category(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     __tablename__ = 'categories'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(255))
     status = db.Column(db.String(20), default='active')
 
-    def __repr__(self):
-        return f"<Category {self.name}>"
-
-class Product(db.Model, SoftDeleteMixin, TimestampMixin):
+class Product(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     __tablename__ = 'products'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
-    barcode = db.Column(db.String(100), unique=True, nullable=True)
+    barcode = db.Column(db.String(100), nullable=True)
     description = db.Column(db.Text, nullable=True)
     base_unit = db.Column(db.String(50), default="unit")
     status = db.Column(db.String(20), default='active')
     
     category = db.relationship('Category', backref=db.backref('products', lazy=True))
 
-    def __repr__(self):
-        return f"<Product {self.name}>"
+class Supplier(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
+    __tablename__ = 'suppliers'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    contact_person = db.Column(db.String(100))
+    phone = db.Column(db.String(50))
+    email = db.Column(db.String(100))
+    address = db.Column(db.Text)
+    status = db.Column(db.String(20), default='active')
 
-class Batch(db.Model, SoftDeleteMixin, TimestampMixin):
+class Batch(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     __tablename__ = 'batches'
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
@@ -39,10 +43,7 @@ class Batch(db.Model, SoftDeleteMixin, TimestampMixin):
 
     product = db.relationship('Product', backref=db.backref('batches', lazy=True))
 
-    def __repr__(self):
-        return f"<Batch {self.batch_number} - Product {self.product_id}>"
-
-class Inventory(db.Model, SoftDeleteMixin, TimestampMixin):
+class Inventory(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     __tablename__ = 'inventory'
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
@@ -54,10 +55,32 @@ class Inventory(db.Model, SoftDeleteMixin, TimestampMixin):
     product = db.relationship('Product', backref=db.backref('inventory', lazy=True))
     batch = db.relationship('Batch', backref=db.backref('inventory_items', lazy=True))
 
-    def __repr__(self):
-        return f"<Inventory Product {self.product_id} Qty {self.quantity}>"
+class PurchaseOrder(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
+    __tablename__ = 'purchase_orders'
+    id = db.Column(db.Integer, primary_key=True)
+    supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id'), nullable=False)
+    order_date = db.Column(db.DateTime, default=datetime.utcnow)
+    expected_date = db.Column(db.DateTime)
+    total_amount = db.Column(db.Float, default=0.0)
+    status = db.Column(db.String(50), default='pending') # pending, received, cancelled
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-class StockLog(db.Model, SoftDeleteMixin, TimestampMixin):
+    supplier = db.relationship('Supplier', backref=db.backref('purchase_orders', lazy=True))
+    user = db.relationship('User', backref=db.backref('purchase_orders', lazy=True))
+
+class PurchaseOrderItem(db.Model):
+    __tablename__ = 'purchase_order_items'
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('purchase_orders.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    quantity = db.Column(db.Float, nullable=False)
+    unit_cost = db.Column(db.Float, nullable=False)
+    line_total = db.Column(db.Float, nullable=False)
+
+    order = db.relationship('PurchaseOrder', backref=db.backref('items', lazy=True))
+    product = db.relationship('Product')
+
+class StockLog(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     __tablename__ = 'stock_logs'
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
@@ -70,5 +93,3 @@ class StockLog(db.Model, SoftDeleteMixin, TimestampMixin):
     note = db.Column(db.String(255), nullable=True)
 
     product = db.relationship('Product', backref=db.backref('stock_logs', lazy=True))
-    def __repr__(self):
-        return f"<StockLog Product {self.product_id} Change {self.change_type}>"

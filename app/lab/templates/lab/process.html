@@ -113,10 +113,37 @@
                     </div>
                 </div>
                 <div class="card-body p-4">
-                    <form method="POST">
+                    <form method="POST" id="main-result-form">
                         {{ form.hidden_tag() }}
 
-                        <div class="mb-4">
+                        <!-- Mode Toggle -->
+                        <div class="d-flex justify-content-end mb-3">
+                            <div class="btn-group btn-group-sm rounded-pill border bg-light p-1 shadow-sm">
+                                <button type="button" class="btn btn-white rounded-pill border-0 shadow-none px-3 active-mode" id="mode-text-btn">
+                                    <i class="fa fa-align-left me-1"></i> Free Text
+                                </button>
+                                <button type="button" class="btn btn-white rounded-pill border-0 shadow-none px-3" id="mode-input-btn">
+                                    <i class="fa fa-list-check me-1"></i> Structured
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Structured Input Area (Hidden initially) -->
+                        <div id="structured-input-container" class="mb-4 d-none">
+                            <div class="p-3 bg-light rounded-4 border">
+                                <h6 class="fw-bold x-small uppercase text-muted mb-3"><i class="fa fa-vials me-2"></i>Parameter Entry</h6>
+                                <div id="dynamic-fields-list">
+                                    <!-- Inputs will be injected here -->
+                                </div>
+                                <div class="mt-4 pt-3 border-top">
+                                    <label class="form-label x-small fw-bold text-muted uppercase">Global Interpretation / Remarks</label>
+                                    <textarea class="form-control border-0 bg-white" rows="3" id="global-remarks" placeholder="Enter clinical interpretation..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Text Area Area -->
+                        <div class="mb-4" id="text-area-container">
                             <label class="form-label small fw-bold text-muted text-uppercase"
                                 style="font-size: 0.65rem;">{{ _('Diagnostic Findings') }}</label>
                             {{ form.result(class="form-control bg-light border-0", rows=14, id="result-area",
@@ -150,53 +177,108 @@
     </div>
 </div>
 
-<style>
-    .text-navy {
-        color: #0047AB;
-    }
-
-    .bg-navy {
-        background-color: #0047AB;
-    }
-
-    .bg-info-soft {
-        background-color: rgba(13, 202, 240, 0.1);
-    }
-</style>
-{% endblock %}
-
-{% block scripts %}
-{{ super() }}
 <script>
+    const resultArea = document.getElementById('result-area');
+    const structuredContainer = document.getElementById('structured-input-container');
+    const textContainer = document.getElementById('text-area-container');
+    const fieldsList = document.getElementById('dynamic-fields-list');
+    const globalRemarks = document.getElementById('global-remarks');
+    
+    const modeTextBtn = document.getElementById('mode-text-btn');
+    const modeInputBtn = document.getElementById('mode-input-btn');
+
+    function toggleMode(toInput) {
+        if (toInput) {
+            structuredContainer.classList.remove('d-none');
+            textContainer.classList.add('d-none');
+            modeInputBtn.classList.add('btn-primary', 'text-white');
+            modeInputBtn.classList.remove('btn-white');
+            modeTextBtn.classList.add('btn-white');
+            modeTextBtn.classList.remove('btn-primary', 'text-white');
+        } else {
+            structuredContainer.classList.add('d-none');
+            textContainer.classList.remove('d-none');
+            modeTextBtn.classList.add('btn-primary', 'text-white');
+            modeTextBtn.classList.remove('btn-white');
+            modeInputBtn.classList.add('btn-white');
+            modeInputBtn.classList.remove('btn-primary', 'text-white');
+        }
+    }
+
+    modeTextBtn.addEventListener('click', () => toggleMode(false));
+    modeInputBtn.addEventListener('click', () => toggleMode(true));
+
+    function syncToText() {
+        const inputs = fieldsList.querySelectorAll('.lab-parameter-input');
+        let output = "";
+        inputs.forEach(input => {
+            const label = input.getAttribute('data-label');
+            const val = input.value || "---";
+            output += `${label}: ${val}\n`;
+        });
+        
+        if (globalRemarks.value) {
+            output += "\n--- INTERPRETATION ---\n" + globalRemarks.value;
+        }
+        
+        resultArea.value = output;
+    }
+
+    globalRemarks.addEventListener('input', syncToText);
+
     function loadTemplate(templateId) {
         fetch('/lab/api/template/' + templateId)
             .then(response => response.json())
             .then(data => {
                 if (data.fields) {
-                    const fields = data.fields.split('\n');
-                    let output = '=== ' + data.name + ' ===\n';
-                    output += ''.padStart(40, '-') + '\n\n';
-                    fields.forEach(function (field) {
-                        if (field.trim()) {
-                            output += field.trim() + ': \n';
-                        }
+                    const fields = data.fields.split('\n').filter(f => f.trim() !== "");
+                    fieldsList.innerHTML = ""; // Clear existing
+                    
+                    fields.forEach(field => {
+                        const row = document.createElement('div');
+                        row.className = "mb-2 row align-items-center";
+                        row.innerHTML = `
+                            <div class="col-6">
+                                <label class="small fw-bold text-dark mb-0">${field.trim()}</label>
+                            </div>
+                            <div class="col-6">
+                                <input type="text" class="form-control form-control-sm lab-parameter-input border-0 bg-white shadow-sm" 
+                                       data-label="${field.trim()}" placeholder="Value">
+                            </div>
+                        `;
+                        fieldsList.appendChild(row);
                     });
-                    output += '\n' + ''.padStart(40, '-') + '\n';
-                    output += 'INTERPRETATION: \n';
-                    output += 'REMARKS: \n';
 
-                    document.getElementById('result-area').value = output;
+                    // Add sync listeners to new inputs
+                    fieldsList.querySelectorAll('.lab-parameter-input').forEach(input => {
+                        input.addEventListener('input', syncToText);
+                    });
+
+                    // Default behavior: Switch to structured mode when template is loaded
+                    toggleMode(true);
+                    syncToText();
                 }
             })
             .catch(err => console.error('Template load error:', err));
     }
 
-    // Event delegation for template options
     document.querySelectorAll('.template-option').forEach(function (el) {
         el.addEventListener('click', function (e) {
             e.preventDefault();
             loadTemplate(this.dataset.templateId);
         });
     });
+
+    // Initialize UI
+    toggleMode(false);
 </script>
-{% endblock %}
+
+<style>
+    .text-navy { color: #0047AB; }
+    .bg-navy { background-color: #0047AB; }
+    .bg-info-soft { background-color: rgba(13, 202, 240, 0.1); }
+    .uppercase { text-transform: uppercase; letter-spacing: 1px; }
+    .x-small { font-size: 0.65rem; }
+    .active-mode { font-weight: bold; }
+</style>
+{% endblock %}

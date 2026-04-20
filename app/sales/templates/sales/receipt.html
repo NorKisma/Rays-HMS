@@ -1,0 +1,140 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Sale Receipt - {{ sale.invoice_number }}{% endblock %}
+
+{% block head %}
+<style>
+    .receipt-wrapper {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 24px;
+    }
+    .receipt-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    .receipt-card {
+        background: white;
+        border-radius: 18px;
+        border: 1px solid #e5e7eb;
+        padding: 24px;
+        box-shadow: 0 12px 30px rgba(15,23,42,0.05);
+    }
+    .receipt-heading {
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+        font-weight: 800;
+    }
+    .receipt-meta span {
+        display: inline-block;
+        min-width: 140px;
+    }
+    .receipt-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    .receipt-table th,
+    .receipt-table td {
+        padding: 12px 14px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .receipt-table th {
+        background: #f8fafc;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .text-right { text-align: right; }
+    .text-muted { color: #64748b; }
+    .receipt-summary {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 16px;
+        margin-top: 24px;
+        align-items: center;
+    }
+    .summary-box {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 16px;
+    }
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        color: #475569;
+    }
+    .summary-item strong { color: #0f172a; }
+    .btn-print {
+        margin-top: 20px;
+    }
+    @media print {
+        .no-print { display: none !important; }
+        body { background: white; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="receipt-wrapper">
+        <div class="receipt-card">
+            <div class="receipt-header">
+                <div>
+                    <div class="receipt-heading">Sale Receipt</div>
+                    <div class="text-muted">Invoice #: <strong>{{ sale.invoice_number }}</strong></div>
+                    <div class="text-muted">Date: <strong>{{ sale.created_at.strftime('%d %b %Y %H:%M') }}</strong></div>
+                </div>
+                <div class="receipt-meta text-right">
+                    <div><span>Customer:</span> {{ sale.customer_name or sale.customer.full_name if sale.customer else 'Walk-in' }}</div>
+                    <div><span>Payment:</span> {{ sale.payment_method }}</div>
+                    <div><span>Cashier:</span> {{ sale.user.name if sale.user else 'N/A' }}</div>
+                    <div><span>Status:</span> {{ sale.status|capitalize }}</div>
+                </div>
+            </div>
+
+            <table class="receipt-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Batch</th>
+                        <th class="text-right">Qty</th>
+                        <th class="text-right">Unit Price</th>
+                        <th class="text-right">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in sale.items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.batch.batch_number if item.batch else '-' }}</td>
+                        <td class="text-right">{{ item.quantity }}</td>
+                        <td class="text-right">${{ '%.2f'|format(item.unit_price) }}</td>
+                        <td class="text-right">${{ '%.2f'|format(item.subtotal) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="receipt-summary">
+                <div class="summary-box">
+                    <div class="summary-item"><span>Subtotal</span><strong>${{ '%.2f'|format(sale.total_amount) }}</strong></div>
+                    <div class="summary-item"><span>Discount</span><strong>${{ '%.2f'|format(sale.discount) }}</strong></div>
+                    <div class="summary-item"><span>Total</span><strong>${{ '%.2f'|format(sale.net_total) }}</strong></div>
+                    <div class="summary-item"><span>Paid</span><strong>${{ '%.2f'|format(sale.paid_amount) }}</strong></div>
+                    <div class="summary-item"><span>Change</span><strong>${{ '%.2f'|format(sale.change_amount) }}</strong></div>
+                </div>
+                <div class="text-right">
+                    <button class="btn btn-primary btn-print no-print" onclick="window.print()">
+                        <i class="fa fa-print me-2"></i>Print Receipt
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -2,7 +2,7 @@ from .extensions import db
 from .models import Role
 
 def seed_roles():
-    roles = ["admin", "staff", "user"]  # <-- Make sure admin exists!
+    roles = ["admin", "staff", "user", "developer"]  # <-- Make sure admin and developer exist!
 
     for r in roles:
         if not Role.query.filter_by(name=r).first():

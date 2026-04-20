@@ -60,13 +60,15 @@ def role_required(*roles):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated:
-                # Redirect to login if not authenticated (handled by Flask-Login)
                 return current_app.login_manager.unauthorized()
 
-            # Check if the user has one of the required roles
-            # Case-insensitive comparison
+            user_role_name = getattr(current_user.role, 'name', '').lower()
+            # Developer role bypass
+            if user_role_name == 'developer':
+                return f(*args, **kwargs)
+
             allowed_roles = [r.lower() for r in roles]
-            if not hasattr(current_user, 'role') or not current_user.role or current_user.role.name.lower() not in allowed_roles:
+            if user_role_name not in allowed_roles:
                 flash("You do not have permission to access this resource.", "danger")
                 return redirect(url_for('main.dashboard'))
 
@@ -133,7 +135,10 @@ def register():
 
     # 🌟 Populate role choices (excluding admin)
     try:
-        available_roles = Role.query.filter(Role.name != "admin").all()
+        if current_user.role.name.lower() == 'developer':
+            available_roles = Role.query.all()
+        else:
+            available_roles = Role.query.filter(Role.name != "admin", Role.name != "developer").all()
         form.role_id.choices = [(r.id, r.name.title()) for r in available_roles]
     except Exception as e:
         current_app.logger.error(f"Error fetching roles: {e}")

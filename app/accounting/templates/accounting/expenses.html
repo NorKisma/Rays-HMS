@@ -48,7 +48,10 @@
                                             }}</small></td>
                                     <td class="text-end fw-bold text-danger">${{ "{:,.2f}".format(exp.amount) }}</td>
                                     <td class="pe-4 text-end">
-                                        <button class="btn btn-light btn-sm rounded-circle"><i
+                                        <a href="{{ url_for('accounting.print_expense', id=exp.id) }}" target="_blank" class="btn btn-light btn-sm rounded-circle me-1 border shadow-sm">
+                                            <i class="fa fa-print text-primary"></i>
+                                        </a>
+                                        <button class="btn btn-light btn-sm rounded-circle border shadow-sm"><i
                                                 class="fa fa-ellipsis-v"></i></button>
                                     </td>
                                 </tr>

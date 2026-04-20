@@ -1,0 +1,146 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Purchase Order Voucher - PO-{{ '%05d'|format(po.id) }}{% endblock %}
+
+{% block head %}
+<style>
+    .voucher-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 24px;
+    }
+    .voucher-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        padding: 24px;
+    }
+    .voucher-header {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: flex-start;
+        margin-bottom: 24px;
+    }
+    .voucher-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+    .voucher-meta dt {
+        font-size: 0.82rem;
+        color: #64748b;
+    }
+    .voucher-meta dd {
+        margin: 0 0 8px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .voucher-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+    }
+    .voucher-table th,
+    .voucher-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .voucher-table th {
+        background: #f8fafc;
+        color: #334155;
+        font-weight: 700;
+    }
+    .text-right { text-align: right; }
+    .voucher-total {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+    }
+    .voucher-total-box {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 16px 20px;
+        width: 320px;
+    }
+    .voucher-total-box div {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-weight: 700;
+    }
+    .voucher-actions {
+        margin-top: 24px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+    @media print {
+        .no-print { display: none !important; }
+        body { background: white; }
+        .voucher-card { box-shadow: none; border-color: transparent; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid voucher-page">
+    <div class="voucher-card">
+        <div class="voucher-header">
+            <div>
+                <div class="voucher-title">Purchase Order Voucher</div>
+                <div class="text-muted">Order #PO-{{ '%05d'|format(po.id) }}</div>
+                <div class="text-muted">Status: <strong>{{ po.status|capitalize }}</strong></div>
+            </div>
+            <dl class="voucher-meta">
+                <dt>Supplier</dt>
+                <dd>{{ po.supplier.name }}</dd>
+                <dt>Order Date</dt>
+                <dd>{{ po.order_date.strftime('%d %b %Y') }}</dd>
+                <dt>Expected Date</dt>
+                <dd>{{ po.expected_date.strftime('%d %b %Y') if po.expected_date else 'TBD' }}</dd>
+                <dt>Created By</dt>
+                <dd>{{ po.user.name if po.user else 'System' }}</dd>
+            </dl>
+        </div>
+
+        <table class="voucher-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="text-right">Qty</th>
+                    <th class="text-right">Unit Cost</th>
+                    <th class="text-right">Line Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in po.items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td class="text-right">{{ item.quantity }}</td>
+                    <td class="text-right">${{ '%.2f'|format(item.unit_cost) }}</td>
+                    <td class="text-right">${{ '%.2f'|format(item.line_total) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="voucher-total">
+            <div class="voucher-total-box">
+                <div><span>Subtotal</span><span>${{ '%.2f'|format(po.total_amount) }}</span></div>
+                <div><span>Tax</span><span>$0.00</span></div>
+                <div><span>Total</span><span>${{ '%.2f'|format(po.total_amount) }}</span></div>
+            </div>
+        </div>
+
+        <div class="voucher-actions no-print">
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fa fa-print me-2"></i>Print Voucher
+            </button>
+            <a href="{{ url_for('inventory.list_pos') }}" class="btn btn-secondary">Back to Orders</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends "main/base.html" %}
+
+{% block title %}Schema Architecture & Table Intelligence{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 bg-light-soft min-vh-100">
+    <div class="row mb-5 align-items-center">
+        <div class="col">
+            <h6 class="text-primary fw-bold text-uppercase ls-wide mb-1">Database Layer</h6>
+            <h2 class="fw-800 mb-0" style="letter-spacing: -1px;">Schema Architecture Explorer</h2>
+        </div>
+        <div class="col-auto">
+            <div class="stats-group d-flex gap-2">
+                <div class="stat-pill">
+                    <span class="lbl">TOTAL ENTITIES:</span>
+                    <span class="val">{{ tables|length }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-4 px-4 border-bottom border-light">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h5 class="mb-0 fw-bold text-dark">Data Dictionary & Row Distribution</h5>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light border-0"><i class="fa fa-search"></i></span>
+                        <input type="text" id="tableSearch" class="form-control bg-light border-0" placeholder="Filter tables by name...">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light-soft text-muted x-small text-uppercase fw-bold">
+                        <tr>
+                            <th class="px-4">Table Name</th>
+                            <th>Storage Health</th>
+                            <th>Row Count</th>
+                            <th>Access Pattern</th>
+                            <th class="text-end px-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schemaBody">
+                        {% for table in tables|sort(attribute='name') %}
+                        <tr class="table-row" data-name="{{ table.name|lower }}">
+                            <td class="px-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-sq me-3 bg-primary bg-opacity-10 text-primary">
+                                        <i class="fa fa-table"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">{{ table.name }}</h6>
+                                        <span class="x-small text-muted font-monospace">MultiTenant_Table</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="width: 200px;">
+                                {% set pct = [ (table.count / 1000 * 100), 100 ]|min %}
+                                <div class="progress rounded-pill" style="height: 6px;">
+                                    <div class="progress-bar bg-{{ 'success' if pct < 20 else 'primary' if pct < 70 else 'warning' }}" 
+                                         role="progressbar" style="width: {{ pct }}%"></div>
+                                </div>
+                                <span class="x-small text-muted mt-1 d-block">Load: {{ pct|round(1) }}%</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-dark">{{ "{:,}".format(table.count) }}</span>
+                                <span class="text-muted ms-1 small">items</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-muted border x-small rounded-pill px-2">READ/WRITE</span>
+                            </td>
+                            <td class="text-end px-4">
+                                <a href="{{ url_for('saas.schema_explorer', table=table.name) }}" 
+                                   class="btn btn-white btn-sm rounded-pill border shadow-sm px-3">
+                                    <i class="fa fa-eye me-2"></i>Inspect Columns
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-light-soft { background-color: #f8fafc; }
+    .ls-wide { letter-spacing: 0.1em; }
+    .fw-800 { font-weight: 800; }
+    
+    .stat-pill {
+        background: #fff;
+        padding: 8px 16px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .stat-pill .lbl { font-size: 0.65rem; color: #64748b; font-weight: 700; }
+    .stat-pill .val { font-size: 1rem; color: #0f172a; font-weight: 800; }
+
+    .icon-sq {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    .table-row { transition: all 0.2s ease; }
+    .table-row:hover { background-color: rgba(0,0,0,0.01); }
+</style>
+
+<script>
+    document.getElementById('tableSearch').addEventListener('input', function(e) {
+        let term = e.target.value.toLowerCase();
+        document.querySelectorAll('.table-row').forEach(row => {
+            let name = row.getAttribute('data-name');
+            row.style.display = name.includes(term) ? 'table-row' : 'none';
+        });
+    });
+</script>
+{% endblock %}

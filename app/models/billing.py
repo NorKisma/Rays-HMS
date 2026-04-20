@@ -1,7 +1,7 @@
 from app.extensions import db
-from .user import TimestampMixin, SoftDeleteMixin
+from .user import TimestampMixin, SoftDeleteMixin, MultiTenantMixin
 
-class Billing(db.Model, SoftDeleteMixin, TimestampMixin):
+class Billing(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     __tablename__ = "billings"
     id = db.Column(db.Integer, primary_key=True)
     invoice_number = db.Column(db.String(20), unique=True, nullable=False) # e.g. INV-0001
@@ -23,7 +23,7 @@ class Billing(db.Model, SoftDeleteMixin, TimestampMixin):
     def __repr__(self):
         return f"<Billing {self.invoice_number} - {self.payment_status}>"
 
-class BillingItem(db.Model, SoftDeleteMixin, TimestampMixin):
+class BillingItem(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     __tablename__ = "billing_items"
     id = db.Column(db.Integer, primary_key=True)
     billing_id = db.Column(db.Integer, db.ForeignKey("billings.id"), nullable=False)

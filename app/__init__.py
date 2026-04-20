@@ -53,6 +53,7 @@ def create_app(config_name=None):
     from .settings import bp as settings_bp
     from .clinical import bp as clinical_bp
     from .ipd import bp as ipd_bp
+    from .saas import saas_bp
 
     # REGISTER BLUEPRINTS
     app.register_blueprint(landing_bp, url_prefix="/")
@@ -72,8 +73,38 @@ def create_app(config_name=None):
     app.register_blueprint(accounting_bp, url_prefix="/accounting")
     app.register_blueprint(clinical_bp, url_prefix="/clinical")
     app.register_blueprint(ipd_bp, url_prefix="/ipd")
+    app.register_blueprint(saas_bp, url_prefix="/saas")
 
     # Make instance folder
     os.makedirs(app.instance_path, exist_ok=True)
+
+    # Global Jinja Filters
+    @app.template_filter('format_date')
+    def format_date(value, format='%d %b, %Y'):
+        if value is None:
+            return ""
+        
+        # Handle invalid 0000-00-00 
+        val_str = str(value)
+        if val_str.startswith('0000-00-00'):
+            return "New Account"
+
+        if isinstance(value, str):
+            try:
+                from dateutil import parser
+                value = parser.parse(value)
+            except:
+                try:
+                    from datetime import datetime
+                    value = datetime.strptime(value.split('.')[0], '%Y-%m-%d %H:%M:%S')
+                except:
+                    try:
+                        value = datetime.strptime(value.split(' ')[0], '%Y-%m-%d')
+                    except:
+                        return value
+        try:
+            return value.strftime(format)
+        except:
+            return str(value)
 
     return app

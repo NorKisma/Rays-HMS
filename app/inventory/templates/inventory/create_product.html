@@ -1,108 +1,513 @@
 {% extends "main/base.html" %}
 
-{% block title %}{{ title }} - Rays HMS{% endblock %}
+{% block title %}{{ title }} — Rays HMS{% endblock %}
+
+{% block head %}
+<style>
+  /* ── Page Hero ──────────────────────────────── */
+  .product-hero {
+    background: linear-gradient(135deg, #0a0f1a 0%, #0f172a 50%, #0d1b2a 100%);
+    border-radius: 20px;
+    padding: 32px 36px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .product-hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .product-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 30%;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(16,185,129,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-icon-wrap {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; color: #fff;
+    box-shadow: 0 6px 20px rgba(59,130,246,0.45);
+    flex-shrink: 0;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(59,130,246,0.12);
+    border: 1px solid rgba(59,130,246,0.25);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #60a5fa;
+    margin-bottom: 10px;
+  }
+
+  /* ── Form Card ──────────────────────────────── */
+  .form-card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.07);
+    border: 1px solid #e8ecf1;
+    overflow: hidden;
+  }
+  .form-card-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 22px 28px 18px;
+    border-bottom: 1px solid #f0f4f8;
+    background: linear-gradient(135deg, #fafbff 0%, #f4f7ff 100%);
+  }
+  .form-card-header-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+  }
+  .form-card-body {
+    padding: 28px 28px 24px;
+  }
+
+  /* ── Field Styling ────────────────────────── */
+  .field-label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 7px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .field-label .label-dot {
+    width: 5px; height: 5px;
+    background: #3b82f6;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .form-control, .form-select {
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    padding: 11px 16px !important;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1e293b;
+    background: #f8fafd !important;
+    transition: all 0.2s ease;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: #3b82f6 !important;
+    background: #fff !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.12) !important;
+    outline: none;
+  }
+  .form-control.is-invalid {
+    border-color: #ef4444 !important;
+    background: #fef2f2 !important;
+  }
+  .invalid-feedback {
+    font-size: 0.78rem;
+    color: #ef4444;
+    margin-top: 5px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .field-hint {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    margin-top: 5px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .field-hint a {
+    color: #3b82f6;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .field-hint a:hover { text-decoration: underline; }
+
+  /* ── Section Divider ──────────────────────── */
+  .section-divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 24px 0 20px;
+  }
+  .section-divider-line {
+    flex: 1; height: 1px;
+    background: linear-gradient(90deg, #e2e8f0, transparent);
+  }
+  .section-divider-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    white-space: nowrap;
+  }
+
+  /* ── Submit Button ────────────────────────── */
+  .btn-save-product {
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 14px 28px;
+    width: 100%;
+    transition: all 0.2s ease;
+    box-shadow: 0 6px 20px rgba(37,99,235,0.35);
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-save-product::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.4s ease;
+  }
+  .btn-save-product:hover::before { left: 100%; }
+  .btn-save-product:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(37,99,235,0.45);
+  }
+  .btn-save-product:active { transform: translateY(0); }
+
+  /* ── Info Panel ───────────────────────────── */
+  .info-panel {
+    background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
+    border-radius: 18px;
+    padding: 28px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+  }
+  .info-panel::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+  }
+  .info-panel-icon-bg {
+    position: absolute;
+    bottom: -30px; left: -20px;
+    font-size: 9rem;
+    color: rgba(255,255,255,0.03);
+    pointer-events: none;
+  }
+  .info-stat {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .info-stat-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+  .info-stat p { margin: 0; }
+
+  /* ── Back Link ────────────────────────────── */
+  .btn-back {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 18px;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    background: #fff;
+    color: #475569;
+    font-size: 0.83rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-back:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+    border-color: #cbd5e1;
+  }
+
+  /* ── Responsive ─────────────────────────────────── */
+  @media (max-width: 768px) {
+    .product-hero { padding: 20px 16px; border-radius: 14px; margin-bottom: 20px; }
+    .product-hero h3 { font-size: 1.25rem; }
+    .product-hero::before, .product-hero::after { display: none; }
+    .form-card-header { padding: 16px; flex-direction: column; align-items: flex-start; gap: 10px; }
+    .form-card-body { padding: 16px; }
+    .info-panel { padding: 20px 16px; margin-top: 16px; }
+    .info-panel-icon-bg { font-size: 6rem; bottom: -10px; left: -10px; }
+    .btn-back { display: none; } /* Hide back button on small screens to save space */
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-0">
-    <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-end mb-5">
-        <div>
-            <h2 class="fw-bold mb-1">{{ title }}</h2>
-            <p class="text-muted mb-0">Define pharmaceutical specifications and SKU classifications.</p>
+<div class="container-fluid px-2">
+
+  <!-- ── Page Hero ── -->
+  <div class="product-hero">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 position-relative" style="z-index:2">
+      <div class="d-flex align-items-center gap-4">
+        <div class="hero-icon-wrap">
+          <i class="fa fa-microscope"></i>
         </div>
         <div>
-            <a href="{{ url_for('inventory.index') }}" class="btn btn-white border shadow-sm btn-sm px-3">
-                <i class="fa fa-arrow-left me-2 text-muted"></i> Back to Portfolio
-            </a>
+          <div class="hero-badge">
+            <i class="fa fa-circle" style="font-size:0.4rem;"></i> Inventory Management
+          </div>
+          <h3 class="fw-bold mb-1 text-white">{{ title }}</h3>
+          <p class="mb-0" style="color:rgba(148,163,184,0.8); font-size:0.85rem;">
+            Register a new pharmaceutical item into the enterprise drug catalog.
+          </p>
         </div>
+      </div>
+      <a href="{{ url_for('inventory.catalog') }}" class="btn-back">
+        <i class="fa fa-arrow-left"></i> Back to Catalog
+      </a>
+    </div>
+  </div>
+
+  <!-- ── Main Layout ── -->
+  <div class="row g-4 align-items-start">
+
+    <!-- ── Form Column ── -->
+    <div class="col-xl-7">
+      <div class="form-card">
+        <div class="form-card-header">
+          <div class="form-card-header-icon">
+            <i class="fa fa-pills"></i>
+          </div>
+          <div>
+            <h6 class="fw-bold mb-0" style="color:#1e293b;">Pharmaceutical Definition</h6>
+            <p class="mb-0" style="font-size:0.75rem; color:#94a3b8;">Complete all fields to register the product.</p>
+          </div>
+        </div>
+
+        <div class="form-card-body">
+          <form method="POST" action="">
+            {{ form.hidden_tag() }}
+
+            <!-- Product Name -->
+            <div class="mb-4">
+              <label class="field-label">
+                <span class="label-dot"></span> Institutional Common Name
+              </label>
+              {{ form.name(
+                class="form-control" + (" is-invalid" if form.name.errors else ""),
+                placeholder="e.g. Paracetamol 500mg, Amoxicillin, IV Dextrose"
+              ) }}
+              {% for error in form.name.errors %}
+                <div class="invalid-feedback"><i class="fa fa-exclamation-circle"></i> {{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <!-- Category & Barcode -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="field-label">
+                  <span class="label-dot"></span> Stock Classification
+                </label>
+                {{ form.category_id(
+                  class="form-select searchable-select",
+                  data_placeholder="Select category",
+                  data_allow_clear="true"
+                ) }}
+                <div class="field-hint">
+                  <i class="fa fa-info-circle"></i>
+                  <a href="{{ url_for('inventory.categories') }}">Configure Categories</a>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="field-label">
+                  <span class="label-dot"></span> System Barcode / SKU
+                </label>
+                <div class="input-group">
+                  {{ form.barcode(
+                    class="form-control",
+                    id="barcodeField",
+                    readonly="readonly",
+                    style="background:#f1f5f9 !important; color:#64748b; font-family:monospace; font-weight:600;"
+                  ) }}
+                  <button type="button" class="btn btn-outline-secondary" onclick="generateSKU()" title="Re-generate SKU" style="border:1.5px solid #e2e8f0; border-radius:0 10px 10px 0; background:#f8fafd;">
+                    <i class="fa fa-sync-alt text-primary"></i>
+                  </button>
+                </div>
+                <div class="field-hint">
+                  <i class="fa fa-robot"></i> Auto-generated — click <i class="fa fa-sync-alt"></i> to regenerate
+                </div>
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="section-divider">
+              <div class="section-divider-line"></div>
+              <span class="section-divider-label">Logistics & Notes</span>
+              <div class="section-divider-line" style="background: linear-gradient(90deg, transparent, #e2e8f0);"></div>
+            </div>
+
+            <!-- Base Unit -->
+            <div class="mb-4">
+              <label class="field-label">
+                <span class="label-dot"></span> Logistical Base Unit
+              </label>
+              <select name="base_unit" id="base_unit" class="form-select">
+                <option value="" disabled>— Select dispensing unit —</option>
+                <optgroup label="Solid / Oral">
+                  <option value="Tablet">💊 Tablet</option>
+                  <option value="Capsule">💊 Capsule</option>
+                  <option value="Sachet">🧃 Sachet</option>
+                  <option value="Suppository">🔵 Suppository</option>
+                </optgroup>
+                <optgroup label="Liquid / Injectable">
+                  <option value="Vial">🧪 Vial</option>
+                  <option value="Ampoule">💉 Ampoule</option>
+                  <option value="Bottle">🍶 Bottle</option>
+                  <option value="500ml Bottle">🍶 500ml Bottle</option>
+                  <option value="1L Bag">🫙 1L IV Bag</option>
+                </optgroup>
+                <optgroup label="Package / Other">
+                  <option value="Box">📦 Box</option>
+                  <option value="Box of 10">📦 Box of 10</option>
+                  <option value="Box of 100">📦 Box of 100</option>
+                  <option value="Strip">📋 Strip</option>
+                  <option value="Roll">🌀 Roll</option>
+                  <option value="Unit">🔢 Unit</option>
+                  <option value="Pair">👐 Pair</option>
+                  <option value="Pack">🗂️ Pack</option>
+                </optgroup>
+              </select>
+              <div class="field-hint mt-2">
+                <i class="fa fa-info-circle"></i> Choose the smallest dispensable unit for stock tracking
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-5">
+              <label class="field-label">
+                <span class="label-dot"></span> Clinical Indications / Description
+              </label>
+              {{ form.description(
+                class="form-control",
+                rows="4",
+                placeholder="Active ingredients, storage requirements, contraindications..."
+              ) }}
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn-save-product">
+              <i class="fa fa-save me-2"></i> Save Product to Catalog
+            </button>
+
+          </form>
+        </div>
+      </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-xl-6">
-            <div class="card border-0 shadow-sm p-4">
-                <div class="card-header bg-white border-bottom-0">
-                    <h6 class="mb-0 fw-bold"><i class="fa fa-microscope text-primary me-2"></i> Pharmaceutical
-                        Definition</h6>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="">
-                        {{ form.hidden_tag() }}
+    <!-- ── Info Panel ── -->
+    <div class="col-xl-5">
+      <div class="info-panel">
+        <i class="fa fa-box-open info-panel-icon-bg"></i>
 
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-muted text-uppercase"
-                                style="font-size: 0.65rem;">Institutional Common Name</label>
-                            {{ form.name(class="form-control bg-light border-0 py-2" + (" is-invalid" if
-                            form.name.errors else ""), placeholder="Generic or Trade Designation") }}
-                            {% for error in form.name.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor
-                            %}
-                        </div>
+        <h5 class="fw-bold mb-2 position-relative" style="z-index:2;">Catalog Master Control</h5>
+        <p class="mb-4 position-relative" style="font-size:0.82rem; color:rgba(148,163,184,0.85); z-index:2; line-height:1.8;">
+          Products defined here become the master baseline for all consignment receipts, sales transactions,
+          and inventory alerts. Accurate classification ensures streamlined financial reporting.
+        </p>
 
-                        <div class="row g-4 mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold text-muted text-uppercase"
-                                    style="font-size: 0.65rem;">Stock Classification</label>
-                                {{ form.category_id(
-                                    class="form-select bg-light border-0 py-2 searchable-select",
-                                    data_placeholder=_('Select category'),
-                                    data_allow_clear="true"
-                                ) }}
-                                <div class="form-text small opacity-50"><i class="fa fa-info-circle me-1"></i> <a
-                                        href="{{ url_for('inventory.categories') }}"
-                                        class="text-decoration-none">Configure Categories</a></div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold text-muted text-uppercase"
-                                    style="font-size: 0.65rem;">System Barcode / SKU</label>
-                                {{ form.barcode(class="form-control bg-light border-0 py-2", placeholder="LOG-SKU-RX")
-                                }}
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-muted text-uppercase"
-                                style="font-size: 0.65rem;">Logistical Base Unit</label>
-                            {{ form.base_unit(class="form-control bg-light border-0 py-2", placeholder="e.g. Unit,
-                            Tablet, Box of 10") }}
-                        </div>
-
-                        <div class="mb-5">
-                            <label class="form-label small fw-bold text-muted text-uppercase"
-                                style="font-size: 0.65rem;">Clinical Indications / Description</label>
-                            {{ form.description(class="form-control bg-light border-0 py-2", rows="3",
-                            placeholder="Active ingredients and storage requirements...") }}
-                        </div>
-
-                        <div class="pt-2">
-                            {{ form.submit(class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow") }}
-                        </div>
-                    </form>
-                </div>
+        <!-- Stats -->
+        <div class="position-relative" style="z-index:2;">
+          <div class="info-stat">
+            <div class="info-stat-icon" style="background:rgba(59,130,246,0.15); color:#60a5fa;">
+              <i class="fa fa-barcode"></i>
             </div>
-        </div>
-
-        <div class="col-xl-5 offset-xl-1">
-            <div class="card border-0 bg-navy text-white shadow-sm p-4 overflow-hidden position-relative mb-4">
-                <div class="position-absolute start-0 bottom-0 opacity-10"
-                    style="transform: translate(-30%, 30%); font-size: 10rem;">
-                    <i class="fa fa-box-open"></i>
-                </div>
-                <div class="position-relative z-1">
-                    <h5 class="fw-bold mb-4">Catalog Master Control</h5>
-                    <p class="small text-white-50 lh-lg mb-5">
-                        Products defined here serve as the baseline for all subsequent consignment receptions.
-                        Accurately classifying medical products ensures streamlined reporting and automated reorder
-                        alerts.
-                    </p>
-                    <div class="p-3 bg-white-10 rounded-4 border-start border-4 border-primary">
-                        <h6 class="small fw-bold mb-1">SKU Generation</h6>
-                        <p class="small text-white-50 mb-0" style="font-size: 0.7rem;">
-                            The system supports international GS1 barcodes. Once a barcode is scanned, the product is
-                            immediately searchable across the enterprise clinical database.
-                        </p>
-                    </div>
-                </div>
+            <div>
+              <p class="fw-bold mb-0" style="font-size:0.83rem;">GS1 Barcode Compatible</p>
+              <p style="font-size:0.72rem; color:rgba(148,163,184,0.7);">International standard supported</p>
             </div>
+          </div>
+
+          <div class="info-stat">
+            <div class="info-stat-icon" style="background:rgba(16,185,129,0.15); color:#34d399;">
+              <i class="fa fa-shield-alt"></i>
+            </div>
+            <div>
+              <p class="fw-bold mb-0" style="font-size:0.83rem;">Multi-Tenant Isolated</p>
+              <p style="font-size:0.72rem; color:rgba(148,163,184,0.7);">Data is scoped to your hospital only</p>
+            </div>
+          </div>
+
+          <div class="info-stat">
+            <div class="info-stat-icon" style="background:rgba(245,158,11,0.15); color:#fbbf24;">
+              <i class="fa fa-bell"></i>
+            </div>
+            <div>
+              <p class="fw-bold mb-0" style="font-size:0.83rem;">Automated Reorder Alerts</p>
+              <p style="font-size:0.72rem; color:rgba(148,163,184,0.7);">Low-stock notifications on every item</p>
+            </div>
+          </div>
+
+          <div class="info-stat">
+            <div class="info-stat-icon" style="background:rgba(139,92,246,0.15); color:#a78bfa;">
+              <i class="fa fa-chart-line"></i>
+            </div>
+            <div>
+              <p class="fw-bold mb-0" style="font-size:0.83rem;">Linked to Financial Ledger</p>
+              <p style="font-size:0.72rem; color:rgba(148,163,184,0.7);">Each purchase auto-posts to accounting</p>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
+
+  </div><!-- /row -->
+</div><!-- /container -->
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // ── Auto-generate SKU ─────────────────────────────────────
+  function generateSKU() {
+    const ts  = Date.now().toString(36).toUpperCase();
+    const rnd = Math.random().toString(36).substring(2, 5).toUpperCase();
+    const sku = 'MED-' + ts + '-' + rnd;
+    const field = document.getElementById('barcodeField');
+    if (field) {
+      field.value = sku;
+      field.style.color = '#1d4ed8';
+      setTimeout(function() { field.style.color = '#64748b'; }, 800);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // Generate SKU if field is empty on load
+    const barcodeField = document.getElementById('barcodeField');
+    if (barcodeField && !barcodeField.value.trim()) {
+      generateSKU();
+    }
+
+    // Restore base_unit selection from server value
+    const buSelect  = document.getElementById('base_unit');
+    const serverVal = "{{ form.base_unit.data or '' }}";
+    if (buSelect && serverVal) {
+      Array.from(buSelect.options).forEach(function(opt) {
+        if (opt.value === serverVal) opt.selected = true;
+      });
+    }
+  });
+</script>
 {% endblock %}

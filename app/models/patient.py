@@ -1,8 +1,8 @@
 from app.extensions import db
-from .user import TimestampMixin, SoftDeleteMixin
+from .user import TimestampMixin, SoftDeleteMixin, MultiTenantMixin
 from datetime import datetime, date
 
-class Patient(db.Model, SoftDeleteMixin, TimestampMixin):
+class Patient(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     __tablename__ = "patients"
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.String(20), unique=True, nullable=False) # e.g. PAT-0001

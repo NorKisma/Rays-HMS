@@ -128,6 +128,28 @@ def create():
                 subtotal=price
             )
             db.session.add(item)
+
+        # ---------------------------------------------------
+        # INTEGRATION: Detailed Lab Tests (Kala-qaadka)
+        # ---------------------------------------------------
+        if billing.appointment:
+            from app.models.lab import LabTest, LabRequest
+            # Find lab requests for this appointment that are pending payment
+            lab_reqs = LabRequest.query.filter_by(appointment_id=billing.appointment_id, status='pending_payment').all()
+            for lr in lab_reqs:
+                # Find matching price in LabTest table
+                lt = LabTest.query.filter_by(name=lr.test_name).first()
+                price = lt.price if lt else Decimal('0.00')
+                
+                item = BillingItem(
+                    billing_id=billing.id,
+                    description=f"Lab Test: {lr.test_name}",
+                    quantity=1,
+                    unit_price=price,
+                    subtotal=price
+                )
+                db.session.add(item)
+                lr.status = 'pending' # Move from pending_payment to pending (waiting for lab tech)
         
         # ---------------------------------------------------
         # INTEGRATION: Auto-create Journal Entry (Accrual Basis)

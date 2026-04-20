@@ -1,7 +1,8 @@
 from app.extensions import db
-from .user import TimestampMixin, SoftDeleteMixin
+from .user import TimestampMixin, SoftDeleteMixin, MultiTenantMixin
 
-class Doctor(db.Model, SoftDeleteMixin, TimestampMixin):
+class Doctor(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
+
     __tablename__ = "doctors"
     id = db.Column(db.Integer, primary_key=True)
     license_number = db.Column(db.String(50), unique=True, nullable=False)
