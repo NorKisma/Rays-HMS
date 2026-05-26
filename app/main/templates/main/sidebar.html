@@ -31,7 +31,7 @@
 
     <!-- PATIENT CARE GROUP -->
     {% if (current_user.hospital and (current_user.hospital.has_clinical or current_user.hospital.has_ipd)) or (current_user.role and current_user.role.name.lower() == 'developer') %}
-    {% set patients_active = 'patients.' in (request.endpoint or '') or 'clinical.queue' == request.endpoint or 'ipd.' in (request.endpoint or '') %}
+    {% set patients_active = 'patients.' in (request.endpoint or '') or 'clinical.queue' == request.endpoint or 'ipd.' in (request.endpoint or '') or 'reception.' in (request.endpoint or '') %}
     <div class="sidebar-section">
       <div class="sidebar-section-header" data-bs-toggle="collapse" data-bs-target="#menuPatients" aria-expanded="{{ 'true' if patients_active else 'false' }}">
         <span class="sidebar-section-title"><i class="fa fa-heartbeat me-2"></i>{{ _('PATIENT CARE') }}</span>
@@ -39,6 +39,14 @@
       </div>
       <ul class="sidebar-menu collapse {{ 'show' if patients_active else '' }}" id="menuPatients">
         {% if current_user.has_permission('view_patients') %}
+        <li class="sidebar-item">
+          <a href="{{ url_for('reception.index') }}"
+            class="sidebar-link {{ 'active' if 'reception.' in (request.endpoint or '') }}"
+            data-tooltip="{{ _('Reception') }}">
+            <i class="fa fa-concierge-bell sidebar-icon text-warning"></i>
+            <span class="sidebar-text">{{ _('Reception') }}</span>
+          </a>
+        </li>
         <li class="sidebar-item">
           <a href="{{ url_for('patients.index') }}"
             class="sidebar-link {{ 'active' if 'patients.index' == request.endpoint }}"
@@ -100,7 +108,7 @@
         </li>
         {% endif %}
 
-        {% if current_user.has_permission('view_appointments') %}
+        {% if current_user.has_permission('add_diagnosis') %}
         <li class="sidebar-item">
           <a href="{{ url_for('lab.index') }}" class="sidebar-link {{ 'active' if request.endpoint == 'lab.index' }}"
             data-tooltip="{{ _('Lab Test Room') }}">

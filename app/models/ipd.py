@@ -18,10 +18,16 @@ class Bed(db.Model, SoftDeleteMixin, TimestampMixin):
     __tablename__ = 'beds'
     id = db.Column(db.Integer, primary_key=True)
     ward_id = db.Column(db.Integer, db.ForeignKey('wards.id'), nullable=False)
+    room_number = db.Column(db.String(20), default='1')  # Room number within the ward
     bed_number = db.Column(db.String(20), nullable=False)
     status = db.Column(db.String(20), default='available') # available, occupied, maintenance
 
     ward = db.relationship('Ward', backref=db.backref('beds', lazy=True, cascade="all, delete-orphan"))
+
+    @property
+    def display_name(self):
+        """Formatted name: Ward - Room X - Sarir Y"""
+        return f"{self.ward.name} → Room {self.room_number} → Sarir {self.bed_number}"
 
     def __repr__(self):
         return f"<Bed {self.bed_number} - {self.status}>"

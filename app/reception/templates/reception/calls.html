@@ -1,0 +1,179 @@
+{% extends "main/base.html" %}
+
+{% block title %}Call & Inquiry Logging - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">{{ _('Call Log') }}</h2>
+            <p class="text-muted mb-0">{{ _('Record and manage incoming inquiries, follow-ups, and booking calls.') }}</p>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary btn-sm px-4 shadow" data-bs-toggle="modal" data-bs-target="#logCallModal">
+                <i class="fa fa-phone me-2"></i> {{ _('Log New Call') }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Table Card -->
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header table-header-blue border-0 pt-3 px-4 pb-3">
+            <h5 class="mb-0 fw-bold">{{ _('Call Activity') }}</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 datatable">
+                    <thead class="table-header-blue">
+                        <tr>
+                            <th class="ps-4">{{ _('Caller') }}</th>
+                            <th>{{ _('Type') }}</th>
+                            <th>{{ _('Category') }}</th>
+                            <th>{{ _('Details') }}</th>
+                            <th>{{ _('Follow-up') }}</th>
+                            <th>{{ _('Timestamp') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for call in calls %}
+                        <tr>
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-light text-dark rounded-circle d-flex align-items-center justify-content-center me-3"
+                                        style="width: 40px; height: 40px; font-weight: bold;">
+                                        {{ call.caller_name[0]|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">{{ call.caller_name }}</div>
+                                        <small class="text-muted"><i class="fa fa-phone me-1"></i>{{ call.phone }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if call.call_type == 'Incoming' %}
+                                    <span class="badge bg-info-soft text-info"><i class="fa fa-arrow-down me-1"></i>{{ _('Incoming') }}</span>
+                                {% else %}
+                                    <span class="badge bg-primary-soft text-primary"><i class="fa fa-arrow-up me-1"></i>{{ _('Outgoing') }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary-soft text-secondary">{{ call.call_category }}</span>
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <strong class="text-dark">{{ call.details }}</strong>
+                                    {% if call.action_taken %}
+                                    <div class="text-muted mt-1" style="font-size: 0.8rem;">
+                                        <i class="fa fa-reply me-1"></i>{{ call.action_taken }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if call.follow_up_required %}
+                                    <span class="badge bg-warning-soft text-warning d-inline-block mb-1">
+                                        <i class="fa fa-clock me-1"></i>{{ _('Required') }}
+                                    </span>
+                                    {% if call.follow_up_date %}
+                                    <div class="small text-muted" style="font-size: 0.75rem;">
+                                        {{ call.follow_up_date.strftime('%b %d, %H:%M') }}
+                                    </div>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-success-soft text-success">{{ _('No') }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="small text-muted">
+                                {{ call.created_at.strftime('%b %d, %H:%M') }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if not calls %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fa fa-phone-slash fa-3x text-light mb-3"></i>
+                                <h6 class="fw-bold">{{ _('No Call Logs') }}</h6>
+                                <p class="small mb-0">{{ _('No phone calls or inquiries logged yet.') }}</p>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Call Modal -->
+<div class="modal fade" id="logCallModal" tabindex="-1" aria-labelledby="logCallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="logCallModalLabel">{{ _('Log New Call / Inquiry') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('reception.calls') }}">
+                {{ form.csrf_token }}
+                <div class="modal-body py-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">{{ form.caller_name.label }}</label>
+                        {{ form.caller_name(class="form-control rounded-3", placeholder="Enter caller name") }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">{{ form.phone.label }}</label>
+                        {{ form.phone(class="form-control rounded-3", placeholder="e.g. +25261xxxxxx") }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted">{{ form.call_type.label }}</label>
+                            {{ form.call_type(class="form-select rounded-3") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted">{{ form.call_category.label }}</label>
+                            {{ form.call_category(class="form-select rounded-3") }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">{{ form.details.label }}</label>
+                        {{ form.details(class="form-control rounded-3", rows="2", placeholder="What did they inquire about?") }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">{{ form.action_taken.label }}</label>
+                        {{ form.action_taken(class="form-control rounded-3", rows="2", placeholder="What actions were taken?") }}
+                    </div>
+                    <div class="mb-3 form-check form-switch pt-2">
+                        {{ form.follow_up_required(class="form-check-input", id="followUpSwitch") }}
+                        <label class="form-check-label fw-bold small text-muted" for="followUpSwitch">{{ form.follow_up_required.label }}</label>
+                    </div>
+                    <div class="mb-0 d-none" id="followUpDateGroup">
+                        <label class="form-label fw-bold small text-muted">{{ form.follow_up_date.label }}</label>
+                        {{ form.follow_up_date(class="form-control rounded-3", type="datetime-local") }}
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light btn-sm rounded-3" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                    {{ form.submit(class="btn btn-primary btn-sm rounded-3 px-4") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const followUpSwitch = document.getElementById("followUpSwitch");
+    const followUpDateGroup = document.getElementById("followUpDateGroup");
+    
+    if (followUpSwitch && followUpDateGroup) {
+        followUpSwitch.addEventListener("change", function() {
+            if (this.checked) {
+                followUpDateGroup.classList.remove("d-none");
+            } else {
+                followUpDateGroup.classList.add("d-none");
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

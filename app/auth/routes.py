@@ -10,7 +10,7 @@ from ..models import User, Role
 # Import from your application
 from . import bp 
 from .forms import LoginForm, RegisterForm, ChangePasswordForm, EditUserForm
-from ..models import User, Role, Permission # Assuming User and Role models are in ../models.py
+from ..models import User, Role, Permission, Doctor # Assuming User and Role models are in ../models.py
 from ..extensions import db, limiter
 from ..utils import log_action
 from .forms import LoginForm, RegisterForm, ChangePasswordForm, EditUserForm, RoleForm
@@ -320,6 +320,16 @@ def edit_user(user_id):
         user.is_active = form.is_active.data
         if hasattr(form, "name"):
             user.name = form.name.data
+            
+        # Keep Doctor (Staff) profile in sync
+        doctor = Doctor.query.filter_by(user_id=user.id).first()
+        if doctor:
+            doctor.email = user.email
+            # Name in User is Full Name, in Doctor it's first_name and last_name
+            name_parts = user.name.split(' ', 1)
+            doctor.first_name = name_parts[0]
+            if len(name_parts) > 1:
+                doctor.last_name = name_parts[1]
 
         db.session.commit()
         log_action(f"User profile edited by {current_user.name}", object_type="User", object_id=user_id)

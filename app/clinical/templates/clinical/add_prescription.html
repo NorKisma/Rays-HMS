@@ -93,10 +93,10 @@
                                 </thead>
                                 <tbody>
                                     <tr class="medication-row">
-                                        <td class="ps-4">
+                                        <td class="ps-4 position-relative">
                                             <input type="text" name="medicine_name[]"
-                                                class="form-control border-0 bg-light" placeholder="e.g. Paracetamol"
-                                                required>
+                                                class="form-control border-0 bg-light medicine-input" placeholder="e.g. Paracetamol"
+                                                autocomplete="off" list="medicineList" required>
                                         </td>
                                         <td>
                                             <input type="text" name="dosage[]" class="form-control border-0 bg-light"
@@ -138,6 +138,9 @@
             </div>
         </div>
     </form>
+    
+    <!-- Datalist for autocomplete -->
+    <datalist id="medicineList"></datalist>
 </div>
 
 <script>
@@ -149,6 +152,7 @@
         newRow.querySelectorAll('input').forEach(input => input.value = '');
 
         tbody.appendChild(newRow);
+        attachAutocomplete(newRow.querySelector('.medicine-input'));
     }
 
     function removeRow(btn) {
@@ -159,6 +163,32 @@
             alert('At least one medicine is required.');
         }
     }
+
+    function attachAutocomplete(input) {
+        let debounceTimer;
+        input.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const query = this.value;
+            if (query.length < 2) return;
+            
+            debounceTimer = setTimeout(() => {
+                fetch('{{ url_for("clinical.api_medicines") }}?q=' + encodeURIComponent(query))
+                    .then(res => res.json())
+                    .then(data => {
+                        const dataList = document.getElementById('medicineList');
+                        dataList.innerHTML = '';
+                        data.forEach(med => {
+                            const option = document.createElement('option');
+                            option.value = med.name;
+                            dataList.appendChild(option);
+                        });
+                    });
+            }, 300);
+        });
+    }
+
+    // Attach to existing inputs
+    document.querySelectorAll('.medicine-input').forEach(attachAutocomplete);
 
     document.getElementById('btnAnalyze').addEventListener('click', function () {
         const diagnosis = document.querySelector('[name="diagnosis"]').value;

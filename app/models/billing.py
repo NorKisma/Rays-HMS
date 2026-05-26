@@ -16,9 +16,11 @@ class Billing(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     balance_amount = db.Column(db.Numeric(10, 2), nullable=False)
     payment_status = db.Column(db.String(20), default="unpaid") # unpaid, partially_paid, paid
     payment_method = db.Column(db.String(50)) # cash, card, insurance, bank_transfer
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     
     patient = db.relationship("Patient", backref=db.backref("billings", lazy=True))
     appointment = db.relationship("Appointment", backref=db.backref("billing", uselist=False))
+    user = db.relationship("User", backref=db.backref("billings", lazy=True))
     
     def __repr__(self):
         return f"<Billing {self.invoice_number} - {self.payment_status}>"

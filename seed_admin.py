@@ -15,8 +15,8 @@ def seed_admin():
     
     with app.app_context():
         # Get admin credentials from environment
-        admin_email = os.getenv('ADMIN_EMAIL', 'admin@rayshms.com')
-        admin_password = os.getenv('ADMIN_PASSWORD', 'admin123')
+        admin_email = os.getenv('ADMIN_EMAIL', 'hms.rays@gmail.com')
+        admin_password = os.getenv('ADMIN_PASSWORD', 'hms1234')
         
         # Check if admin already exists
         existing_admin = User.query.filter_by(email=admin_email).first()

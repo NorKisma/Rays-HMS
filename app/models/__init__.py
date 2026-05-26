@@ -9,9 +9,11 @@ from .appointment import Appointment
 from .billing import Billing, BillingItem
 from .inventory import Category, Product, Batch, Inventory, StockLog, Supplier, PurchaseOrder, PurchaseOrderItem
 from .sale import Sale, SaleItem
-from .lab import LabRequest, LabResultTemplate
+from .lab import LabRequest, LabResultTemplate, LabTest
 from .accounting import Account, JournalEntry, JournalItem, Expense
 from .settings import SystemSetting
 from .service_price import ServicePrice
 from .clinical import PatientVital, Prescription, PrescriptionItem, Triage, ChronicCondition
 from .ipd import Ward, Bed, Admission, NursingNote
+from .reception import VisitorLog, CallLog
+

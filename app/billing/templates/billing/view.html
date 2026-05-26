@@ -123,22 +123,36 @@
                             <span class="text-muted fw-bold">Subtotal</span>
                             <span class="fw-bold text-dark">${{ "%.2f"|format(billing.total_amount) }}</span>
                         </div>
-                        {% if billing.discount %}
+                        {% if billing.discount and billing.discount > 0 %}
                         <div class="d-flex justify-content-between mb-2 text-danger x-small">
                             <span class="fw-bold">Discount</span>
                             <span class="fw-bold">-${{ "%.2f"|format(billing.discount) }}</span>
                         </div>
                         {% endif %}
-                        <div class="d-flex justify-content-between mb-2 border-top border-bottom py-2">
+                        <div class="d-flex justify-content-between mb-2 border-top py-2">
                             <span class="fw-bold text-dark mb-0 small">NET PAYABLE</span>
                             <span class="fw-bold text-primary mb-0 small">${{ "%.2f"|format(billing.net_amount) }}</span>
                         </div>
+
+                        {% if billing.paid_amount and billing.paid_amount > 0 %}
+                        <div class="d-flex justify-content-between mb-2 x-small border-bottom pb-2">
+                            <span class="text-muted fw-bold">Amount Paid</span>
+                            <span class="fw-bold text-success">-${{ "%.2f"|format(billing.paid_amount) }}</span>
+                        </div>
+                        {% endif %}
                         
                         <div class="mb-2">
-                            <div class="p-2 bg-light rounded-3 d-flex justify-content-between align-items-center">
-                                <span class="fw-bold text-uppercase x-small text-muted">Balance Due</span>
+                            {% if billing.payment_status == 'paid' or (billing.balance_amount is not none and billing.balance_amount <= 0) %}
+                            <div class="p-2 bg-success bg-opacity-10 rounded-3 d-flex justify-content-between align-items-center border border-success border-opacity-25">
+                                <span class="fw-bold text-uppercase x-small text-success"><i class="fa fa-check-circle me-1"></i>Fully Paid</span>
+                                <span class="fw-bold text-success mb-0">$0.00</span>
+                            </div>
+                            {% else %}
+                            <div class="p-2 bg-danger bg-opacity-10 rounded-3 d-flex justify-content-between align-items-center border border-danger border-opacity-25">
+                                <span class="fw-bold text-uppercase x-small text-danger"><i class="fa fa-exclamation-circle me-1"></i>Balance Due</span>
                                 <span class="fw-bold text-danger mb-0">${{ "%.2f"|format(billing.balance_amount) }}</span>
                             </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

@@ -7,8 +7,8 @@
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-end mb-5">
         <div>
-            <h2 class="fw-bold mb-1">{{ title }}</h2>
-            <p class="text-muted mb-0">Onboard new staff members and clinical personnel into your healthcare team.</p>
+            <h2 class="fw-bold mb-1">{{ title }} (Diiwaangeli Shaqaale Cusub)</h2>
+            <p class="text-muted mb-0">Onboard new staff members and clinical personnel. (Kudar dhakhaatiir iyo shaqaale cusub nidaamka)</p>
         </div>
         <div>
             <a href="{{ url_for('doctors.index') }}" class="btn btn-white border shadow-sm btn-sm px-3">
@@ -25,26 +25,26 @@
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-white border-bottom-0 pt-4 px-4">
                         <h6 class="mb-0 fw-bold"><i class="fa fa-graduation-cap me-2 text-primary"></i> Professional
-                            Credentials</h6>
+                            Credentials (Aqoonsiga & Khibradda)</h6>
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <label class="form-label-small">First Name</label>
+                                <label class="form-label-small">First Name / Magaca Kowaad</label>
                                 {{ form.first_name(class="form-control form-control-premium" + (" is-invalid" if
                                 form.first_name.errors else ""), placeholder="e.g. Abdullahi") }}
                                 {% for error in form.first_name.errors %}<div class="invalid-feedback">{{ error }}</div>
                                 {% endfor %}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-small">Last Name</label>
+                                <label class="form-label-small">Last Name / Magaca Dambe</label>
                                 {{ form.last_name(class="form-control form-control-premium" + (" is-invalid" if
                                 form.last_name.errors else ""), placeholder="e.g. Mohamed") }}
                                 {% for error in form.last_name.errors %}<div class="invalid-feedback">{{ error }}</div>
                                 {% endfor %}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-small">Clinical Specialization</label>
+                                <label class="form-label-small">Clinical Specialization / Taqasuska</label>
                                 {{ form.specialization(
                                     class="form-select form-select-premium searchable-select" + (" is-invalid" if
                                     form.specialization.errors else ""),
@@ -55,25 +55,25 @@
                                 </div>{% endfor %}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-small">License Number</label>
+                                <label class="form-label-small">License Number / Laysinka</label>
                                 {{ form.license_number(class="form-control form-control-premium" + (" is-invalid" if
                                 form.license_number.errors else ""), placeholder="MED-RX-9920") }}
                                 {% for error in form.license_number.errors %}<div class="invalid-feedback">{{ error }}
                                 </div>{% endfor %}
                             </div>
                             <div class="col-12">
-                                <label class="form-label-small">Academic Qualifications</label>
+                                <label class="form-label-small">Academic Qualifications / Shahaadooyinka</label>
                                 {{ form.qualification(class="form-control form-control-premium", placeholder="MBBS, MD,
                                 PhD
                                 in Cardiology, etc.") }}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-small">Years of Experience</label>
+                                <label class="form-label-small">Years of Experience / Khibradda (Sano)</label>
                                 {{ form.experience_years(class="form-control form-control-premium", type="number",
                                 placeholder="0") }}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-small">Consultation Fee ($)</label>
+                                <label class="form-label-small">Consultation Fee ($) / Lacagta Bukaanka</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-0 text-muted fw-bold">$</span>
                                     {{ form.consultation_fee(class="form-control form-control-premium", type="number",
@@ -87,22 +87,22 @@
                 <!-- Contact & Availability -->
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-white border-bottom-0 pt-4 px-4">
-                        <h6 class="mb-0 fw-bold"><i class="fa fa-clock me-2 text-primary"></i> Availability & Contact
+                        <h6 class="mb-0 fw-bold"><i class="fa fa-clock me-2 text-primary"></i> Availability & Contact (Xiriirka & Waqtiga)
                         </h6>
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <label class="form-label-small">Institutional Email</label>
+                                <label class="form-label-small">Institutional Email / Iimaylka</label>
                                 {{ form.email(class="form-control form-control-premium",
                                 placeholder="staff.name@hospital.com") }}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-small">Contact Number</label>
+                                <label class="form-label-small">Contact Number / Telefoonka</label>
                                 {{ form.phone(class="form-control form-control-premium", placeholder="+252 ...") }}
                             </div>
                             <div class="col-12">
-                                <label class="form-label-small">Shift Status</label>
+                                <label class="form-label-small">Shift Status / Xaalada Shaqada</label>
                                 {{ form.availability_status(
                                     class="form-select form-select-premium searchable-select",
                                     data_placeholder=_('Select status'),
@@ -120,8 +120,8 @@
                     <div class="avatar-xl-soft mb-4">
                         <i class="fa fa-user-shield"></i>
                     </div>
-                    <h5 class="fw-bold mb-3">Initialize Staff Record</h5>
-                    <p class="small text-white-50 mb-5">Ensure all credentials and contact details have been verified by HR before proceeding.</p>
+                    <h5 class="fw-bold mb-3">Save Staff / Diiwaangeli</h5>
+                    <p class="small text-white-50 mb-5">Hubi in dhammaan xogta iyo aqoonsiga uu xaqiijiyay xafiiska shaqaalaha (HR) ka hor inta aadan keydin.</p>
                     {{ form.submit(class="btn btn-primary btn-lg w-100 py-3 rounded-pill fw-bold shadow") }}
                     <div class="mt-4 p-3 bg-white-10 rounded-4 text-start">
                         <h6 class="small fw-bold mb-2"><i class="fa fa-info-circle me-1"></i> Data Integrity</h6>

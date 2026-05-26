@@ -271,3 +271,22 @@ def add_expense():
 def print_expense(id):
     expense = Expense.query.get_or_404(id)
     return render_template('accounting/print_expense.html', exp=expense)
+
+# ---------------------------------------------------------
+# UI Mockup Routes
+# ---------------------------------------------------------
+@bp.route('/transactions')
+@login_required
+def transactions():
+    return render_template('accounting/transactions.html')
+
+@bp.route('/transfer')
+@login_required
+def transfer():
+    return render_template('accounting/transfer.html')
+
+@bp.route('/budget')
+@login_required
+def budget():
+    return render_template('accounting/budget.html')
+

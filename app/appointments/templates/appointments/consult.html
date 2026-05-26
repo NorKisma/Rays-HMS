@@ -103,13 +103,18 @@
                 </div>
 
                 <div class="card shadow-sm border-0 mb-4 border-start border-success border-4">
-                    <div class="card-header bg-white">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <h5 class="mb-0 text-success">Prescription & Advice</h5>
+                        <div class="input-group input-group-sm" style="max-width: 300px;">
+                            <span class="input-group-text bg-light border-0"><i class="fa fa-search text-muted"></i></span>
+                            <input type="text" class="form-control border-0 bg-light" id="medSearchInput" placeholder="Search medicine to add..." list="consultMedicineList" autocomplete="off">
+                            <button class="btn btn-success" type="button" id="btnAddMed"><i class="fa fa-plus"></i> Add</button>
+                        </div>
                     </div>
                     <div class="card-body">
-                        {{ form.prescription(class="form-control", rows="4", placeholder="Enter medications, dosage, and
-                        patient instructions...") }}
+                        {{ form.prescription(class="form-control", rows="6", placeholder="Enter medications, dosage, and patient instructions...", id="prescriptionArea") }}
                     </div>
+                    <datalist id="consultMedicineList"></datalist>
                 </div>
 
                 <!-- NEW: Plan & Orders -->
@@ -169,6 +174,51 @@
 
         // Change Listener
         actionSelect.addEventListener('change', toggleLabFields);
+
+        // Medicine Autocomplete
+        const medSearchInput = document.getElementById('medSearchInput');
+        const consultMedicineList = document.getElementById('consultMedicineList');
+        const btnAddMed = document.getElementById('btnAddMed');
+        const prescriptionArea = document.getElementById('prescriptionArea');
+        let debounceTimer;
+
+        medSearchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const query = this.value;
+            if (query.length < 2) return;
+            
+            debounceTimer = setTimeout(() => {
+                fetch('{{ url_for("clinical.api_medicines") }}?q=' + encodeURIComponent(query))
+                    .then(res => res.json())
+                    .then(data => {
+                        consultMedicineList.innerHTML = '';
+                        data.forEach(med => {
+                            const option = document.createElement('option');
+                            option.value = med.name;
+                            consultMedicineList.appendChild(option);
+                        });
+                    });
+            }, 300);
+        });
+
+        btnAddMed.addEventListener('click', function() {
+            const medName = medSearchInput.value.trim();
+            if (medName) {
+                const currentText = prescriptionArea.value;
+                const prefix = currentText && !currentText.endsWith('\n') ? '\n' : '';
+                prescriptionArea.value = currentText + prefix + '- ' + medName + ' : ';
+                medSearchInput.value = '';
+                prescriptionArea.focus();
+            }
+        });
+
+        // Also add on enter press
+        medSearchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                btnAddMed.click();
+            }
+        });
     });
 </script>
 

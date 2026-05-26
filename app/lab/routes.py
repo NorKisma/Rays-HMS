@@ -38,8 +38,12 @@ def process(id):
         if pending_count == 0:
             req.appointment.status = 'lab_review'
             db.session.commit()
-            
-        flash('Results submitted. Returned to Doctor.', 'success')
+        
+        flash('Results submitted successfully.', 'success')
+        
+        # If "Save & Print" was clicked, redirect to print page (auto-print)
+        if request.form.get('print_after') == '1':
+            return redirect(url_for('lab.print_report', id=req.id, autoprint=1))
         return redirect(url_for('lab.index'))
         
     return render_template('lab/process.html', form=form, request=req, templates=templates)
@@ -48,7 +52,7 @@ def process(id):
 @login_required
 def print_report(id):
     req = LabRequest.query.get_or_404(id)
-    if req.status != 'completed':
+    if req.status not in ('completed', 'reviewed'):
         flash('Report is not yet completed.', 'warning')
         return redirect(url_for('lab.index'))
     return render_template('lab/print_report.html', req=req)

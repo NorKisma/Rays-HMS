@@ -1,0 +1,42 @@
+{% extends "main/base.html" %}
+
+{% block title %}Budget - Enterprise ERP{% endblock %}
+
+{% block content %}
+{% include 'accounting/_nav.html' %}
+
+<div class="container-fluid bg-light min-vh-100 py-4" style="background-color: #f8f9fc !important;">
+    
+    <!-- Top Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+        <h4 class="fw-bold mb-0 text-dark" style="letter-spacing: -0.5px;">Budget</h4>
+    </div>
+
+    <!-- Main Content -->
+    <div class="card border-0 shadow-sm rounded-4 mx-2" style="border-radius: 12px !important;">
+        <div class="card-body p-4">
+            <div class="text-end mb-4">
+                <button class="btn btn-primary fw-bold px-4 shadow-sm" style="border-radius: 20px !important; background-color: #4b61ff; border-color: #4b61ff;">
+                    <i class="fa fa-plus me-2"></i> Add
+                </button>
+            </div>
+            
+            <div class="mb-5">
+                <label class="form-label fw-bold text-dark small">Financial year for the budget</label>
+                <select class="form-select bg-light border-0" style="max-width: 300px; height: 40px; border-radius: 6px;">
+                    <option></option>
+                </select>
+            </div>
+            
+            <div class="text-center py-5 mt-4">
+                <p class="text-muted" style="font-size: 1.1rem;">Select a financial year to view the budget</p>
+            </div>
+
+        </div>
+    </div>
+    
+    <div class="text-center mt-4">
+        <small class="text-muted">Multi Branch POS - V7.4 | Copyright &copy; 2026 All rights reserved.</small>
+    </div>
+</div>
+{% endblock %}

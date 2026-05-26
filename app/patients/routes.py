@@ -6,7 +6,7 @@ from app.extensions import db
 from . import bp
 from decimal import Decimal
 
-from app.models import Patient, Doctor, Appointment, Billing, BillingItem, SystemSetting
+from app.models import Patient, Doctor, Appointment, Billing, BillingItem, SystemSetting, Account, JournalEntry, JournalItem
 from .forms import PatientForm, CheckInForm
 
 @bp.route('/')
@@ -38,6 +38,13 @@ def checkin(patient_id):
         except Exception:
             card_fee = float(default_fee)
         
+        # Extract immediate payment settings
+        is_paid = form.pay_immediately.data == 'yes'
+        pay_method = form.payment_method.data if is_paid else None
+        paid_amt = card_fee if is_paid else 0.0
+        bal_amt = 0.0 if is_paid else card_fee
+        pay_status = 'paid' if is_paid else 'unpaid'
+
         # Generate Invoice Number
         import time
         inv_num = f"INV-{int(time.time())}"
@@ -47,8 +54,12 @@ def checkin(patient_id):
             patient_id=patient.id,
             total_amount=card_fee,
             net_amount=card_fee,
-            balance_amount=card_fee,
-            payment_status='unpaid'
+            paid_amount=paid_amt,
+            balance_amount=bal_amt,
+            payment_status=pay_status,
+            payment_method=pay_method,
+            hospital_id=current_user.hospital_id,
+            user_id=current_user.id
         )
         db.session.add(billing)
         db.session.flush() # Get ID
@@ -58,7 +69,8 @@ def checkin(patient_id):
             description="Consultation Card / Registration Fee",
             quantity=1,
             unit_price=card_fee,
-            subtotal=card_fee
+            subtotal=card_fee,
+            hospital_id=current_user.hospital_id
         )
         db.session.add(item)
         
@@ -73,17 +85,56 @@ def checkin(patient_id):
             appointment_date=datetime.now(),
             status='waiting_room', # Reception Check-in Status
             reason=form.notes.data,
-            billing=billing # Link billing if model supports it (we checked, it connects via backref 'billing' on Appointment side? No, Appointment has 'billing' backref from Billing model? Billing has 'appointment_id')
+            hospital_id=current_user.hospital_id,
+            user_id=current_user.id
         )
-        # Wait, Billing has appointment_id. link it after flushing appointment.
         db.session.add(appointment)
         db.session.flush()
         
         billing.appointment_id = appointment.id
+
+        # ---------------------------------------------------
+        # INTEGRATION: Auto-create Journal Entry (Accrual Basis)
+        # ---------------------------------------------------
+        try:
+            # 1. Credit Revenue (Sales) with the Net Amount
+            revenue_acc = Account.query.filter_by(code='4000', hospital_id=current_user.hospital_id).first() # Sales Revenue
+            
+            # 2. Debit Cash/AR
+            cash_acc = Account.query.filter_by(code='1000', hospital_id=current_user.hospital_id).first() # Cash
+            ar_acc = Account.query.filter_by(code='1200', hospital_id=current_user.hospital_id).first()   # Accounts Receivable
+            
+            if revenue_acc and cash_acc and ar_acc:
+                je = JournalEntry(
+                    date=datetime.utcnow(),
+                    reference=inv_num,
+                    description=f"Check-In Card Fee Invoice for Patient {patient.full_name}",
+                    user_id=current_user.id,
+                    hospital_id=current_user.hospital_id
+                )
+                
+                # Credit Sales (Income)
+                je.items.append(JournalItem(account_id=revenue_acc.id, credit=card_fee, debit=0, hospital_id=current_user.hospital_id))
+                
+                # Debits
+                if paid_amt > 0:
+                    je.items.append(JournalItem(account_id=cash_acc.id, debit=paid_amt, credit=0, hospital_id=current_user.hospital_id))
+                
+                if bal_amt > 0:
+                    je.items.append(JournalItem(account_id=ar_acc.id, debit=bal_amt, credit=0, hospital_id=current_user.hospital_id))
+                
+                db.session.add(je)
+        except Exception as e:
+            print(f"Accounting Integration Error during Check-In: {e}")
+
         db.session.commit()
         
-        flash(f'Patient checked in successfully! Invoice {inv_num} generated.', 'success')
-        return redirect(url_for('billing.view', id=billing.id)) # Redirect to pay
+        if is_paid:
+            flash(f'Patient checked in and card fee of ${card_fee:.2f} paid successfully! Invoice {inv_num} registered.', 'success')
+            return redirect(url_for('patients.index'))
+        else:
+            flash(f'Patient checked in successfully! Unpaid Invoice {inv_num} generated.', 'success')
+            return redirect(url_for('billing.view', id=billing.id)) # Redirect to pay at cashier desk
 
     # For initial render (GET) we still want to show the configured fee
     default_fee = Decimal("5.00")

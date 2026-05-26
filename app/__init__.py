@@ -70,7 +70,9 @@ def create_app(config_name=None):
     app.register_blueprint(settings_bp, url_prefix="/settings")
 
     from .accounting import bp as accounting_bp
+    from .reception import bp as reception_bp
     app.register_blueprint(accounting_bp, url_prefix="/accounting")
+    app.register_blueprint(reception_bp, url_prefix="/reception")
     app.register_blueprint(clinical_bp, url_prefix="/clinical")
     app.register_blueprint(ipd_bp, url_prefix="/ipd")
     app.register_blueprint(saas_bp, url_prefix="/saas")

@@ -12,12 +12,14 @@ class BillingForm(FlaskForm):
     patient_id = SelectField('Patient', coerce=int, validators=[DataRequired()])
     appointment_id = SelectField('Linked Appointment', coerce=int, validators=[Optional()])
     
-    # Multiple service selection with checkboxes
     service_types = SelectMultipleField('Service Types', choices=[
         ('Consultation', 'Consultation (Talo-siin) - $5.00'), 
         ('Computer Service', 'Computer Service (Adeegga Computer-ka) - $10.00'),
         ('Laboratory', 'Laboratory (Shaybaarka) - $15.00'),
         ('Ultrasound', 'Ultrasound (Raajo) - $20.00'),
+        ('Card_General', 'General Card (Kaarka Caadiga ah) - $3.00'),
+        ('Card_Specialist', 'Specialist Card (Kaarka Khaska ah) - $10.00'),
+        ('Card_Emergency', 'Emergency Card (Kaarka Degdegga ah) - $5.00'),
         ('Other', 'Other (Kuwa Kale)')
     ], widget=ListWidget(prefix_label=False), option_widget=CheckboxInput(), validators=[DataRequired()])
     

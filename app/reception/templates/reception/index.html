@@ -1,0 +1,318 @@
+{% extends "main/base.html" %}
+
+{% block title %}Reception Dashboard - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">{{ _('Reception Central') }}</h2>
+            <p class="text-muted mb-0">{{ _('Lobby Management, Visitor Tracking, and Call Logs.') }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('reception.visitors') }}" class="btn btn-outline-primary btn-sm px-3 border shadow-sm">
+                <i class="fa fa-walking me-2"></i> {{ _('Visitor Logs') }}
+            </a>
+            <a href="{{ url_for('reception.calls') }}" class="btn btn-primary btn-sm px-4 shadow">
+                <i class="fa fa-phone me-2"></i> {{ _('Log Call') }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-5">
+        <!-- Kaararka Maanta (Cards Today) -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card border-0 border-top border-4 border-primary shadow-sm h-100">
+                <div class="card-body stat-card p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.65rem;">{{ _('Kaararka Maanta') }} / {{ _('Cards Today') }}</small>
+                            <h3 class="fw-bold mb-0 text-primary">{{ cards_today }}</h3>
+                        </div>
+                        <div class="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                            <i class="fa fa-address-card fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Kuwa Dhiman (Remaining/Pending in Queue) -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card border-0 border-top border-4 border-danger shadow-sm h-100">
+                <div class="card-body stat-card p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.65rem;">{{ _('Kuwa Dhiman') }} / {{ _('Pending Queue') }}</small>
+                            <h3 class="fw-bold mb-0 text-danger">{{ pending_cards }}</h3>
+                        </div>
+                        <div class="avatar-sm bg-danger-soft text-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                            <i class="fa fa-user-clock fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Visitors Today -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card border-0 border-top border-4 border-info shadow-sm h-100">
+                <div class="card-body stat-card p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.65rem;">{{ _('Booqdayaasha Maanta') }} / {{ _('Visitors Today') }}</small>
+                            <h3 class="fw-bold mb-0 text-info">{{ visitors_today }}</h3>
+                        </div>
+                        <div class="avatar-sm bg-info-soft text-info rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                            <i class="fa fa-walking fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Active Lobby Visitors -->
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card border-0 border-top border-4 border-warning shadow-sm h-100">
+                <div class="card-body stat-card p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.65rem;">{{ _('Kuwa Lobby-ga Jooga') }} / {{ _('Active Lobby') }}</small>
+                            <h3 class="fw-bold mb-0 text-warning">{{ active_visitors }}</h3>
+                        </div>
+                        <div class="avatar-sm bg-warning-soft text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                            <i class="fa fa-door-open fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Inquiries Managed Today -->
+        <div class="col-xl-3 col-md-6 col-sm-12">
+            <div class="card border-0 border-top border-4 border-success shadow-sm h-100">
+                <div class="card-body stat-card p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.65rem;">{{ _('Wicitaannada Maanta') }} / {{ _('Calls Logged') }}</small>
+                            <h3 class="fw-bold mb-0 text-success">{{ calls_today }}</h3>
+                        </div>
+                        <div class="avatar-sm bg-success-soft text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                            <i class="fa fa-phone-volume fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Patient Card Queue Section -->
+    <div class="card border-0 shadow-sm overflow-hidden mb-5">
+        <div class="card-header table-header-blue border-0 pt-4 px-4 pb-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">
+                <i class="fa fa-address-card text-primary me-2"></i>{{ _('Diiwaanka Kaararka & Safka Maanta') }} / {{ _("Today's Patient Card Queue") }}
+            </h5>
+            <a href="{{ url_for('patients.index') }}" class="btn btn-primary btn-sm px-3 shadow-sm rounded-pill text-white">
+                <i class="fa fa-user-plus me-1 text-white"></i> {{ _('Meeleyso Kaar Cusub') }} / {{ _('New Check-In') }}
+            </a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-header-blue">
+                        <tr style="font-size: 0.85rem;">
+                            <th class="ps-4">{{ _('Bukaanka') }} / {{ _('Patient Profile') }}</th>
+                            <th>{{ _('Dhakhtarka') }} / {{ _('Assigned Doctor') }}</th>
+                            <th>{{ _('Saacadda Check-In') }} / {{ _('Check-In Time') }}</th>
+                            <th>{{ _('Heerka Safka') }} / {{ _('Queue Status') }}</th>
+                            <th>{{ _('Lacagta Kaarka') }} / {{ _('Card Fee Payment') }}</th>
+                            <th class="text-end pe-4">{{ _('Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for apt in today_appointments %}
+                        <tr>
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-info-soft text-info rounded-circle d-flex align-items-center justify-content-center me-3"
+                                        style="width: 38px; height: 38px; font-weight: bold; font-size: 0.85rem;">
+                                        {{ apt.patient.first_name[0] }}{{ apt.patient.last_name[0] }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">{{ apt.patient.full_name }}</div>
+                                        <code class="small text-primary fw-semibold">{{ apt.patient.patient_id }}</code>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark">Dr. {{ apt.doctor.full_name }}</div>
+                                <small class="text-muted">{{ apt.doctor.specialization }}</small>
+                            </td>
+                            <td class="small text-muted">
+                                {{ apt.appointment_date.strftime('%I:%M %p') }}
+                            </td>
+                            <td>
+                                {% if apt.status == 'waiting_room' %}
+                                    <span class="badge bg-warning-soft text-warning fw-bold"><i class="fa fa-spinner fa-spin me-1"></i>{{ _('Waiting Triage') }}</span>
+                                {% elif apt.status == 'triage_completed' %}
+                                    <span class="badge bg-info-soft text-info fw-bold"><i class="fa fa-stethoscope me-1"></i>{{ _('Waiting Doctor') }}</span>
+                                {% elif apt.status == 'consultation' %}
+                                    <span class="badge bg-primary-soft text-primary fw-bold"><i class="fa fa-user-md me-1"></i>{{ _('In Consultation') }}</span>
+                                {% elif apt.status == 'completed' %}
+                                    <span class="badge bg-success-soft text-success fw-bold"><i class="fa fa-check-circle me-1"></i>{{ _('Completed') }}</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark fw-bold">{{ apt.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if apt.billing %}
+                                    {% if apt.billing.payment_status == 'paid' %}
+                                        <span class="badge bg-success-soft text-success"><i class="fa fa-check-circle me-1"></i>{{ _('Paid') }} (${{ '%.2f'|format(apt.billing.total_amount) }})</span>
+                                    {% else %}
+                                        <a href="{{ url_for('billing.view', id=apt.billing.id) }}" class="badge bg-danger-soft text-danger text-decoration-none shadow-sm border border-danger-subtle">
+                                            <i class="fa fa-exclamation-circle me-1"></i>{{ _('Unpaid') }} (${{ '%.2f'|format(apt.billing.total_amount) }}) - Pay Now
+                                        </a>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted small">No Invoice</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{{ url_for('patients.view', id=apt.patient.id) }}"
+                                        class="btn btn-sm btn-white border shadow-sm rounded-3" title="View Patient Profile">
+                                        <i class="fa fa-eye text-primary"></i>
+                                    </a>
+                                    <a href="{{ url_for('patients.print_chart', id=apt.patient.id) }}" target="_blank"
+                                        class="btn btn-sm btn-white border shadow-sm rounded-3" title="Print Patient Card">
+                                        <i class="fa fa-print text-muted"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if not today_appointments %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <div class="py-3">
+                                    <i class="fa fa-address-card fa-3x text-light mb-3"></i>
+                                    <h6 class="fw-bold">{{ _('Ma jiraan Kaarar la Diiwaangaliyay Maanta') }}</h6>
+                                    <p class="small text-muted">{{ _('Ma jiro bukaan loo meeleyey kaar / check-in maanta.') }}</p>
+                                    <a href="{{ url_for('patients.index') }}" class="btn btn-primary btn-sm rounded-pill px-4 mt-2 text-white">
+                                        {{ _('Meeleyso Kaar') }} / {{ _('Check-In Patient') }}
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Recent Visitors -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="fa fa-walking text-primary me-2"></i>{{ _('Recent Visitors') }}</h5>
+                    <a href="{{ url_for('reception.visitors') }}" class="btn btn-link btn-sm text-decoration-none px-0">{{ _('View All') }}</a>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr class="text-muted" style="font-size: 0.8rem;">
+                                    <th>{{ _('Visitor') }}</th>
+                                    <th>{{ _('Purpose') }}</th>
+                                    <th>{{ _('Check In') }}</th>
+                                    <th>{{ _('Status') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for visitor in recent_visitors %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-dark">{{ visitor.visitor_name }}</div>
+                                        <small class="text-muted">{{ visitor.phone or 'No phone' }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">{{ visitor.purpose }}</span>
+                                    </td>
+                                    <td class="small text-muted">
+                                        {{ visitor.check_in_time.strftime('%I:%M %p') }}
+                                    </td>
+                                    <td>
+                                        {% if visitor.check_out_time %}
+                                            <span class="badge bg-success-soft text-success">{{ _('Checked Out') }}</span>
+                                        {% else %}
+                                            <span class="badge bg-warning-soft text-warning">{{ _('Active') }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% if not recent_visitors %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted small">{{ _('No visitor entries recorded today.') }}</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Inquiries -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="fa fa-phone text-success me-2"></i>{{ _('Recent Call Logs') }}</h5>
+                    <a href="{{ url_for('reception.calls') }}" class="btn btn-link btn-sm text-decoration-none px-0">{{ _('View All') }}</a>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr class="text-muted" style="font-size: 0.8rem;">
+                                    <th>{{ _('Caller') }}</th>
+                                    <th>{{ _('Type') }}</th>
+                                    <th>{{ _('Category') }}</th>
+                                    <th>{{ _('Details') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for call in recent_calls %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-dark">{{ call.caller_name }}</div>
+                                        <small class="text-muted">{{ call.phone }}</small>
+                                    </td>
+                                    <td>
+                                        {% if call.call_type == 'Incoming' %}
+                                            <span class="badge bg-info-soft text-info"><i class="fa fa-arrow-down me-1"></i>{{ _('In') }}</span>
+                                        {% else %}
+                                            <span class="badge bg-primary-soft text-primary"><i class="fa fa-arrow-up me-1"></i>{{ _('Out') }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small class="text-dark">{{ call.call_category }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="text-truncate small" style="max-width: 150px;" title="{{ call.details }}">{{ call.details }}</div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% if not recent_calls %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted small">{{ _('No call logs recorded today.') }}</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

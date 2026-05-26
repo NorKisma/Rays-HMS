@@ -88,7 +88,7 @@
     <!-- Main Queue Grid -->
     <div class="row g-4">
         <!-- Waiting for Triage -->
-        <div class="col-lg-4">
+        <div class="col-lg-3">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
                     <h6 class="mb-0 fw-bold">
@@ -125,7 +125,7 @@
         </div>
 
         <!-- Waiting for Doctor -->
-        <div class="col-lg-4">
+        <div class="col-lg-3">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
                     <h6 class="mb-0 fw-bold">
@@ -166,11 +166,48 @@
             </div>
         </div>
 
-        <!-- Active/Completed -->
-        <div class="col-lg-4">
+        <!-- Consulting -->
+        <div class="col-lg-3">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 fw-bold"><i class="fa fa-check-double text-success me-2"></i>Recent Completions</h6>
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fa fa-user-md text-primary me-2"></i>
+                        {% if session.get('lang') == 'so' %}Waa lala Joogaa{% else %}Consulting{% endif %}
+                    </h6>
+                    <span class="badge bg-primary-subtle text-primary rounded-pill">{{ with_doctor|length }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for apt in with_doctor %}
+                        <div class="list-group-item border-0 p-3 mb-2 mx-3 rounded-3 shadow-sm-hover border-start border-4 border-primary" style="background: var(--bg-surface-2);">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h6 class="mb-0 fw-bold text-dark">{{ apt.patient.full_name }}</h6>
+                                <small class="text-muted"><i class="fa fa-clock me-1"></i>{{ apt.updated_at.strftime('%H:%M') }}</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-light text-dark border me-2">{{ apt.patient.patient_id }}</span>
+                                <span class="text-muted small">{% if session.get('lang') == 'so' %}Takhtar{% else %}Doctor{% endif %}: {{ apt.doctor.first_name }}</span>
+                            </div>
+                            <a href="{{ url_for('clinical.encounter', appointment_id=apt.id) }}" class="btn btn-primary btn-sm w-100 rounded-pill text-white">
+                                {% if session.get('lang') == 'so' %}Fur Galka{% else %}Open Encounter{% endif %}
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="p-5 text-center text-muted">
+                            <i class="fa fa-stethoscope fa-3x mb-3 opacity-25"></i>
+                            <p>{% if session.get('lang') == 'so' %}Ma jiraan bukaano dhakhtarka la joogo{% else %}No patients consulting{% endif %}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active/Completed -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold"><i class="fa fa-check-double text-success me-2"></i>{% if session.get('lang') == 'so' %}Bukaanada Dhameeyay{% else %}Recent Completions{% endif %}</h6>
                     <span class="badge bg-success-subtle text-success rounded-pill">{{ completed|length }}</span>
                 </div>
                 <div class="card-body p-0">
@@ -180,10 +217,10 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="mb-0 fw-bold">{{ apt.patient.full_name }}</h6>
-                                    <small class="text-muted">Seen by {{ apt.doctor.first_name }}</small>
+                                    <small class="text-muted">{% if session.get('lang') == 'so' %}Waxaa arkay{% else %}Seen by{% endif %} {{ apt.doctor.first_name }}</small>
                                 </div>
                                 <div class="text-end">
-                                    <span class="badge bg-success small mb-1">Discharged</span>
+                                    <span class="badge bg-success small mb-1">{% if session.get('lang') == 'so' %}Wuu baxay{% else %}Discharged{% endif %}</span>
                                     <div class="small text-muted">{{ apt.updated_at.strftime('%H:%M') }}</div>
                                 </div>
                             </div>
@@ -192,7 +229,130 @@
                     </div>
                 </div>
                 <div class="card-footer bg-white border-0 text-center py-3">
-                    <a href="{{ url_for('patients.index') }}" class="small text-decoration-none">View All Patient Histories</a>
+                    <a href="{{ url_for('patients.index') }}" class="small text-decoration-none">{% if session.get('lang') == 'so' %}Eeg Taariikhda Bukaanada Dhamaan{% else %}View All Patient Histories{% endif %}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Department Queues (Lab, Pharmacy, Billing) -->
+    <h5 class="fw-bold mt-5 mb-3 text-dark">
+        <i class="fa fa-building me-2"></i>{% if session.get('lang') == 'so' %}Safafka Qaybaha Kale{% else %}Department Queues{% endif %}
+    </h5>
+    <div class="row g-4 mb-4">
+        <!-- Billing / Accounts Queue -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fa fa-file-invoice-dollar text-danger me-2"></i>
+                        {% if session.get('lang') == 'so' %}Safka Xisaabaadka{% else %}Billing Queue{% endif %}
+                    </h6>
+                    <span class="badge bg-danger-subtle text-danger rounded-pill">{{ pending_billing|length }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for bill in pending_billing %}
+                        <div class="list-group-item border-0 p-3 mb-2 mx-3 rounded-3 shadow-sm-hover border-start border-4 border-danger" style="background: var(--bg-surface-2);">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h6 class="mb-0 fw-bold text-dark">{{ bill.patient.full_name }}</h6>
+                                <small class="text-muted"><i class="fa fa-clock me-1"></i>{{ bill.created_at.strftime('%H:%M') }}</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-danger-subtle text-danger border me-2">${{ bill.balance_amount }}</span>
+                                <span class="text-muted small">{% if session.get('lang') == 'so' %}Biilka{% else %}Invoice{% endif %}: {{ bill.invoice_number }}</span>
+                            </div>
+                            <a href="{{ url_for('billing.view', id=bill.id) }}" class="btn btn-outline-danger btn-sm w-100 rounded-pill">
+                                {% if session.get('lang') == 'so' %}Bixi Lacagta{% else %}Process Payment{% endif %}
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="p-5 text-center text-muted">
+                            <i class="fa fa-check-circle fa-3x mb-3 opacity-25"></i>
+                            <p>{% if session.get('lang') == 'so' %}Ma jiraan biilal la sugayo{% else %}No pending bills{% endif %}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Laboratory Queue -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fa fa-flask text-info me-2"></i>
+                        {% if session.get('lang') == 'so' %}Safka Shaybaarka{% else %}Laboratory Queue{% endif %}
+                    </h6>
+                    <span class="badge bg-info-subtle text-info rounded-pill">{{ pending_lab|length }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for req in pending_lab %}
+                        <div class="list-group-item border-0 p-3 mb-2 mx-3 rounded-3 shadow-sm-hover border-start border-4 border-info" style="background: var(--bg-surface-2);">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h6 class="mb-0 fw-bold text-dark">{{ req.appointment.patient.full_name }}</h6>
+                                <small class="text-muted"><i class="fa fa-clock me-1"></i>{{ req.created_at.strftime('%H:%M') }}</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-info-subtle text-info border me-2">{{ req.test_name }}</span>
+                                <span class="text-muted small">
+                                    {% if req.status == 'pending_payment' %}
+                                        <i class="fa fa-lock text-warning me-1"></i>{% if session.get('lang') == 'so' %}Lacagta sugaya{% else %}Pending Payment{% endif %}
+                                    {% else %}
+                                        <i class="fa fa-vial text-info me-1"></i>{% if session.get('lang') == 'so' %}Natiijada sugaya{% else %}Pending Result{% endif %}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <a href="{{ url_for('lab.index') }}" class="btn btn-outline-info btn-sm w-100 rounded-pill">
+                                {% if session.get('lang') == 'so' %}Fur Shaybaarka{% else %}Open Lab{% endif %}
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="p-5 text-center text-muted">
+                            <i class="fa fa-vials fa-3x mb-3 opacity-25"></i>
+                            <p>{% if session.get('lang') == 'so' %}Ma jiraan baaritaano shaybaar{% else %}No pending lab requests{% endif %}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pharmacy Queue -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fa fa-pills text-success me-2"></i>
+                        {% if session.get('lang') == 'so' %}Safka Farmashiyaha{% else %}Pharmacy Queue{% endif %}
+                    </h6>
+                    <span class="badge bg-success-subtle text-success rounded-pill">{{ pending_pharmacy|length }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for rx in pending_pharmacy %}
+                        <div class="list-group-item border-0 p-3 mb-2 mx-3 rounded-3 shadow-sm-hover border-start border-4 border-success" style="background: var(--bg-surface-2);">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h6 class="mb-0 fw-bold text-dark">{{ rx.patient.full_name }}</h6>
+                                <small class="text-muted"><i class="fa fa-clock me-1"></i>{{ rx.created_at.strftime('%H:%M') }}</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-light text-dark border me-2">{{ rx.items|length }} Items</span>
+                                <span class="text-muted small">{% if session.get('lang') == 'so' %}Takhtar{% else %}Doctor{% endif %}: {{ rx.doctor.first_name }}</span>
+                            </div>
+                            <a href="{{ url_for('clinical.print_prescription', id=rx.id) }}" class="btn btn-outline-success btn-sm w-100 rounded-pill">
+                                {% if session.get('lang') == 'so' %}Eeg Qoraalka{% else %}View Prescription{% endif %}
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="p-5 text-center text-muted">
+                            <i class="fa fa-prescription fa-3x mb-3 opacity-25"></i>
+                            <p>{% if session.get('lang') == 'so' %}Ma jiraan daawooyin la sugayo{% else %}No pending prescriptions{% endif %}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>

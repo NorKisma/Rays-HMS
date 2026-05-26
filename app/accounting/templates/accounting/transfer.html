@@ -1,0 +1,93 @@
+{% extends "main/base.html" %}
+
+{% block title %}Transfer - Enterprise ERP{% endblock %}
+
+{% block content %}
+{% include 'accounting/_nav.html' %}
+
+<div class="container-fluid bg-light min-vh-100 py-4" style="background-color: #f8f9fc !important;">
+    
+    <!-- Top Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+        <h4 class="fw-bold mb-0 text-dark" style="letter-spacing: -0.5px;">Transfer</h4>
+        <button class="btn btn-dark fw-bold px-4 shadow-sm" style="border-radius: 8px !important;">
+            <i class="fa fa-print me-2"></i> Print List
+        </button>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="card border-0 shadow-sm rounded-3 mb-3 mx-2">
+        <div class="card-header bg-white border-0 py-3 d-flex align-items-center">
+            <i class="fa fa-filter text-primary me-2"></i> <h6 class="fw-bold mb-0 text-primary">Filters</h6>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="card border-0 shadow-sm rounded-4 mx-2" style="border-radius: 12px !important;">
+        <div class="card-body p-4">
+            <div class="text-end mb-4">
+                <button class="btn btn-primary fw-bold px-4 shadow-sm" style="border-radius: 20px !important; background-color: #4b61ff; border-color: #4b61ff;">
+                    <i class="fa fa-plus me-2"></i> Add
+                </button>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center">
+                    <span class="me-2 text-muted small">Show</span>
+                    <select class="form-select form-select-sm" style="width: 70px;">
+                        <option>25</option>
+                        <option>50</option>
+                        <option>100</option>
+                    </select>
+                    <span class="ms-2 text-muted small">entries</span>
+                </div>
+                <div class="btn-group shadow-sm">
+                    <button class="btn btn-white border text-muted small"><i class="fa fa-file-csv me-1"></i> Export CSV</button>
+                    <button class="btn btn-white border text-muted small"><i class="fa fa-file-excel me-1"></i> Export Excel</button>
+                    <button class="btn btn-white border text-muted small"><i class="fa fa-print me-1"></i> Print</button>
+                    <button class="btn btn-white border text-muted small"><i class="fa fa-columns me-1"></i> Column visibility</button>
+                    <button class="btn btn-white border text-muted small"><i class="fa fa-file-pdf me-1"></i> Export PDF</button>
+                </div>
+                <div>
+                    <input type="text" class="form-control form-control-sm border" placeholder="Search ..">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-nowrap">
+                    <thead class="bg-light text-dark fw-bold">
+                        <tr>
+                            <th class="py-3">Action</th>
+                            <th class="py-3">Date</th>
+                            <th class="py-3">Reference No <i class="fa fa-sort text-muted ms-1"></i></th>
+                            <th class="py-3">From <i class="fa fa-sort text-muted ms-1"></i></th>
+                            <th class="py-3">To <i class="fa fa-sort text-muted ms-1"></i></th>
+                            <th class="py-3">Amount</th>
+                            <th class="py-3">Added By <i class="fa fa-sort text-muted ms-1"></i></th>
+                            <th class="py-3">Additional notes <i class="fa fa-sort text-muted ms-1"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted small bg-light">No data available in table</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <small class="text-muted">Showing 0 to 0 of 0 entries</small>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-white border text-muted" disabled>Previous</button>
+                    <button class="btn btn-sm btn-white border text-muted" disabled>Next</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <div class="text-center mt-4">
+        <small class="text-muted">Multi Branch POS - V7.4 | Copyright &copy; 2026 All rights reserved.</small>
+    </div>
+</div>
+{% endblock %}

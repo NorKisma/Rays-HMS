@@ -25,11 +25,22 @@ def queue():
     with_doctor = Appointment.query.filter_by(status='consultation').order_by(Appointment.created_at.asc()).all()
     completed = Appointment.query.filter_by(status='completed').order_by(Appointment.updated_at.desc()).limit(10).all()
 
+    from app.models.clinical import Prescription
+    from app.models.lab import LabRequest
+    from app.models.billing import Billing
+
+    pending_pharmacy = Prescription.query.filter_by(status='active').order_by(Prescription.created_at.desc()).limit(20).all()
+    pending_lab = LabRequest.query.filter(LabRequest.status.in_(['pending', 'pending_payment'])).order_by(LabRequest.created_at.desc()).limit(20).all()
+    pending_billing = Billing.query.filter(Billing.balance_amount > 0).order_by(Billing.created_at.desc()).limit(20).all()
+
     return render_template('clinical/queue.html', 
                           waiting_triage=waiting_triage,
                           waiting_doctor=waiting_doctor,
                           with_doctor=with_doctor,
-                          completed=completed)
+                          completed=completed,
+                          pending_pharmacy=pending_pharmacy,
+                          pending_lab=pending_lab,
+                          pending_billing=pending_billing)
 
 @bp.route('/encounter/<int:appointment_id>', methods=['GET', 'POST'])
 @login_required
@@ -107,7 +118,8 @@ def complete_encounter(appointment_id):
             total_amount=0,
             net_amount=0,
             balance_amount=0,
-            hospital_id=hid
+            hospital_id=hid,
+            user_id=current_user.id
         )
         db.session.add(billing)
         db.session.flush()
@@ -196,8 +208,7 @@ def add_prescription(patient_id):
             appointment_id=form.appointment_id.data if form.appointment_id.data != 0 else None,
             diagnosis=form.diagnosis.data,
             notes=form.notes.data,
-            status='active',
-            hospital_id=hid
+            status='active'
         )
         db.session.add(prescription)
         db.session.flush() # Get id before commit
@@ -217,8 +228,7 @@ def add_prescription(patient_id):
                     dosage=dosages[i],
                     frequency=frequencies[i],
                     duration=durations[i],
-                    instructions=instructions[i],
-                    hospital_id=hid
+                    instructions=instructions[i]
                 )
                 db.session.add(item)
         
@@ -281,19 +291,105 @@ def add_condition(patient_id):
 def ai_suggest():
     symptoms = request.json.get('symptoms', '').lower()
     
-    # Simple rule-based logic for demonstration
     suggestions = []
-    if 'fever' in symptoms or 'headache' in symptoms:
-        suggestions.append('Malaria (High Priority)')
-        suggestions.append('Common Cold')
-    if 'cough' in symptoms or 'breath' in symptoms:
-        suggestions.append('Lower Respiratory Tract Infection')
-        suggestions.append('Pneumonia Assessment Required')
-    if 'pain' in symptoms and 'stomach' in symptoms:
-        suggestions.append('Gastroenteritis')
-        suggestions.append('Peptic Ulcer Disease')
     
+    # 1. Cardiovascular / Emergency Chest Pain
+    if 'chest pain' in symptoms or 'pressure' in symptoms or 'tightness' in symptoms:
+        if 'breath' in symptoms or 'sweat' in symptoms or 'arm' in symptoms:
+            suggestions.append('Acute Coronary Syndrome (Emergency Workup Required)')
+            suggestions.append('Myocardial Infarction Rule-Out')
+        else:
+            suggestions.append('Angina Pectoris (Stable/Unstable)')
+            suggestions.append('Gastroesophageal Reflux Disease (GERD)')
+            
+    # 2. Respiratory & Pulmonary
+    if 'cough' in symptoms or 'breath' in symptoms or 'wheez' in symptoms:
+        if 'fever' in symptoms or 'sputum' in symptoms:
+            suggestions.append('Pneumonia Assessment')
+            suggestions.append('Acute Bronchitis')
+        elif 'asthma' in symptoms or 'tight' in symptoms:
+            suggestions.append('Asthma Exacerbation')
+            suggestions.append('COPD Exacerbation')
+        else:
+            suggestions.append('Upper Respiratory Tract Infection (URTI)')
+            
+    # 3. Fever & Tropical/Infectious Diseases
+    if 'fever' in symptoms or 'chills' in symptoms or 'rigor' in symptoms:
+        if 'headache' in symptoms or 'joint' in symptoms:
+            suggestions.append('Malaria (High Priority Smear Required)')
+            suggestions.append('Dengue Fever Screening')
+        else:
+            suggestions.append('Systemic Viral Infection')
+            suggestions.append('Enteric / Typhoid Fever Rule-Out')
+            
+    # 4. Gastrointestinal / Dehydration
+    if 'stomach' in symptoms or 'pain' in symptoms or 'diarrhea' in symptoms or 'vomit' in symptoms:
+        if 'blood' in symptoms:
+            suggestions.append('Dysentery / Amoebiasis')
+            suggestions.append('Peptic Ulcer Disease (PUD)')
+        else:
+            suggestions.append('Acute Gastroenteritis (AGE)')
+            suggestions.append('Food Poisoning (Symptomatic Treatment)')
+            
+    # 5. Endocrine / Metabolic
+    if 'sugar' in symptoms or 'thirsty' in symptoms or 'urin' in symptoms or 'fatigue' in symptoms:
+        if 'weight loss' in symptoms:
+            suggestions.append('Diabetes Mellitus Type II (Screening)')
+            suggestions.append('Hyperglycemia Assessment')
+            
+    # 6. Urinary Tract
+    if 'burning' in symptoms or 'dysuria' in symptoms or 'pelvic' in symptoms:
+        suggestions.append('Urinary Tract Infection (UTI)')
+        suggestions.append('Acute Cystitis')
+        
+    # 7. Skin & Allergy
+    if 'rash' in symptoms or 'itch' in symptoms or 'skin' in symptoms:
+        suggestions.append('Allergic Dermatitis')
+        suggestions.append('Fungal Skin Infection (Tinea)')
+        
     if not suggestions:
         suggestions.append('General Symptomatic Assessment')
         
     return jsonify({'suggestions': suggestions})
+
+@bp.route('/lobby-queue')
+def lobby_queue():
+    """
+    Public-facing screen meant to be broadcasted on waiting room lobby monitors.
+    Displays live queues and serving status without requiring logins.
+    """
+    # Fetch active queues based on workflow status
+    waiting_triage = Appointment.query.filter(
+        Appointment.status == 'waiting_room',
+        Appointment.is_deleted == False
+    ).order_by(Appointment.created_at.asc()).all()
+
+    waiting_doctor = Appointment.query.filter(
+        Appointment.status == 'triage_completed',
+        Appointment.is_deleted == False
+    ).order_by(Appointment.created_at.asc()).all()
+
+    now_serving = Appointment.query.filter(
+        Appointment.status == 'consultation',
+        Appointment.is_deleted == False
+    ).order_by(Appointment.updated_at.desc()).all()
+
+    return render_template('clinical/lobby_queue.html',
+                           waiting_triage=waiting_triage,
+                           waiting_doctor=waiting_doctor,
+                           now_serving=now_serving)
+
+@bp.route('/api/medicines')
+@login_required
+def api_medicines():
+    query = request.args.get('q', '')
+    if len(query) < 2:
+        return jsonify([])
+        
+    # Search products by name (case-insensitive)
+    products = Product.query.filter(
+        Product.name.ilike(f'%{query}%'),
+        Product.is_deleted == False
+    ).limit(10).all()
+    
+    return jsonify([{'id': p.id, 'name': p.name} for p in products])

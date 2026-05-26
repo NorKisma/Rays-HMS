@@ -25,4 +25,6 @@ class PatientForm(FlaskForm):
 class CheckInForm(FlaskForm):
     doctor_id = SelectField('Assign to Doctor', coerce=int, validators=[DataRequired()])
     notes = TextAreaField('Reception Notes', validators=[Optional()])
+    pay_immediately = SelectField('Payment Status', choices=[('yes', 'Collect Cashier Payment Directly (Paid)'), ('no', 'Forward to Cashier Desk (Unpaid)')], default='yes', validators=[DataRequired()])
+    payment_method = SelectField('Payment Method', choices=[('Cash', 'Cash'), ('EVC Plus', 'EVC Plus'), ('E-Dahab', 'E-Dahab'), ('Zaad', 'Zaad'), ('Bank Transfer', 'Bank Transfer')], default='Cash')
     submit = SubmitField('Check In & Create Invoice')

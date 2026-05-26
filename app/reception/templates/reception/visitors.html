@@ -1,0 +1,187 @@
+{% extends "main/base.html" %}
+
+{% block title %}Visitor Tracking - Rays HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">{{ _('Visitor Log') }}</h2>
+            <p class="text-muted mb-0">{{ _('Track and verify all guests, vendors, and patient relatives in the facility.') }}</p>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary btn-sm px-4 shadow" data-bs-toggle="modal" data-bs-target="#logVisitorModal">
+                <i class="fa fa-user-plus me-2"></i> {{ _('Log Visitor Check-In') }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Table Card -->
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header table-header-blue border-0 pt-3 px-4 pb-3">
+            <h5 class="mb-0 fw-bold">{{ _('Visitor Activity') }}</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 datatable">
+                    <thead class="table-header-blue">
+                        <tr>
+                            <th class="ps-4">{{ _('Visitor') }}</th>
+                            <th>{{ _('Purpose') }}</th>
+                            <th>{{ _('Verification') }}</th>
+                            <th>{{ _('Health Check') }}</th>
+                            <th>{{ _('Check In') }}</th>
+                            <th>{{ _('Check Out') }}</th>
+                            <th class="text-end pe-4">{{ _('Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for visitor in visitors %}
+                        <tr>
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-light text-dark rounded-circle d-flex align-items-center justify-content-center me-3"
+                                        style="width: 40px; height: 40px; font-weight: bold;">
+                                        {{ visitor.visitor_name[0]|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">{{ visitor.visitor_name }}</div>
+                                        <small class="text-muted"><i class="fa fa-phone me-1"></i>{{ visitor.phone or '--' }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <span class="badge bg-primary-soft text-primary">{{ visitor.purpose }}</span>
+                                    {% if visitor.patient %}
+                                    <div class="small mt-1 text-muted">
+                                        {{ _('Visiting') }}: <a href="{{ url_for('patients.view', id=visitor.patient.id) }}" class="text-decoration-none fw-bold">{{ visitor.patient.first_name }} {{ visitor.patient.last_name }}</a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if visitor.id_type %}
+                                <div class="small">
+                                    <span class="text-dark fw-bold">{{ visitor.id_type }}</span><br>
+                                    <code class="text-muted">{{ visitor.id_number or '--' }}</code>
+                                </div>
+                                {% else %}
+                                <span class="text-muted small">None</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <span class="badge {% if visitor.temperature and visitor.temperature|float > 37.5 %}bg-danger-soft text-danger{% else %}bg-success-soft text-success{% endif %}">
+                                        <i class="fa fa-thermometer-half me-1"></i>{{ visitor.temperature or '36.5' }} °C
+                                    </span>
+                                    {% if visitor.symptoms %}
+                                    <div class="text-truncate mt-1 text-muted" style="max-width: 120px;" title="{{ visitor.symptoms }}">{{ visitor.symptoms }}</div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="small text-muted">
+                                {{ visitor.check_in_time.strftime('%b %d, %H:%M') }}
+                            </td>
+                            <td class="small text-muted">
+                                {% if visitor.check_out_time %}
+                                {{ visitor.check_out_time.strftime('%b %d, %H:%M') }}
+                                {% else %}
+                                <span class="badge bg-warning-soft text-warning">{{ _('Active In Lobby') }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                {% if not visitor.check_out_time %}
+                                <form action="{{ url_for('reception.checkout_visitor', id=visitor.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-success border shadow-sm rounded-3">
+                                        <i class="fa fa-sign-out-alt me-1"></i> {{ _('Check Out') }}
+                                    </button>
+                                </form>
+                                {% else %}
+                                <button class="btn btn-sm btn-light border rounded-3 disabled" disabled>
+                                    <i class="fa fa-check me-1"></i> {{ _('Completed') }}
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if not visitors %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="fa fa-walking fa-3x text-light mb-3"></i>
+                                <h6 class="fw-bold">{{ _('No Visitors Logged') }}</h6>
+                                <p class="small mb-0">{{ _('No visitors recorded in the logs yet.') }}</p>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Visitor Modal -->
+<div class="modal fade" id="logVisitorModal" tabindex="-1" aria-labelledby="logVisitorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="logVisitorModalLabel">{{ _('Log New Visitor') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('reception.visitors') }}">
+                {{ form.csrf_token }}
+                <div class="modal-body py-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">{{ form.visitor_name.label }}</label>
+                        {{ form.visitor_name(class="form-control rounded-3", placeholder="Enter full name") }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">{{ form.phone.label }}</label>
+                        {{ form.phone(class="form-control rounded-3", placeholder="e.g. +25261xxxxxx") }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted">{{ form.purpose.label }}</label>
+                            {{ form.purpose(class="form-select rounded-3") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted">{{ form.patient_id.label }}</label>
+                            {{ form.patient_id(class="form-select rounded-3 searchable-select", data_placeholder=_('Select Patient')) }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted">{{ form.id_type.label }}</label>
+                            {{ form.id_type(class="form-select rounded-3") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted">{{ form.id_number.label }}</label>
+                            {{ form.id_number(class="form-control rounded-3", placeholder="ID / Card Number") }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold small text-muted">{{ form.temperature.label }}</label>
+                            {{ form.temperature(class="form-control rounded-3", placeholder="36.5") }}
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label fw-bold small text-muted">{{ form.symptoms.label }}</label>
+                            {{ form.symptoms(class="form-control rounded-3", rows="1", placeholder="Optional health notes") }}
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-bold small text-muted">{{ form.notes.label }}</label>
+                        {{ form.notes(class="form-control rounded-3", rows="2", placeholder="Additional remarks...") }}
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light btn-sm rounded-3" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                    {{ form.submit(class="btn btn-primary btn-sm rounded-3 px-4") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

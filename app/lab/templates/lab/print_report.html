@@ -3,110 +3,509 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab Report - {{ req.appointment.patient.full_name }}</title>
+    <title>Lab Report — {{ req.test_name }} | {{ req.appointment.patient.full_name }}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        
-        body { background: #fdfdfd; font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+        * { box-sizing: border-box; }
+        body {
+            background: #f0f4f8;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #1e293b;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ─── Print Toolbar ─── */
+        .print-toolbar {
+            background: #0047AB;
+            color: white;
+            padding: 12px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,71,171,0.3);
+        }
+        .print-toolbar .brand {
+            font-size: 0.95rem;
+            font-weight: 700;
+            opacity: 0.9;
+            letter-spacing: 0.5px;
+        }
+        .print-toolbar .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-print {
+            background: white;
+            color: #0047AB;
+            border: none;
+            border-radius: 50px;
+            padding: 8px 24px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-print:hover { background: #e0e7ff; }
+        .btn-close-report {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-close-report:hover {
+            background: rgba(255,255,255,0.25);
+            color: white;
+        }
+
+        /* ─── Report Paper ─── */
+        .report-wrapper {
+            padding: 30px 20px;
+        }
         .report-paper {
             background: white;
             width: 210mm;
             min-height: 297mm;
-            margin: 20px auto;
-            padding: 35px;
+            margin: 0 auto;
+            padding: 35px 40px;
             position: relative;
-            box-shadow: 0 4px 30px rgba(0,0,0,0.05);
+            box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+            border-radius: 4px;
         }
-        .header-section { border-bottom: 3px solid #0ea5e9; padding-bottom: 15px; margin-bottom: 25px; }
-        .patient-data { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; margin-bottom: 20px; }
-        .result-box { border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; min-height: 200px; font-family: 'Courier New', Courier, monospace; background: #fff; line-height: 1.6; font-size: 14px; }
-        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 80px; font-weight: 800; color: rgba(0,0,0,0.02); z-index: 0; pointer-events: none; white-space: nowrap; }
-        
+
+        /* ─── Header ─── */
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #0047AB;
+            margin-bottom: 24px;
+        }
+        .hospital-logo {
+            width: 55px;
+            height: 55px;
+            object-fit: contain;
+            margin-right: 14px;
+            border-radius: 8px;
+        }
+        .hospital-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #0047AB;
+            letter-spacing: -0.5px;
+            line-height: 1;
+        }
+        .hospital-sub {
+            font-size: 0.72rem;
+            color: #64748b;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+        .report-label {
+            text-align: right;
+        }
+        .report-label .title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #1e293b;
+            letter-spacing: 2px;
+        }
+        .report-label .ref {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            font-weight: 700;
+            margin-top: 3px;
+        }
+
+        /* ─── Patient Info Band ─── */
+        .patient-band {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin-bottom: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .patient-band .label {
+            font-size: 0.6rem;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 3px;
+        }
+        .patient-band .value {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .patient-band .sub {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+
+        /* ─── Test Name ─── */
+        .test-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .test-title .icon-wrap {
+            width: 36px;
+            height: 36px;
+            background: #0047AB;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .test-title h5 {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #0047AB;
+            margin: 0;
+            letter-spacing: 0.3px;
+        }
+        .test-title .badge-status {
+            font-size: 0.65rem;
+            font-weight: 700;
+            background: #dcfce7;
+            color: #16a34a;
+            padding: 3px 10px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ─── Results Table / Free Text ─── */
+        .result-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .result-section-header {
+            background: #f8fafc;
+            padding: 10px 16px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .result-table tr:not(:last-child) td { border-bottom: 1px solid #f1f5f9; }
+        .result-table td {
+            padding: 9px 16px;
+            font-size: 0.82rem;
+        }
+        .result-table td.param-name {
+            font-weight: 600;
+            color: #475569;
+            width: 45%;
+        }
+        .result-table td.param-value {
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .result-table tr:nth-child(even) { background: #fafafa; }
+
+        .result-free-text {
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.82rem;
+            line-height: 1.7;
+            color: #334155;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .remarks-box {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 0.82rem;
+            color: #78350f;
+            font-style: italic;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .remarks-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #92400e;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            font-style: normal;
+        }
+
+        /* ─── Watermark ─── */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 90px;
+            font-weight: 900;
+            color: rgba(0,71,171,0.025);
+            z-index: 0;
+            pointer-events: none;
+            white-space: nowrap;
+            letter-spacing: 10px;
+        }
+
+        /* ─── Signatures ─── */
+        .sig-row {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+            padding-top: 10px;
+        }
+        .sig-block {
+            text-align: center;
+        }
+        .sig-line {
+            width: 140px;
+            border-top: 1.5px solid #cbd5e1;
+            margin: 0 auto 6px;
+            padding-top: 8px;
+        }
+        .sig-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .sig-sub {
+            font-size: 0.65rem;
+            color: #94a3b8;
+        }
+
+        /* ─── Footer ─── */
+        .report-footer {
+            margin-top: 30px;
+            padding-top: 16px;
+            border-top: 1px dashed #e2e8f0;
+            text-align: center;
+            font-size: 0.65rem;
+            color: #94a3b8;
+            line-height: 1.8;
+        }
+
+        /* ─── Print Styles ─── */
         @media print {
-            body { background: white; margin: 0; }
-            .report-paper { margin: 0; box-shadow: none; width: 100%; min-height: auto; }
-            .no-print { display: none !important; }
+            body { background: white; }
+            .print-toolbar { display: none !important; }
+            .report-wrapper { padding: 0; }
+            .report-paper {
+                margin: 0;
+                box-shadow: none;
+                width: 100%;
+                min-height: auto;
+                border-radius: 0;
+                padding: 20px 25px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container text-center py-2 no-print">
-        <button onclick="window.print()" class="btn btn-info px-5 text-white rounded-pill shadow fw-bold"><i class="fa fa-print me-2"></i> Print Laboratory Report</button>
+
+    <!-- Print Toolbar (hidden on print) -->
+    <div class="print-toolbar">
+        <div class="brand">
+            <i class="fas fa-microscope me-2"></i>Lab Report — {{ req.test_name }}
+        </div>
+        <div class="actions">
+            <a href="{{ url_for('lab.completed') }}" class="btn-close-report">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <button class="btn-print" onclick="window.print()">
+                <i class="fas fa-print"></i> Print Report
+            </button>
+        </div>
     </div>
 
-    <div class="report-paper">
-        <div class="watermark">OFFICIAL REPORT</div>
+    <div class="report-wrapper">
+        <div class="report-paper">
+            <div class="watermark">OFFICIAL REPORT</div>
 
-        <!-- Professional Header -->
-        <div class="header-section d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-                {% if current_user.hospital and current_user.hospital.logo %}
-                    <img src="{{ url_for('static', filename=current_user.hospital.logo) }}" alt="Logo" class="img-fluid rounded me-3" style="max-height: 60px; max-width: 60px; object-fit: contain;">
-                {% endif %}
-                <div>
-                    <h2 class="fw-800 mb-0 text-info" style="letter-spacing: -1.5px;">{{ current_user.hospital.name|upper if current_user.hospital else 'RAYS HOSPITAL' }}</h2>
-                    <p class="text-muted small mb-0 fw-bold">{{ current_user.hospital.address if (current_user.hospital and current_user.hospital.address) else 'ADVANCED DIAGNOSTIC LABORATORY' }}</p>
-                    {% if current_user.hospital and current_user.hospital.phone %}
-                    <p class="text-muted x-small mb-0">Tel: {{ current_user.hospital.phone }} | {{ current_user.hospital.email or '' }}</p>
+            <!-- ─── Hospital Header ─── -->
+            <div class="report-header">
+                <div class="d-flex align-items-center">
+                    {% if current_user.hospital and current_user.hospital.logo %}
+                        <img src="{{ url_for('static', filename=current_user.hospital.logo) }}"
+                             alt="Logo" class="hospital-logo">
                     {% endif %}
+                    <div>
+                        <div class="hospital-name">
+                            {{ current_user.hospital.name|upper if current_user.hospital else 'RAYS HOSPITAL' }}
+                        </div>
+                        <div class="hospital-sub">
+                            {{ current_user.hospital.address if (current_user.hospital and current_user.hospital.address) else 'ADVANCED DIAGNOSTIC LABORATORY' }}
+                        </div>
+                        {% if current_user.hospital and current_user.hospital.phone %}
+                        <div class="hospital-sub" style="margin-top:2px;">
+                            Tel: {{ current_user.hospital.phone }}{% if current_user.hospital.email %} &nbsp;|&nbsp; {{ current_user.hospital.email }}{% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="report-label">
+                    <div class="title">LAB REPORT</div>
+                    <div class="ref">REQ-{{ '%04d'|format(req.id) }}</div>
+                    <div class="ref" style="margin-top:4px; color:#0047AB; font-weight:800;">
+                        {{ req.updated_at.strftime('%d %B, %Y') }}
+                    </div>
                 </div>
             </div>
-            <div class="text-end">
-                <div class="h5 fw-800 text-dark mb-0">LAB REPORT</div>
-                <div class="x-small text-muted fw-bold">REQ-{{ req.id }}</div>
-            </div>
-        </div>
 
-        <!-- Patient & Reference Info -->
-        <div class="patient-data">
-            <div class="row g-2">
-                <div class="col-7">
-                    <div class="x-small text-muted uppercase fw-bold mb-1">Patient Information</div>
-                    <h6 class="fw-bold mb-0 text-dark">{{ req.appointment.patient.full_name }}</h6>
-                    <div class="x-small text-muted">ID: {{ req.appointment.patient.patient_id }} | {{ req.appointment.patient.age }} Years | {{ req.appointment.patient.gender }}</div>
+            <!-- ─── Patient Band ─── -->
+            <div class="patient-band">
+                <div>
+                    <div class="label">Patient Name</div>
+                    <div class="value">{{ req.appointment.patient.full_name }}</div>
+                    <div class="sub">
+                        ID: {{ req.appointment.patient.patient_id }}
+                        &nbsp;|&nbsp; {{ req.appointment.patient.age }} yrs
+                        &nbsp;|&nbsp; {{ req.appointment.patient.gender or 'N/A' }}
+                    </div>
                 </div>
-                <div class="col-5 text-end">
-                    <div class="x-small text-muted uppercase fw-bold mb-1">Investigation Details</div>
-                    <div class="x-small fw-bold">Ref. Doctor: Dr. {{ req.appointment.doctor.full_name }}</div>
-                    <div class="x-small text-muted">Sample: {{ req.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
-                    <div class="x-small text-muted">Result: {{ req.updated_at.strftime('%d/%m/%Y %H:%M') }}</div>
+                <div>
+                    <div class="label">Referring Doctor</div>
+                    <div class="value">Dr. {{ req.appointment.doctor.full_name }}</div>
+                    <div class="sub">{{ req.appointment.doctor.specialization or 'General' }}</div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Test Name -->
-        <div class="mb-2 ps-1">
-            <h5 class="fw-800 text-info mb-0"><i class="fa fa-microscope me-2"></i>{{ req.test_name }}</h5>
-        </div>
-
-        <!-- Results Content -->
-        <div class="result-box position-relative">
-            <div style="white-space: pre-wrap;">{{ req.result }}</div>
-        </div>
-
-        <!-- Signatures -->
-        <div class="row mt-4 pt-2">
-            <div class="col-6 text-center">
-                <div class="pt-2 border-top mx-auto" style="width: 150px;">
-                    <div class="x-small fw-bold">Reported By</div>
-                    <div class="text-muted x-small">Lab Technician</div>
+                <div class="text-end">
+                    <div class="label">Sample Collected</div>
+                    <div class="value">{{ req.created_at.strftime('%d/%m/%Y') }}</div>
+                    <div class="sub">{{ req.created_at.strftime('%H:%M') }}</div>
+                </div>
+                <div class="text-end">
+                    <div class="label">Report Generated</div>
+                    <div class="value">{{ req.updated_at.strftime('%d/%m/%Y') }}</div>
+                    <div class="sub">{{ req.updated_at.strftime('%H:%M') }}</div>
                 </div>
             </div>
-            <div class="col-6 text-center">
-                <div class="pt-2 border-top mx-auto" style="width: 150px;">
-                    <div class="x-small fw-bold">Verified By</div>
-                    <div class="text-muted x-small">Head of Lab</div>
+
+            <!-- ─── Test Name ─── -->
+            <div class="test-title">
+                <div class="icon-wrap"><i class="fas fa-microscope"></i></div>
+                <div>
+                    <h5>{{ req.test_name }}</h5>
+                </div>
+                <span class="badge-status">Completed</span>
+            </div>
+
+            <!-- ─── Results: Render as Table if key:value lines, else free text ─── -->
+            {% set result_text = req.result or '' %}
+            {% set lines = result_text.split('\n') %}
+            {% set has_structured = namespace(value=false) %}
+            {% set interpretation = namespace(text='') %}
+
+            {% for line in lines %}
+                {% if ':' in line and not line.startswith('---') %}
+                    {% set has_structured.value = true %}
+                {% endif %}
+                {% if '--- INTERPRETATION ---' in line %}
+                    {% set interpretation.text = result_text.split('--- INTERPRETATION ---')[1] %}
+                {% endif %}
+            {% endfor %}
+
+            {% if has_structured.value %}
+            <div class="result-section">
+                <div class="result-section-header">
+                    <i class="fas fa-vials me-2"></i>Test Parameters & Results
+                </div>
+                <table class="result-table">
+                    {% for line in lines %}
+                        {% if line.strip() and ':' in line and not line.startswith('---') %}
+                        {% set parts = line.split(':', 1) %}
+                        <tr>
+                            <td class="param-name">{{ parts[0].strip() }}</td>
+                            <td class="param-value">{{ parts[1].strip() if parts|length > 1 else '—' }}</td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </div>
+
+            {% if interpretation.text.strip() %}
+            <div class="remarks-box">
+                <div class="remarks-label"><i class="fas fa-comment-medical me-1"></i>Clinical Interpretation</div>
+                {{ interpretation.text.strip() }}
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="result-section">
+                <div class="result-section-header">
+                    <i class="fas fa-file-medical me-2"></i>Diagnostic Findings
+                </div>
+                <div class="result-free-text">{{ result_text or 'No findings recorded.' }}</div>
+            </div>
+            {% endif %}
+
+            <!-- ─── Signatures ─── -->
+            <div class="sig-row">
+                <div class="sig-block">
+                    <div class="sig-line">
+                        <div class="sig-title">
+                            {% if req.technician %}{{ req.technician.name }}{% else %}Lab Technician{% endif %}
+                        </div>
+                        <div class="sig-sub">Reported By</div>
+                    </div>
+                </div>
+                <div class="sig-block">
+                    <div class="sig-line">
+                        <div class="sig-title">Head of Laboratory</div>
+                        <div class="sig-sub">Verified By</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Static Footer -->
-        <div class="mt-4 pt-4 text-center text-muted x-small opacity-50 border-top">
-            <p class="mb-0">This document is a formal medical record. Any alteration voids the report.</p>
-            <p class="x-small">Verified at: www.rayshms.com/verify/{{ req.id }}</p>
+            <!-- ─── Footer ─── -->
+            <div class="report-footer">
+                <p class="mb-0">This document is an official medical record. Any alteration renders it void.</p>
+                <p class="mb-0">Generated by Rays HMS &nbsp;|&nbsp; REQ-{{ '%04d'|format(req.id) }} &nbsp;|&nbsp; {{ req.updated_at.strftime('%d %b %Y, %H:%M') }}</p>
+            </div>
         </div>
     </div>
+
+    <script>
+        // Auto-print if arriving from "Save & Print"
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('autoprint') === '1') {
+            window.onload = () => setTimeout(() => window.print(), 600);
+        }
+    </script>
 </body>
 </html>

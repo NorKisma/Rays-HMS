@@ -17,9 +17,11 @@ class Appointment(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     diagnosis = db.Column(db.Text)
     prescription = db.Column(db.Text)
     notes = db.Column(db.Text)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     
     patient = db.relationship("Patient", backref=db.backref("appointments", lazy=True))
     doctor = db.relationship("Doctor", backref=db.backref("appointments", lazy=True))
+    user = db.relationship("User", backref=db.backref("appointments", lazy=True))
     
     def __repr__(self):
         return f"<Appointment {self.appointment_number} - Patient {self.patient_id}>"

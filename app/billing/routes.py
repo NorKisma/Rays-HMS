@@ -6,6 +6,7 @@ from app.decorators import permission_required
 from app.extensions import db
 from . import bp
 from app.models import Billing, BillingItem, Patient, Appointment, Account, JournalEntry, JournalItem, SystemSetting
+from app.models.lab import LabTest
 from flask_login import current_user
 from datetime import datetime
 from .forms import BillingForm
@@ -20,6 +21,9 @@ def _get_service_prices() -> dict[str, float]:
         'Computer Service': Decimal('10.00'),
         'Laboratory': Decimal('15.00'),
         'Ultrasound': Decimal('20.00'),
+        'Card_General': Decimal('3.00'),
+        'Card_Specialist': Decimal('10.00'),
+        'Card_Emergency': Decimal('5.00'),
         'Other': Decimal('0.00'),
     }
 
@@ -42,7 +46,7 @@ def get_patient_appointments():
     if not patient_id:
         return jsonify({'appointments': []})
     
-    appointments = Appointment.query.filter_by(patient_id=patient_id).order_by(Appointment.created_at.desc()).all()
+    appointments = Appointment.query.filter_by(patient_id=patient_id, hospital_id=current_user.hospital_id).order_by(Appointment.created_at.desc()).all()
     result = []
     for apt in appointments:
         result.append({
@@ -56,7 +60,21 @@ def get_patient_appointments():
 @login_required
 @permission_required('view_billing')
 def index():
-    billings = Billing.query.filter_by(is_deleted=False).order_by(Billing.created_at.desc()).all()
+    role_name = current_user.role.name.lower() if current_user.role else ''
+    # Admin, accountant, manager, doctor see all billings; receptionist sees only their own
+    privileged_roles = ['admin', 'manager', 'accountant', 'xisabiye', 'developer', 'doctor']
+    if role_name in privileged_roles:
+        billings = Billing.query.filter_by(
+            is_deleted=False,
+            hospital_id=current_user.hospital_id
+        ).order_by(Billing.created_at.desc()).all()
+    else:
+        # Receptionist / other staff: show only their own invoices (today and all time)
+        billings = Billing.query.filter_by(
+            is_deleted=False,
+            hospital_id=current_user.hospital_id,
+            user_id=current_user.id
+        ).order_by(Billing.created_at.desc()).all()
     return render_template('billing/index.html', billings=billings)
 
 @bp.route('/create', methods=['GET', 'POST'])
@@ -67,9 +85,9 @@ def create():
 
     # Resolve standard prices from settings so everything stays in sync
     service_prices = _get_service_prices()
-    form.patient_id.choices = [(p.id, f"{p.first_name} {p.last_name}") for p in Patient.query.all()]
+    form.patient_id.choices = [(p.id, f"{p.first_name} {p.last_name}") for p in Patient.query.filter_by(hospital_id=current_user.hospital_id).all()]
     form.appointment_id.choices = [(0, 'None')] + [
-        (a.id, f"{a.appointment_number} - {a.reason}") for a in Appointment.query.all()
+        (a.id, f"{a.appointment_number} - {a.reason}") for a in Appointment.query.filter_by(hospital_id=current_user.hospital_id).all()
     ]
 
     # Refresh service type labels with the current prices
@@ -78,8 +96,19 @@ def create():
         'Computer Service': 'Computer Service (Adeegga Computer-ka)',
         'Laboratory': 'Laboratory (Shaybaarka)',
         'Ultrasound': 'Ultrasound (Raajo)',
+        'Card_General': 'General Card (Kaarka Caadiga ah)',
+        'Card_Specialist': 'Specialist Card (Kaarka Khaska ah)',
+        'Card_Emergency': 'Emergency Card (Kaarka Degdegga ah)',
         'Other': 'Other (Kuwa Kale)',
     }
+    
+    # Dynamically add Lab Tests to the choices
+    lab_tests = LabTest.query.filter_by(is_deleted=False, hospital_id=current_user.hospital_id).all()
+    for test in lab_tests:
+        code_name = f"LabTest_{test.id}"
+        base_labels[code_name] = f"Lab: {test.name}"
+        service_prices[code_name] = float(test.price)
+
     form.service_types.choices = [
         (code, f"{label} - ${service_prices.get(code, 0):.2f}")
         for code, label in base_labels.items()
@@ -112,7 +141,9 @@ def create():
             paid_amount=form.paid_amount.data,
             balance_amount=balance,
             payment_status=form.payment_status.data,
-            payment_method=form.payment_method.data
+            payment_method=form.payment_method.data,
+            hospital_id=current_user.hospital_id,
+            user_id=current_user.id
         )
         db.session.add(billing)
         db.session.flush()

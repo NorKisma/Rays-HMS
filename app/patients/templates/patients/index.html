@@ -98,6 +98,10 @@
                                         class="btn btn-sm btn-white border shadow-sm rounded-3" title="View Chart">
                                         <i class="fa fa-eye text-primary"></i>
                                     </a>
+                                    <a href="{{ url_for('patients.checkin', patient_id=patient.id) }}"
+                                        class="btn btn-sm btn-primary shadow-sm rounded-3 text-white" title="Meeleyso Kaar / Check-In">
+                                        <i class="fa fa-user-clock text-white"></i>
+                                    </a>
                                     <a href="{{ url_for('patients.edit', id=patient.id) }}"
                                         class="btn btn-sm btn-white border shadow-sm rounded-3" title="Modify Record">
                                         <i class="fa fa-edit text-muted"></i>

@@ -15,6 +15,8 @@ class Doctor(db.Model, SoftDeleteMixin, TimestampMixin, MultiTenantMixin):
     email = db.Column(db.String(120), unique=True)
     consultation_fee = db.Column(db.Numeric(10, 2))
     availability_status = db.Column(db.String(20), default='available') # available, busy, on_leave
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    user = db.relationship('User', backref=db.backref('staff_profile', uselist=False))
     
     def __repr__(self):
         return f"<Doctor {self.first_name} {self.last_name} ({self.specialization})>"

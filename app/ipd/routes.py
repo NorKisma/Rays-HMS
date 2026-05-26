@@ -21,7 +21,7 @@ def ward_details(id):
 @login_required
 def admissions():
     active_admissions = Admission.query.filter_by(status='admitted').all()
-    return render_template('ipd/admissions.html', admissions=active_admissions)
+    return render_template('ipd/admissions.html', admissions=active_admissions, now=datetime.utcnow())
 
 @bp.route('/admission/new', methods=['GET', 'POST'])
 @login_required

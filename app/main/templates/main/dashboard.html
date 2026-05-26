@@ -2,33 +2,141 @@
 
 {% block title %}{{ _("Insights") }} - Rays HMS{% endblock %}
 
+{% block head %}
+<!-- High-fidelity custom styles for charts, live status feeds and dark mode transition -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<style>
+    /* Premium visual enhancements */
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+    .stat-card {
+        border-radius: 16px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+    }
+    .bg-navy {
+        background-color: #0f172a !important;
+    }
+    .avatar-sm {
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+    /* Pulsing keyframes for live status indicator */
+    .live-dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--bs-success);
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 8px var(--bs-success);
+        animation: pulseLive 2s infinite;
+    }
+    @keyframes pulseLive {
+        0% { transform: scale(0.95); opacity: 0.8; }
+        50% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 12px var(--bs-success); }
+        100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    /* Loading Skeleton styles */
+    .skeleton-text {
+        height: 24px;
+        background: rgba(0,0,0,0.06);
+        border-radius: 4px;
+        animation: skeleton-loading 1.2s infinite ease-in-out;
+    }
+    .skeleton-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.06);
+        animation: skeleton-loading 1.2s infinite ease-in-out;
+    }
+    [data-theme="dark"] .skeleton-text,
+    [data-theme="dark"] .skeleton-circle {
+        background: rgba(255,255,255,0.06);
+    }
+    @keyframes skeleton-loading {
+        0% { opacity: 0.6; }
+        50% { opacity: 0.3; }
+        100% { opacity: 0.6; }
+    }
+    /* Activity Feed Styles */
+    .activity-feed-item {
+        border-left: 2px solid rgba(0,0,0,0.08);
+        padding-left: 20px;
+        position: relative;
+        padding-bottom: 15px;
+    }
+    [data-theme="dark"] .activity-feed-item {
+        border-left-color: rgba(255,255,255,0.08);
+    }
+    .activity-feed-item:last-child {
+        padding-bottom: 0;
+        border-left-color: transparent;
+    }
+    .activity-feed-icon {
+        position: absolute;
+        left: -11px;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        background: var(--bg-dark);
+        border: 2px solid currentColor;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid px-0">
     <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-end mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
             <h2 class="fw-bold mb-1">{{ _('Operational Insights') }}</h2>
-            <p class="text-muted mb-0">{{ _('Welcome back') }}, {{ user.name }}. {{ _('Here is what\'s happening
-                today.') }}</p>
+            <p class="text-muted mb-0">
+                {{ _('Welcome back') }}, {{ user.name }}. 
+                <span class="d-inline-flex align-items-center gap-2 ms-1">
+                    <span class="live-dot"></span>
+                    <small class="text-success fw-semibold" style="letter-spacing: 0.5px;">{{ _('Connected to Live Clinic OS') }}</small>
+                </span>
+            </p>
         </div>
         <div class="d-flex gap-2">
-            <button class="btn btn-white border shadow-sm btn-sm px-3"><i class="fa fa-download me-2"></i>
-                {{ _('Report') }}</button>
-            <button class="btn btn-primary btn-sm px-4 shadow">{{ _('Refresh Data') }}</button>
+            <button id="btn-export-report" class="btn btn-white border shadow-sm btn-sm px-3">
+                <i class="fa fa-download me-2"></i>{{ _('Report') }}
+            </button>
+            <button id="btn-refresh" class="btn btn-primary btn-sm px-4 shadow">
+                <i class="fa fa-refresh me-2 spinner-icon d-none"></i>{{ _('Refresh Data') }}
+            </button>
         </div>
     </div>
 
     <!-- Stats Grid -->
-    <div class="row g-4 mb-5">
+    <div class="row g-4 mb-4">
         <!-- Patients -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 border-top border-4 border-primary shadow-sm h-100">
-                <div class="card-body stat-card p-4">
+            <div class="card border-0 border-top border-4 border-primary shadow-sm h-100 stat-card">
+                <div class="card-body p-4 d-flex align-items-center justify-content-between">
                     <div>
                         <small class="text-muted text-uppercase d-block mb-1">{{ _('Registered Patients') }}</small>
-                        <h3 class="fw-bold mb-0 text-primary">{{ total_patients or 0 }}</h3>
+                        <h3 id="stat-total-patients" class="fw-bold mb-0 text-primary">
+                            <div class="skeleton-text" style="width: 60px;"></div>
+                        </h3>
                     </div>
-                    <div class="stat-icon bg-primary-soft text-primary">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
                         <i class="fa fa-user-injured"></i>
                     </div>
                 </div>
@@ -36,13 +144,15 @@
         </div>
         <!-- Doctors -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 border-top border-4 border-success shadow-sm h-100">
-                <div class="card-body stat-card p-4">
+            <div class="card border-0 border-top border-4 border-success shadow-sm h-100 stat-card">
+                <div class="card-body p-4 d-flex align-items-center justify-content-between">
                     <div>
                         <small class="text-muted text-uppercase d-block mb-1">{{ _('Active Staff') }}</small>
-                        <h3 class="fw-bold mb-0 text-success">{{ total_doctors or 0 }}</h3>
+                        <h3 id="stat-total-doctors" class="fw-bold mb-0 text-success">
+                            <div class="skeleton-text" style="width: 60px;"></div>
+                        </h3>
                     </div>
-                    <div class="stat-icon bg-success-soft text-success">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success">
                         <i class="fa fa-user-md"></i>
                     </div>
                 </div>
@@ -50,13 +160,15 @@
         </div>
         <!-- Appointments -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 border-top border-4 border-info shadow-sm h-100">
-                <div class="card-body stat-card p-4">
+            <div class="card border-0 border-top border-4 border-info shadow-sm h-100 stat-card">
+                <div class="card-body p-4 d-flex align-items-center justify-content-between">
                     <div>
-                        <small class="text-muted text-uppercase d-block mb-1">{{ _('Today\'s Schedule') }}</small>
-                        <h3 class="fw-bold mb-0 text-info">{{ pending_appointments or 0 }}</h3>
+                        <small class="text-muted text-uppercase d-block mb-1">{{ _("Today's Schedule") }}</small>
+                        <h3 id="stat-pending-appointments" class="fw-bold mb-0 text-info">
+                            <div class="skeleton-text" style="width: 60px;"></div>
+                        </h3>
                     </div>
-                    <div class="stat-icon bg-info-soft text-info">
+                    <div class="stat-icon bg-info bg-opacity-10 text-info">
                         <i class="fa fa-calendar-check"></i>
                     </div>
                 </div>
@@ -64,13 +176,15 @@
         </div>
         <!-- Revenue/Unpaid -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 border-top border-4 border-warning shadow-sm h-100">
-                <div class="card-body stat-card p-4 text-nowrap">
+            <div class="card border-0 border-top border-4 border-warning shadow-sm h-100 stat-card">
+                <div class="card-body p-4 d-flex align-items-center justify-content-between">
                     <div>
                         <small class="text-muted text-uppercase d-block mb-1">{{ _('Unpaid Billings') }}</small>
-                        <h3 class="fw-bold mb-0 text-warning">{{ unpaid_bills or 0 }}</h3>
+                        <h3 id="stat-unpaid-bills" class="fw-bold mb-0 text-warning">
+                            <div class="skeleton-text" style="width: 60px;"></div>
+                        </h3>
                     </div>
-                    <div class="stat-icon bg-warning-soft text-warning">
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning">
                         <i class="fa fa-receipt"></i>
                     </div>
                 </div>
@@ -79,41 +193,85 @@
     </div>
 
     <!-- Active Medical Hub Stats -->
-    <div class="row g-4 mb-5">
+    <div class="row g-4 mb-4">
+        <!-- Emergency Triage -->
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm bg-danger text-white rounded-4 overflow-hidden">
+            <div class="card border-0 shadow-sm bg-danger text-white rounded-4 overflow-hidden stat-card">
                 <div class="card-body p-4 d-flex align-items-center">
                     <div class="stat-icon bg-white bg-opacity-25 text-white me-4"
                         style="width: 60px; height: 60px; font-size: 1.8rem;">
                         <i class="fa fa-ambulance"></i>
                     </div>
                     <div>
-                        <h2 class="fw-bold mb-0">{{ emergency_queue or 0 }}</h2>
-                        <span class="text-white-50 text-uppercase small fw-bold" style="letter-spacing: 1px;">{{
-                            _('Emergency Triage Queue') }}</span>
+                        <h2 id="stat-emergency-queue" class="fw-bold mb-0">
+                            <div class="skeleton-text" style="width: 40px; background: rgba(255,255,255,0.3);"></div>
+                        </h2>
+                        <span class="text-white-50 text-uppercase small fw-bold" style="letter-spacing: 1px;">
+                            {{ _('Emergency Triage Queue') }}
+                        </span>
                     </div>
                     <div class="ms-auto">
-                        <a href="{{ url_for('ipd.wards') }}" class="btn btn-light btn-sm rounded-pill px-3 fw-bold">{{
-                            _('Manage Hub') }}</a>
+                        <a href="{{ url_for('clinical.queue') }}" class="btn btn-light btn-sm rounded-pill px-3 fw-bold">
+                            {{ _('Manage Hub') }}
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- Admissions -->
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm bg-navy text-white rounded-4 overflow-hidden">
+            <div class="card border-0 shadow-sm bg-navy text-white rounded-4 overflow-hidden stat-card">
                 <div class="card-body p-4 d-flex align-items-center">
                     <div class="stat-icon bg-white bg-opacity-25 text-white me-4"
                         style="width: 60px; height: 60px; font-size: 1.8rem;">
                         <i class="fa fa-procedures"></i>
                     </div>
                     <div>
-                        <h2 class="fw-bold mb-0">{{ active_admissions or 0 }}</h2>
-                        <span class="text-white-50 text-uppercase small fw-bold" style="letter-spacing: 1px;">{{
-                            _('In-Patient Admissions') }}</span>
+                        <h2 id="stat-active-admissions" class="fw-bold mb-0">
+                            <div class="skeleton-text" style="width: 40px; background: rgba(255,255,255,0.3);"></div>
+                        </h2>
+                        <span class="text-white-50 text-uppercase small fw-bold" style="letter-spacing: 1px;">
+                            {{ _('In-Patient Admissions') }}
+                        </span>
                     </div>
                     <div class="ms-auto">
-                        <a href="{{ url_for('ipd.admissions') }}"
-                            class="btn btn-light btn-sm rounded-pill px-3 fw-bold">{{ _('Live Grid') }}</a>
+                        <a href="{{ url_for('ipd.admissions') }}" class="btn btn-light btn-sm rounded-pill px-3 fw-bold">
+                            {{ _('Live Grid') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Premium Charts Row -->
+    <div class="row g-4 mb-4">
+        <!-- Revenue line chart -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-surface py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="fa fa-chart-line text-primary me-2"></i>{{ _('Revenue Analytics') }}</h5>
+                    <span class="badge bg-primary-soft text-primary rounded-pill">{{ _('Last 6 Months') }}</span>
+                </div>
+                <div class="card-body p-4">
+                    <div style="height: 320px; position: relative;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Department Load (clinical distribution) -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-surface py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fa fa-chart-pie text-success me-2"></i>{{ _('Clinical Load') }}</h5>
+                </div>
+                <div class="card-body p-4 d-flex flex-column justify-content-center">
+                    <div style="height: 240px; position: relative;" class="mx-auto w-100">
+                        <canvas id="deptLoadChart"></canvas>
+                    </div>
+                    <div id="dept-load-legend" class="mt-3 small d-flex flex-wrap gap-2 justify-content-center">
+                        <!-- Filled dynamically -->
                     </div>
                 </div>
             </div>
@@ -123,11 +281,12 @@
     <div class="row g-4">
         <!-- Recent Patients Table -->
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card border-0 shadow-sm overflow-hidden h-100">
                 <div class="card-header bg-surface py-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-bold">{{ _('Recent Registrations') }}</h5>
-                    <a href="{{ url_for('patients.index') }}" class="btn btn-link btn-sm text-decoration-none">{{
-                        _('View Registry') }}</a>
+                    <a href="{{ url_for('patients.index') }}" class="btn btn-link btn-sm text-decoration-none">
+                        {{ _('View Registry') }}
+                    </a>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -141,38 +300,32 @@
                                     <th class="text-end pe-4">{{ _('Action') }}</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {% for patient in recent_patients %}
+                            <tbody id="recent-patients-table-body">
+                                <!-- Skeleton rows loaded by default -->
                                 <tr>
                                     <td class="ps-4 py-3">
                                         <div class="d-flex align-items-center">
-                                            <div class="avatar-sm bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                style="width: 32px; height: 32px; font-weight: bold; font-size: 0.75rem;">
-                                                {{ patient.first_name[0] }}{{ patient.last_name[0] }}
-                                            </div>
-                                            <div class="small">{{ patient.first_name }} {{ patient.last_name }}
-                                            </div>
+                                            <div class="skeleton-circle me-3"></div>
+                                            <div class="skeleton-text" style="width: 120px;"></div>
                                         </div>
                                     </td>
-                                    <td><code
-                                            class="small text-primary bg-primary-soft px-2 py-1 rounded">{{ patient.patient_id }}</code>
-                                    </td>
-                                    <td><span class="small text-muted">{{ patient.phone or '--' }}</span></td>
-                                    <td><small>{{ patient.created_at.strftime('%d %b %Y') }}</small></td>
-                                    <td class="text-end pe-4">
-                                        <a href="{{ url_for('patients.view', id=patient.id) }}"
-                                            class="btn btn-sm btn-surface border rounded-circle shadow-sm">
-                                            <i class="fa fa-chevron-right text-muted" style="font-size: 0.7rem;"></i>
-                                        </a>
-                                    </td>
+                                    <td><div class="skeleton-text" style="width: 80px;"></div></td>
+                                    <td><div class="skeleton-text" style="width: 100px;"></div></td>
+                                    <td><div class="skeleton-text" style="width: 80px;"></div></td>
+                                    <td class="text-end pe-4"><div class="skeleton-circle ms-auto" style="width: 24px; height: 24px;"></div></td>
                                 </tr>
-                                {% endfor %}
-                                {% if not recent_patients %}
                                 <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">{{ _('No recent activity.') }}
+                                    <td class="ps-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="skeleton-circle me-3"></div>
+                                            <div class="skeleton-text" style="width: 120px;"></div>
+                                        </div>
                                     </td>
+                                    <td><div class="skeleton-text" style="width: 80px;"></div></td>
+                                    <td><div class="skeleton-text" style="width: 100px;"></div></td>
+                                    <td><div class="skeleton-text" style="width: 80px;"></div></td>
+                                    <td class="text-end pe-4"><div class="skeleton-circle ms-auto" style="width: 24px; height: 24px;"></div></td>
                                 </tr>
-                                {% endif %}
                             </tbody>
                         </table>
                     </div>
@@ -180,105 +333,374 @@
             </div>
         </div>
 
-        <!-- Inventory Watch -->
+        <!-- Rays HMS Watch & System Activity Logs -->
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-surface py-3">
+                <div class="card-header bg-surface py-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-bold">{{ _('Rays HMS Watch') }}</h5>
+                    <span class="badge bg-secondary bg-opacity-10 text-muted rounded-pill small">{{ _('Live Logs') }}</span>
                 </div>
                 <div class="card-body">
-                    {% if low_stock > 0 %}
-                    <div class="alert alert-warning border-0 bg-warning-soft p-3 mb-3 d-flex align-items-center">
+                    <!-- Dynamic Alerts -->
+                    <div id="watch-low-stock-alert" class="alert alert-warning border-0 bg-warning-soft p-3 mb-3 d-none align-items-center">
                         <i class="fa fa-exclamation-triangle fa-2x me-3 opacity-50"></i>
                         <div>
                             <h6 class="fw-bold mb-1">{{ _('Critical Stock Level') }}</h6>
-                            <p class="small mb-0">{{ low_stock }} {{ _('items are below minimum threshold.') }} <a
-                                    href="{{ url_for('inventory.index') }}" class="fw-bold text-decoration-none">{{
-                                    _('Review') }}</a></p>
+                            <p class="small mb-0"><span id="watch-low-stock-count">0</span> {{ _('items are below minimum threshold.') }} 
+                                <a href="{{ url_for('inventory.index') }}" class="fw-bold text-decoration-none">{{ _('Review') }}</a>
+                            </p>
                         </div>
                     </div>
-                    {% endif %}
 
-                    {% if expiring_soon > 0 %}
-                    <div class="alert alert-danger border-0 bg-danger-soft p-3 mb-4 d-flex align-items-center">
+                    <div id="watch-expiry-alert" class="alert alert-danger border-0 bg-danger-soft p-3 mb-3 d-none align-items-center">
                         <i class="fa fa-clock fa-2x me-3 opacity-50"></i>
                         <div>
                             <h6 class="fw-bold mb-1">{{ _('Expiration Warning') }}</h6>
-                            <p class="small mb-0">{{ expiring_soon }} {{ _('batches expiring within 90 days.') }} <a
-                                    href="{{ url_for('inventory.index') }}" class="fw-bold text-decoration-none">{{
-                                    _('Action') }}</a></p>
+                            <p class="small mb-0"><span id="watch-expiry-count">0</span> {{ _('batches expiring within 90 days.') }} 
+                                <a href="{{ url_for('inventory.index') }}" class="fw-bold text-decoration-none">{{ _('Action') }}</a>
+                            </p>
                         </div>
                     </div>
-                    {% endif %}
 
-                    <div class="list-group list-group-flush">
-                        <div
-                            class="list-group-item px-0 py-3 border-0 d-flex justify-content-between align-items-center">
+                    <div class="list-group list-group-flush mb-4">
+                        <div class="list-group-item px-0 py-3 border-0 d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
-                                <div class="bg-info-soft p-2 rounded-3 me-3"><i class="fa fa-microscope text-info"></i>
-                                </div>
+                                <div class="bg-info-soft p-2 rounded-3 me-3"><i class="fa fa-microscope text-info"></i></div>
                                 <div>
                                     <h6 class="mb-0 fw-bold small">{{ _('Lab Analysis') }}</h6>
                                     <small class="text-muted">{{ _('Pending tests') }}</small>
                                 </div>
                             </div>
-                            <span class="badge bg-info-soft text-info rounded-pill">
-                                {{ lab_pending }} {{ _('Queued') }}
-                            </span>
-                        </div>
-                        <div
-                            class="list-group-item px-0 py-3 border-0 d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center">
-                                <div class="bg-primary-soft p-2 rounded-3 me-3"><i
-                                        class="fa fa-capsules text-primary"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 fw-bold small">{{ _('Drug Stock') }}</h6>
-                                    <small class="text-muted">{{ _('Managed items') }}</small>
-                                </div>
-                            </div>
-                            <span class="badge bg-primary-soft text-primary rounded-pill">{{ _('Healthy') }}</span>
+                            <span id="watch-lab-pending" class="badge bg-info-soft text-info rounded-pill">0 {{ _('Queued') }}</span>
                         </div>
                     </div>
 
-                    <div class="d-grid mt-4">
-                        <a href="{{ url_for('inventory.index') }}"
-                            class="btn btn-outline-primary btn-sm rounded-pill fw-bold">{{ _('Open Inventory Manager')
-                            }}</a>
+                    <hr class="my-3">
+
+                    <h6 class="fw-bold text-uppercase text-muted small mb-3" style="letter-spacing: 0.5px;">{{ _('Live Activity Feed') }}</h6>
+                    <div id="activity-feed-container" class="pe-1" style="max-height: 200px; overflow-y: auto;">
+                        <div class="py-3 text-center text-muted small">
+                            <i class="fa fa-spinner fa-spin me-2"></i>{{ _('Loading system logs...') }}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    /* Specific overrides for dashboard widgets if needed */
-    .stat-card {
-        border-radius: var(--radius);
-    }
-
-    .bg-danger-soft {
-        background-color: rgba(220, 53, 69, 0.1);
-    }
-
-    .bg-warning-soft {
-        background-color: rgba(255, 193, 7, 0.1);
-    }
-
-    .bg-info-soft {
-        background-color: rgba(13, 202, 240, 0.1);
-    }
-
-    .bg-primary-soft {
-        background-color: rgba(13, 110, 253, 0.1);
-    }
-
-    .bg-success-soft {
-        background-color: rgba(25, 135, 84, 0.1);
-    }
-</style>
 {% endblock %}
 
 {% block scripts %}
+<!-- Include Chart.js & our newly created REST API Service Layer -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/services/api.js') }}"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    // ----------------------------------------------------
+    // Chart Instance Variables
+    // ----------------------------------------------------
+    let revenueChartInstance = null;
+    let deptLoadChartInstance = null;
+
+    // Fetch theme status for charts (handling light vs dark backgrounds)
+    function isDarkTheme() {
+        return document.documentElement.getAttribute('data-theme') === 'dark';
+    }
+
+    // Helper to get grid/border colors suited for the current theme
+    function getThemeChartColors() {
+        const isDark = isDarkTheme();
+        return {
+            grid: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
+            text: isDark ? '#94a3b8' : '#64748b'
+        };
+    }
+
+    // ----------------------------------------------------
+    // Fetch and Populate Stats & Alerts
+    // ----------------------------------------------------
+    async function loadStats() {
+        const res = await RaysAPI.getDashboardStats();
+        if (!res || !res.success) return;
+
+        const data = res.data;
+
+        // Render numerical counts with transition animations
+        document.getElementById('stat-total-patients').innerText = data.total_patients;
+        document.getElementById('stat-total-doctors').innerText = data.total_doctors;
+        document.getElementById('stat-pending-appointments').innerText = data.pending_appointments;
+        document.getElementById('stat-unpaid-bills').innerText = data.unpaid_bills;
+
+        // Update hub emergency & admission figures
+        document.getElementById('stat-emergency-queue').innerText = data.emergency_queue;
+        document.getElementById('stat-active-admissions').innerText = data.active_admissions;
+
+        // Lab Queue
+        document.getElementById('watch-lab-pending').innerText = `${data.lab_pending} {{ _('Queued') }}`;
+
+        // Toggle alerts for critical levels
+        const lowStockAlert = document.getElementById('watch-low-stock-alert');
+        if (data.low_stock > 0) {
+            document.getElementById('watch-low-stock-count').innerText = data.low_stock;
+            lowStockAlert.classList.remove('d-none');
+            lowStockAlert.classList.add('d-flex');
+        } else {
+            lowStockAlert.classList.remove('d-flex');
+            lowStockAlert.classList.add('d-none');
+        }
+
+        const expiryAlert = document.getElementById('watch-expiry-alert');
+        if (data.expiring_soon > 0) {
+            document.getElementById('watch-expiry-count').innerText = data.expiring_soon;
+            expiryAlert.classList.remove('d-none');
+            expiryAlert.classList.add('d-flex');
+        } else {
+            expiryAlert.classList.remove('d-flex');
+            expiryAlert.classList.add('d-none');
+        }
+    }
+
+    // ----------------------------------------------------
+    // Fetch and Populate Recent Patient Registration Grid
+    // ----------------------------------------------------
+    async function loadRecentPatients() {
+        const res = await RaysAPI.getRecentPatients();
+        const tbody = document.getElementById('recent-patients-table-body');
+        if (!tbody) return;
+
+        if (!res || !res.success || !res.data || res.data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-muted">{{ _('No recent activity.') }}</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        res.data.forEach(p => {
+            html += `
+            <tr>
+                <td class="ps-4 py-3">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3"
+                            style="width: 32px; height: 32px; font-weight: bold; font-size: 0.75rem;">
+                            ${p.initials}
+                        </div>
+                        <div class="small fw-semibold text-heading">${p.first_name} ${p.last_name}</div>
+                    </div>
+                </td>
+                <td><code class="small text-primary bg-primary bg-opacity-10 px-2 py-1 rounded">${p.patient_id}</code></td>
+                <td><span class="small text-muted">${p.phone}</span></td>
+                <td><small class="text-muted">${p.created_at}</small></td>
+                <td class="text-end pe-4">
+                    <a href="/patients/view/${p.id}" class="btn btn-sm btn-light border rounded-circle shadow-sm">
+                        <i class="fa fa-chevron-right text-muted" style="font-size: 0.7rem;"></i>
+                    </a>
+                </td>
+            </tr>`;
+        });
+
+        tbody.innerHTML = html;
+    }
+
+    // ----------------------------------------------------
+    // Fetch and Populate System Activity Feed
+    // ----------------------------------------------------
+    async function loadActivityFeed() {
+        const res = await RaysAPI.getActivityFeed();
+        const container = document.getElementById('activity-feed-container');
+        if (!container) return;
+
+        if (!res || !res.success || !res.data || res.data.length === 0) {
+            container.innerHTML = `<div class="py-3 text-center text-muted small">{{ _('No recent actions.') }}</div>`;
+            return;
+        }
+
+        let html = '';
+        res.data.forEach(item => {
+            html += `
+            <div class="activity-feed-item text-${item.color}">
+                <div class="activity-feed-icon">
+                    <i class="fa ${item.icon}"></i>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="small fw-semibold text-heading">${item.message}</span>
+                    <small class="text-muted px-2" style="font-size: 0.7rem;">${item.time}</small>
+                </div>
+            </div>`;
+        });
+
+        container.innerHTML = html;
+    }
+
+    // ----------------------------------------------------
+    // Chart Render Functions
+    // ----------------------------------------------------
+    async function renderRevenueChart() {
+        const res = await RaysAPI.getRevenueChart();
+        const ctx = document.getElementById('revenueChart');
+        if (!ctx || !res || !res.success) return;
+
+        const colors = getThemeChartColors();
+
+        if (revenueChartInstance) {
+            revenueChartInstance.destroy();
+        }
+
+        revenueChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: res.data.labels,
+                datasets: [{
+                    label: "{{ _('Revenue') }}",
+                    data: res.data.values,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#3b82f6',
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { color: colors.grid },
+                        ticks: { color: colors.text, font: { family: 'Outfit' } }
+                    },
+                    y: {
+                        grid: { color: colors.grid },
+                        ticks: { color: colors.text, font: { family: 'Outfit' } }
+                    }
+                }
+            }
+        });
+    }
+
+    async function renderDeptLoadChart() {
+        const res = await RaysAPI.getDepartmentLoad();
+        const ctx = document.getElementById('deptLoadChart');
+        if (!ctx || !res || !res.success) return;
+
+        if (deptLoadChartInstance) {
+            deptLoadChartInstance.destroy();
+        }
+
+        const backgroundColors = [
+            '#00d2ff', // cyan
+            '#ff9f43', // orange
+            '#10b981', // green
+            '#a855f7', // purple
+            '#f43f5e', // rose
+            '#3b82f6'  // blue
+        ];
+
+        deptLoadChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: res.data.labels,
+                datasets: [{
+                    data: res.data.values,
+                    backgroundColor: backgroundColors.slice(0, res.data.labels.length),
+                    borderWidth: isDarkTheme() ? 3 : 2,
+                    borderColor: isDarkTheme() ? '#1e293b' : '#ffffff',
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // Generate Custom Legend
+        const legendContainer = document.getElementById('dept-load-legend');
+        if (legendContainer) {
+            let legendHtml = '';
+            res.data.labels.forEach((label, idx) => {
+                const color = backgroundColors[idx % backgroundColors.length];
+                const count = res.data.values[idx];
+                legendHtml += `
+                <span class="d-inline-flex align-items-center gap-1 bg-light px-2 py-1 rounded border small" style="font-size: 0.75rem;">
+                    <span style="width:8px; height:8px; border-radius:50%; background-color:${color}; display:inline-block;"></span>
+                    <span class="text-muted">${label}: <strong>${count}</strong></span>
+                </span>`;
+            });
+            legendContainer.innerHTML = legendHtml;
+        }
+    }
+
+    // ----------------------------------------------------
+    // Universal Orchestrated Loader
+    // ----------------------------------------------------
+    async function loadAllDashboardData() {
+        const refreshBtn = document.getElementById('btn-refresh');
+        const spinner = refreshBtn ? refreshBtn.querySelector('.spinner-icon') : null;
+
+        if (spinner) {
+            spinner.classList.remove('d-none');
+            spinner.classList.add('fa-spin');
+        }
+
+        try {
+            await Promise.all([
+                loadStats(),
+                loadRecentPatients(),
+                loadActivityFeed(),
+                renderRevenueChart(),
+                renderDeptLoadChart()
+            ]);
+        } catch (e) {
+            console.error("Failed to load dashboard operational grid:", e);
+        } finally {
+            if (spinner) {
+                spinner.classList.add('d-none');
+                spinner.classList.remove('fa-spin');
+            }
+        }
+    }
+
+    // ----------------------------------------------------
+    // Event Hookups and Setup
+    // ----------------------------------------------------
+    // Hook manual refresh button
+    const refreshBtn = document.getElementById('btn-refresh');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', loadAllDashboardData);
+    }
+
+    // Hook theme toggle listener to rebuild charts with correct colors
+    const themeBtn = document.getElementById('themeToggle');
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            // Re-render charts with slight delay to capture correct data-theme status
+            setTimeout(() => {
+                renderRevenueChart();
+                renderDeptLoadChart();
+            }, 100);
+        });
+    }
+
+    // Trigger Initial Load
+    loadAllDashboardData();
+
+    // ----------------------------------------------------
+    // Background Polling (Real-time update cycle: 15s)
+    // ----------------------------------------------------
+    setInterval(() => {
+        // Run silent updates in the background (no visible loaders)
+        loadStats();
+        loadRecentPatients();
+        loadActivityFeed();
+    }, 15000);
+});
+</script>
 {% endblock %}

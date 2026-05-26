@@ -52,10 +52,14 @@
                                             {% elif code == 'Laboratory' %}<i class="fa fa-flask fa-lg"></i>
                                             {% elif code == 'Ultrasound' %}<i class="fa fa-x-ray fa-lg"></i>
                                             {% elif code == 'Computer Service' %}<i class="fa fa-laptop-medical fa-lg"></i>
+                                            {% elif code == 'Card_General' %}<i class="fa fa-id-card fa-lg"></i>
+                                            {% elif code == 'Card_Specialist' %}<i class="fa fa-id-card-alt fa-lg text-primary"></i>
+                                            {% elif code == 'Card_Emergency' %}<i class="fa fa-id-card-alt fa-lg text-danger"></i>
+                                            {% elif code.startswith('LabTest_') %}<i class="fa fa-vial fa-lg text-info"></i>
                                             {% else %}<i class="fa fa-pills fa-lg"></i>{% endif %}
                                         </div>
-                                        <div class="fw-bold small">{{ label_with_price.split('-')[0] }}</div>
-                                        <div class="mt-auto text-primary fw-bold">{{ label_with_price.split('-')[1] }}</div>
+                                        <div class="fw-bold small">{{ label_with_price.split(' - $')[0] }}</div>
+                                        <div class="mt-auto text-primary fw-bold">${{ label_with_price.split(' - $')[1] }}</div>
                                     </div>
                                 </label>
                             </div>
@@ -140,6 +144,9 @@
             'Computer Service': {{ service_prices['Computer Service'] }},
             'Laboratory': {{ service_prices['Laboratory'] }},
             'Ultrasound': {{ service_prices['Ultrasound'] }},
+            'Card_General': {{ service_prices['Card_General'] }},
+            'Card_Specialist': {{ service_prices['Card_Specialist'] }},
+            'Card_Emergency': {{ service_prices['Card_Emergency'] }},
             'Other': {{ service_prices['Other'] }}
         };
 

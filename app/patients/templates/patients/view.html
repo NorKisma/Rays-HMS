@@ -32,6 +32,9 @@
                     <i class="fa fa-print me-2 text-primary"></i> {% if session.get('lang') == 'so' %}Daabac{% else %}Print Chart{%
                     endif %}
                 </a>
+                <a href="{{ url_for('patients.checkin', patient_id=patient.id) }}" class="btn btn-primary shadow text-white">
+                    <i class="fa fa-user-clock me-2 text-white"></i> {% if session.get('lang') == 'so' %}Meeleyso Kaar / Check-In{% else %}Check-In Patient{% endif %}
+                </a>
                 <a href="{{ url_for('patients.edit', id=patient.id) }}" class="btn btn-warning shadow">
                     <i class="fa fa-edit me-2 text-dark"></i> {% if session.get('lang') == 'so' %}Bedel{% else %}Edit Profile{%
                     endif %}

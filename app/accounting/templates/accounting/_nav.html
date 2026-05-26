@@ -1,0 +1,75 @@
+<!-- Accounting Module Navigation -->
+<div class="accounting-nav shadow-sm bg-white border-bottom mb-4">
+    <div class="container-fluid px-4">
+        <ul class="nav nav-tabs border-0 align-items-center py-2" style="gap: 15px;">
+            <!-- App Logo/Header -->
+            <li class="nav-item me-3">
+                <div class="d-flex align-items-center px-3 py-2 rounded-3 text-white" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); font-weight: 800; font-size: 1rem;">
+                    <i class="fa fa-calculator me-2"></i> Accounting
+                </div>
+            </li>
+            
+            <li class="nav-item border-start" style="height: 30px;"></li>
+            
+            <!-- Nav Links -->
+            <li class="nav-item ms-3">
+                <a class="nav-link fw-bold border-0 px-3 py-2 {{ 'active-tab' if request.endpoint == 'accounting.dashboard' else 'text-muted' }}" href="{{ url_for('accounting.dashboard') }}">
+                    <i class="fa fa-gauge me-1"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-bold border-0 px-3 py-2 {{ 'active-tab' if request.endpoint == 'accounting.chart_of_accounts' else 'text-muted' }}" href="{{ url_for('accounting.chart_of_accounts') }}">
+                    <i class="fa fa-sitemap me-1"></i> Chart of Accounts
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-bold border-0 px-3 py-2 {{ 'active-tab' if request.endpoint == 'accounting.create_journal_entry' else 'text-muted' }}" href="{{ url_for('accounting.create_journal_entry') }}">
+                    <i class="fa fa-book-journal-whills me-1"></i> Journal Entry
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-bold border-0 px-3 py-2 {{ 'active-tab' if request.endpoint == 'accounting.transfer' else 'text-muted' }}" href="{{ url_for('accounting.transfer') }}">
+                    <i class="fa fa-exchange-alt me-1"></i> Transfer
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-bold border-0 px-3 py-2 {{ 'active-tab' if request.endpoint == 'accounting.transactions' else 'text-muted' }}" href="{{ url_for('accounting.transactions') }}">
+                    <i class="fa fa-list me-1"></i> Transactions
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-bold border-0 px-3 py-2 {{ 'active-tab' if request.endpoint == 'accounting.budget' else 'text-muted' }}" href="{{ url_for('accounting.budget') }}">
+                    <i class="fa fa-wallet me-1"></i> Budget
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-bold border-0 px-3 py-2 {{ 'active-tab' if request.endpoint in ['accounting.profit_loss', 'accounting.balance_sheet'] else 'text-muted' }}" href="{{ url_for('accounting.profit_loss') }}">
+                    <i class="fa fa-chart-pie me-1"></i> Reports
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-bold border-0 px-3 py-2 text-muted" href="#">
+                    <i class="fa fa-cog me-1"></i> Settings
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<style>
+    .accounting-nav .nav-link {
+        color: #6c757d;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    .accounting-nav .nav-link:hover {
+        background-color: #f8f9fa;
+        color: #10b981;
+    }
+    .accounting-nav .active-tab {
+        color: #10b981 !important;
+        background-color: #ecfdf5;
+        border-bottom: 3px solid #10b981 !important;
+        border-radius: 8px 8px 0 0;
+    }
+</style>

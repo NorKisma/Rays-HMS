@@ -57,7 +57,7 @@
                             </td>
                             <td>
                                 <div class="small fw-bold">{{ adm.admission_date.strftime('%d %b, %Y') }}</div>
-                                <div class="text-muted" style="font-size: 11px;">{{ (datetime.utcnow() -
+                                <div class="text-muted" style="font-size: 11px;">{{ (now -
                                     adm.admission_date).days }} {{ _('Days Stayed') }}</div>
                             </td>
                             <td>
